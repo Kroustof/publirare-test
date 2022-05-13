@@ -81,7 +81,7 @@ function OKSDappProvider({ children }) {
   }, [isAuthenticated, user])
 
   return (
-    <OKSDappContext.Provider value={{ walletAddress, networkId, contractAddrs, setContractAddrs, contractABIs, setContractABIs, userId }}>
+    <OKSDappContext.Provider value={{ walletAddress, networkId, contractAddrs, setContractAddrs, contractABIs, setContractABIs, userId, isAuthenticated }}>
       {children}
     </OKSDappContext.Provider>
   )
