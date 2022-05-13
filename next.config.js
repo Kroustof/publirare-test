@@ -4,7 +4,7 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  i18n,
+  // i18n,
   webpack: (config) => {
     config.resolve.fallback = { 
       ...config.resolve.fallback,
