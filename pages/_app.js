@@ -4,13 +4,12 @@ import { MoralisProvider } from 'react-moralis'
 import { OKSDappProvider } from "../providers/OKSDappProvider/OKSDappProvider"
 
 
-const APP_ID = process.env.MORALIS_APP_ID;
-const SERVER_URL = process.env.MORALIS_SERVER_URL;
-console.log(APP_ID);
-console.log(SERVER_URL);
 
 function MyApp({ Component, pageProps }) {
-
+  
+  const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APP_ID;
+  const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
+  
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout || ((page) => page)
 
