@@ -4,28 +4,30 @@ import { Moralis } from 'moralis'
 import Image from 'next/image'
 import loader from '../../../public/loader2.gif'
 import { getEllipsisTxt } from "../../../helpers/formatters"
-import { ChipIcon, EyeIcon, EyeOffIcon } from "@heroicons/react/outline"
-import { useWeb3ExecuteFunction } from "react-moralis"
-import { useMoralisDapp } from '../../../providers/MoralisDappProvider/MoralisDappProvider'
-import WriteFunctionStore from "../../Functions/WriteFunctionStore"
+import { ChipIcon, DatabaseIcon, DocumentSearchIcon, EyeIcon, EyeOffIcon } from "@heroicons/react/outline"
+import FuncWriteWhitelistStore from "../../Functions/Store/FuncWriteWhitelistStore"
+import FuncReadWhitelistStore from "../../Functions/Store/FuncReadWhitelistStore"
+import FuncWriteWhitelistFactory from "../../Functions/Factory/FuncWriteWhitelistFactory"
+import FuncReadWhitelistFactory from "../../Functions/Factory/FuncReadWhitelistFactory"
 
 
 const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
 
-  //! Status = pending | confirmed | certified | rejected
+  //! Status = pending | confirmed | certified | rejected | banned
 
   const filters = [
     { id: 1, value: "isPending", label: "Pending", dataKey: "status", dataValue: "pending" },
     { id: 2, value: "isConfirmed", label: "Confirmed", dataKey: "status", dataValue: "confirmed" },
     { id: 3, value: "isCertified", label: "Certified", dataKey: "status", dataValue: "certified" },
     { id: 4, value: "isRejected", label: "Rejected", dataKey: "status", dataValue: "rejected" },
-    { id: 5, value: "isPremium", label: "Premium", dataKey: "isPremium", dataValue: true },
-    { id: 6, value: "isStoreBlacklisted", label: "Store blacklisted", dataKey: "isBlacklistedStore", dataValue: true },
-    { id: 7, value: "isFactoryWhitelisted", label: "Factory whitelisted", dataKey: "isWhitelistedFactory", dataValue: true },
-    { id: 8, value: "onlyEditors", label: "Only Editors", dataKey: "isEditor", dataValue: true },
-    { id: 9, value: "onlyAuthors", label: "Only Authors", dataKey: "isEditor", dataValue: false },
-    { id: 10, value: "isEmailNotVerified", label: "Email Not Verified", dataKey: "emailVerified", dataValue: false },
-    { id: 11, value: "all", label: "All" },
+    { id: 5, value: "isProcessing", label: "Processing", dataKey: "status", dataValue: "processing" },
+    { id: 6, value: "isPremium", label: "Premium", dataKey: "isPremium", dataValue: true },
+    { id: 7, value: "isStoreBlacklisted", label: "Store blacklisted", dataKey: "isBlacklistedStore", dataValue: true },
+    { id: 8, value: "isFactoryWhitelisted", label: "Factory whitelisted", dataKey: "isWhitelistedFactory", dataValue: true },
+    { id: 9, value: "onlyEditors", label: "Only Editors", dataKey: "isEditor", dataValue: true },
+    { id: 10, value: "onlyAuthors", label: "Only Authors", dataKey: "isEditor", dataValue: false },
+    { id: 11, value: "isEmailNotVerified", label: "Email Not Verified", dataKey: "emailVerified", dataValue: false },
+    { id: 12, value: "all", label: "All" },
   ]
 
   const [filterSelected, setFilterSelected] = useState(-1)
@@ -33,7 +35,15 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
   const [creatorResults, setCreatorResults] = useState(null)
   const [displayedData, setDisplayedData] = useState(null)
   const [showDetails, setShowDetails] = useState(true)
-  const [txData, setTxData] = useState({})
+  const [error, setError] = useState(null)
+
+  const addressToAddSWRef = useRef("")
+  const addressToRemoveSWRef = useRef("")
+  const addressToCheckSWRef = useRef("")
+  const addressToAddFWRef = useRef("")
+  const addressToRemoveFWRef = useRef("")
+  const addressToCheckFWRef = useRef("")
+  const addressToStatusRef = useRef("")
 
   const handleCreatorFilterChange = (e) => {
     const categoryIndex = filters.findIndex(category => category.value.toString() === e.target.value)
@@ -69,32 +79,16 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
     setIsDataLoading(false)
     // console.log("total results:", countResults);
   }
-  
-  const confirmCreator = async (creatorId) => {
-    console.log(creatorId);
-    const Creator = Moralis.Object.extend("Creator")
-    const User = Moralis.Object.extend("_User")
-    const queryCreator = new Moralis.Query(Creator)
-    const queryUser = new Moralis.Query(User)
-
-    const creator = await queryCreator.get(creatorId)
-    const user = await queryUser.get(creator.attributes.parentUser.id)
-
-    creator.set("status", "confirmed")
-    user.set("isCreator", true)
-    await creator.save()
-    await user.save()
-    alert(`Creator ${creatorId} status has been modified`);
-  }
 
   const selectCreator = async (creatorId, index) => {
+    resetInputs()
     const data = {}
     const selectedCreator = creatorResults[index]
     const Creator = Moralis.Object.extend("Creator")
     const User = Moralis.Object.extend("_User")
     const queryUser = new Moralis.Query(User)
     const queryCreator = new Moralis.Query(Creator)
-
+    
     queryUser.get(selectedCreator.attributes.parentUser.id)
     queryCreator.get(creatorId)
 
@@ -104,24 +98,64 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
     data.id = creatorId
     data.creator = updatedCreator.attributes
     data.user = user.attributes
-    console.log(data.user);
     setDisplayedData(data)
+    addressToAddSWRef.current.value = data.creator.mainAccount
+    addressToRemoveSWRef.current.value = data.creator.mainAccount
+    addressToCheckSWRef.current.value = data.creator.mainAccount
+    addressToCheckFWRef.current.value = data.creator.mainAccount
+    addressToRemoveFWRef.current.value = data.creator.mainAccount
+    if (data.creator.isPremium) {
+      addressToAddFWRef.current.value = data.creator.mainAccount
+    }
+    addressToStatusRef.current.value = data.creator.mainAccount
   }
 
-  const { contractABIs, contractAddrs } = useMoralisDapp()
-  console.log(contractAddrs.store);
-  const { data, error, fetch, isFetching, isLoading } = useWeb3ExecuteFunction({
-    abi: contractABIs.store,
-    contractAddress: contractAddrs.store,
-    functionName: "addToWhitelist",
-    params: {
-      userAddress: "0x292c6313cb77a4810c2ba5f0fe6e2d7ad16c534d"
+  const resetInputs = () => {
+    addressToAddSWRef.current.value = ""
+    addressToRemoveSWRef.current.value = ""
+    addressToCheckSWRef.current.value = ""
+    addressToAddFWRef.current.value = ""
+    addressToRemoveFWRef.current.value = ""
+    addressToCheckFWRef.current.value = ""
+  }
+
+  const clickChangeStatus = async (newStatus) => {
+
+    const Creator = Moralis.Object.extend("Creator")
+    const queryCreator = new Moralis.Query(Creator)
+
+    if (displayedData.creator.status === "pending") return setError("Cannot modified pending status. Please click on 'add creator to store whitelist' or 'factory whitelist' to change it to 'confirmed'.")
+    if (displayedData.creator.status === "rejected") return setError("Cannot modified rejected status. Please click on 'add creator to store whitelist' or 'factory whitelist' to change it to 'confirmed'.")
+    if (displayedData.creator.status === "banned") return setError("Cannot modified banned status. Please click on 'add creator to store whitelist' or 'factory whitelist' to change it to 'confirmed'.")
+
+    const creator = await queryCreator.get(displayedData.id)
+
+    if (newStatus === "certified") {
+      creator.set("status", "certified")
+      await creator.save()
+      console.log("Creator status changed to 'certified'");
     }
-  })
-  const inputRef = useRef("")
+    if (newStatus === "confirmed") {
+      creator.set("status", "confirmed")
+      await creator.save()
+      console.log("Creator status changed to 'confirmed'");
+    }
+    if (newStatus === "banned") {
+      const User = Moralis.Object.extend("_User")
+      const queryUser = new Moralis.Query(User)
+      const user = await queryUser.get(creator.attributes.parentUser.id)
+
+      creator.set("status", "banned")
+      user.set("isCreator", false)
+      await creator.save()
+      await user.save()
+      console.log("Creator status changed to 'banned' and 'isCreator' user status set to false");
+    }
+  }
+
 
   return (
-    <div className="mx-auto px-1 sm:px-4 w-full max-w-7xl flex flex-col">
+    <div className="mx-auto w-full max-w-7xl flex flex-col">
 
       {/* :TITLE */}
       <h2 className="text-2xl text-gray-700 font-bold">Creators List</h2>
@@ -140,7 +174,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
             <select 
               name="creators"
               onChange={handleCreatorFilterChange}
-              className="form-select w-56 rounded border border-gray-300 bg-gray-100 text-sm text-gray-600 focus:border-teal-500 focus:ring-teal-500"
+              className="form-select w-56 rounded border border-gray-200 bg-gray-100 text-sm text-gray-600 focus:border-sky-500 focus:ring-sky-500"
             >
               <option value="" className="font-semibold">Select a filter category</option>
               {filters.map(category => (
@@ -157,7 +191,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
           onClick={updateData}
           className="group relative inline-flex items-center px-5 py-2 shadow rounded-full border-2 border-gray-400 bg-white text-sm text-gray-600 font-semibold cursor-pointer hover:bg-gray-400 hover:text-white"
         >
-          <CheckIcon className="mr-2 w-5 text-teal-500 group-hover:text-teal-200"/>
+          <CheckIcon className="mr-2 w-5 text-sky-500 group-hover:text-sky-200"/>
           Update
         </button>
         {/* ::Refresh Button */}
@@ -165,7 +199,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
           type="button"
           disabled={creatorResults === null}
           onClick={updateData}
-          className="ml-3 text-teal-500 cursor-pointer hover:text-teal-700"
+          className="ml-3 text-sky-500 cursor-pointer hover:text-sky-700"
         >
           <RefreshIcon className="w-8 h-8" />
         </button>
@@ -187,7 +221,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
         {/* ::Table */}
         <table className="min-w-full overflow-hidden">
           {/* :::Table Head */}
-          <thead className="min-w-full bg-teal-600 text-left text-white">
+          <thead className="min-w-full bg-sky-600 text-left text-white">
             <tr>
               {/* ::::number */}
               <th className="py-3 px-4 text-sm text-white font-semibold tracking-wide" scope="col">#</th>
@@ -229,20 +263,20 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
                       <span>|</span>
                       <CheckIcon className={`w-5 h-5 ${creator.get("isWhitelistedFactory") ? "text-green-600" : "text-gray-300"}`} />
                       <span>|</span>
-                      <StarIcon className={`w-5 h-5 ${creator.get("isPremium") ? "text-teal-500" : "text-gray-300"}`} />
+                      <StarIcon className={`w-5 h-5 ${creator.get("isPremium") ? "text-sky-500" : "text-gray-300"}`} />
                     </td>
                     <td className="py-3 px-4 text-base text-gray-700 font-medium">
                       <span className="flex justify-center items-center space-x-4">
                         {/* ::::display details */}
                         <button type="button" onClick={() => selectCreator(creator.id, index)} >
-                          <AdjustmentsIcon className="w-5 h-5 text-gray-400 hover:text-teal-600" />
+                          <AdjustmentsIcon className="w-5 h-5 text-gray-400 hover:text-sky-600" />
                         </button>
                         {/* ::::quick confirm account */}
                         <button 
                           type="button" 
                           onClick={() => confirmCreator(creator.id)} 
                           disabled={creator.get("status") !== "pending"} 
-                          className="text-gray-400 hover:text-teal-600 disabled:hover:text-gray-400"
+                          className="text-gray-400 hover:text-sky-600 disabled:hover:text-gray-400"
                         >
                           <UserAddIcon className="w-5 h-5" />
                         </button>
@@ -281,7 +315,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
 
       
       {/* :CREATOR DETAILS */}
-      <h3 className="mt-10 text-xl text-teal-500 text-opacity-50 font-extrabold uppercase tracking-wide">Creator Details</h3>
+      <h3 className="mt-10 text-lg text-gray-500 text-opacity-50 font-extrabold uppercase tracking-wide">Creator Details</h3>
       <div className="py-3 px-2 w-full border border-gray-200 rounded">
         {displayedData && !isDataLoading
           ? <>
@@ -324,7 +358,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
                                   }
                                 </ul>
                               : key === "mainAccount"
-                              ? <span className="text-sky-600 font-semibold">{creator[key].toString()}</span>
+                              ? <span className="text-black font-semibold">{creator[key].toString()}</span>
                               : key === "status"
                               ? <span className="text-black font-bold">{`"${creator[key].toString()}"`}</span>
                               : <span className="text-gray-700">{`"${creator[key].toString()}"`}</span>
@@ -356,7 +390,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
                                   }
                                 </ul>
                               : key === "ethAddress"
-                              ? <span className="text-sky-600 font-semibold">{user[key].toString()}</span>
+                              ? <span className="text-black font-semibold">{user[key].toString()}</span>
                               : <span className="text-gray-700">{`"${user[key].toString()}"`}</span>
                             }
                           </div>
@@ -373,35 +407,223 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
       </div>
 
 
-      {/* :CONTRACTS INTERACTIONS */}
-      <h3 className="mt-10 text-xl text-teal-500 text-opacity-50 font-extrabold uppercase tracking-wide">CONTRACTS INTERACTIONS</h3>
-      <div className="py-3 px-2 w-full grid grid-cols-2 space-y-5 border border-gray-200 rounded">
+      {/* :CREATOR STATUS  */}
+      <h3 className="mt-10 text-lg text-gray-500 text-opacity-50 font-extrabold uppercase tracking-wide">CREATOR CERTIFICATION</h3>
+      <div className="py-3 px-2 w-full grid grid-cols-2 gap-5 border border-gray-200 rounded">
 
-        {/* ::Add Store Whitelisted */}
-        <div className="col-span-1">
-          <h4 className="inline-flex items-center text-base text-gray-500 font-semibold">
+        {/* ::Change Creator Status */}
+        <div className="col-span-full">
+          <h4 className="inline-flex items-center text-sm text-gray-500 font-semibold">
+            <DatabaseIcon className="mr-2 w-5 h-5" />
+            Cerified creator status
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToStatusRef}
+                disabled={displayedData && !displayedData.creator.isEditor}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+              />
+            </span>
+            <button 
+              type="button"
+              onClick={() => clickChangeStatus("certified")}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
+            >
+              Certify
+            </button>
+            <button 
+              type="button"
+              onClick={() => clickChangeStatus("confirmed")} 
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
+            >
+              Confirm
+            </button>
+            <button 
+              type="button" 
+              onClick={() => clickChangeStatus("banned")}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-red-100 text-sm text-red-700 font-medium hover:bg-red-700 hover:text-white"
+            >
+              Ban
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      {/* :STORE INTERACTIONS */}
+      <h3 className="mt-10 text-lg text-gray-500 text-opacity-50 font-extrabold uppercase tracking-wide">STORE INTERACTIONS</h3>
+      <div className="py-3 px-2 w-full grid grid-cols-2 gap-5 border border-gray-200 rounded">
+
+        {/* ::Add to Store Whitelisted */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-sm text-gray-500 font-semibold">
             <ChipIcon className="mr-2 w-5 h-5" />
             Add creator to Store whitelist
           </h4>
-          <div className="flex items-end">
+          <div className="flex flex-col sm:flex-row sm:items-end">
             <span className="flex-grow">
-              <label htmlFor="address" className="text-sm text-gray-400 font-medium">address</label>
+              <label htmlFor="address" className="sr-only">address</label>
               <input
                 type="text" id="address" name="address"
-                ref={inputRef}
-                defaultValue={displayedData && displayedData.creator.mainAccount}
-                placeholder="Enter your name"
-                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-300 bg-gray-50 text-sm placeholder-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                ref={addressToAddSWRef}
+                disabled={displayedData && !displayedData.creator.isEditor}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
               />
             </span>
-            <WriteFunctionStore
+            <FuncWriteWhitelistStore
               name="addToWhitelist"
-              params={{ userAddress: inputRef.current.value }}
-              setData={setTxData}
-              className="flex-shrink-0 ml-3 relative inline-flex items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-teal-100 text-sm text-teal-700 font-medium hover:bg-teal-700 hover:text-white"
+              userAddress={addressToAddSWRef}
+              isDisabled={displayedData && displayedData.user.isBlacklisted}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
             >
-              Add to whitelist
-            </WriteFunctionStore>
+              Add
+            </FuncWriteWhitelistStore>
+          </div>
+        </div>
+
+        {/* ::Remove from Store Whitelisted */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-sm text-gray-500 font-semibold">
+            <ChipIcon className="mr-2 w-5 h-5" />
+            Remove creator from Store whitelist
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToRemoveSWRef}
+                disabled={displayedData && !displayedData.creator.isEditor}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+              />
+            </span>
+            <FuncWriteWhitelistStore
+              name="removeFromWhitelist"
+              userAddress={addressToRemoveSWRef}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
+            >
+              Remove
+            </FuncWriteWhitelistStore>
+          </div>
+        </div>
+
+        {/* ::Check creator is Whitelisted on Store */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-base text-sky-500 text-opacity-70 font-semibold">
+            <DocumentSearchIcon className="mr-2 w-5 h-5" />
+            Is address whitelisted on Store ?
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToCheckSWRef}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+              />
+            </span>
+            <FuncReadWhitelistStore
+              name="isWhitelisted"
+              userAddress={addressToCheckSWRef}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-sky-100 text-sm text-sky-700 font-medium hover:bg-sky-700 hover:text-white"
+            >
+              Check
+            </FuncReadWhitelistStore>
+          </div>
+        </div>
+
+      </div>
+
+
+      {/* :FACTORY INTERACTIONS */}
+      <h3 className="mt-10 text-lg text-gray-500 text-opacity-50 font-extrabold uppercase tracking-wide">FACTORY INTERACTIONS</h3>
+      <div className="py-3 px-2 w-full grid grid-cols-2 gap-5 border border-gray-200 rounded">
+
+        {/* ::Add to Factory Whitelisted */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-sm text-gray-500 font-semibold">
+            <ChipIcon className="mr-2 w-5 h-5" />
+            Add creator to Factory whitelist
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToAddFWRef}
+                disabled={displayedData && !displayedData.creator.isPremium}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+              />
+            </span>
+            <FuncWriteWhitelistFactory
+              name="addToWhitelist"
+              userAddress={addressToAddFWRef}
+              isDisabled={displayedData && (displayedData.user.isBlacklisted || !displayedData.creator.isPremium)}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
+            >
+              Add
+            </FuncWriteWhitelistFactory>
+          </div>
+        </div>
+
+        {/* ::Remove from Factory Whitelisted */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-sm text-gray-500 font-semibold">
+            <ChipIcon className="mr-2 w-5 h-5" />
+            Remove creator from Factory whitelist
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToRemoveFWRef}
+                placeholder="user account address"
+                disabled={displayedData && !displayedData.creator.isEditor}
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+              />
+            </span>
+            <FuncWriteWhitelistFactory
+              name="removeFromWhitelist"
+              userAddress={addressToRemoveFWRef}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-gray-400 text-sm text-gray-100 font-medium hover:bg-gray-700 hover:text-white"
+            >
+              Remove
+            </FuncWriteWhitelistFactory>
+          </div>
+        </div>
+
+        {/* ::Check creator is Whitelisted on Factory */}
+        <div className="col-span-full md:col-span-1">
+          <h4 className="inline-flex items-center text-base text-sky-500 text-opacity-70 font-semibold">
+            <DocumentSearchIcon className="mr-2 w-5 h-5" />
+            Is address whitelisted on Factory ?
+          </h4>
+          <div className="flex flex-col sm:flex-row sm:items-end">
+            <span className="flex-grow">
+              <label htmlFor="address" className="sr-only">address</label>
+              <input
+                type="text" id="address" name="address"
+                ref={addressToCheckFWRef}
+                placeholder="user account address"
+                className="form-input mt-0.5 w-full block shadow-sm rounded border-gray-200 bg-gray-50 text-sm text-gray-400 placeholder-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+              />
+            </span>
+            <FuncReadWhitelistFactory
+              name="isWhitelisted"
+              userAddress={addressToCheckFWRef}
+              className="flex-shrink-0 mt-1 sm:mt-0 sm:ml-3 relative min-w-[120px] max-w-xs inline-flex justify-center items-center px-3.5 py-2 shadow-sm rounded border border-transparent bg-sky-100 text-sm text-sky-700 font-medium hover:bg-sky-700 hover:text-white"
+            >
+              Check
+            </FuncReadWhitelistFactory>
           </div>
         </div>
 
