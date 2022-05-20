@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react"
-import { useMoralis, useMoralisQuery, useNewMoralisObject } from "react-moralis"
+import { useMoralis, useNewMoralisObject } from "react-moralis"
 import { Moralis } from 'moralis'
 import Layout from "../components/Layout/Layout"
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider"
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -14,10 +15,9 @@ import { Switch } from '@headlessui/react'
 export default function Register() {
   
   const router = useRouter()
-  const { isAuthenticated, isAuthUndefined, user, account, refetchUserData } = useMoralis()
+  const { isAuthenticated, isAuthUndefined, user, account } = useMoralis()
+  const { isCreator, isLoading } = useMoralisDapp()
   const { save, isSaving } = useNewMoralisObject("Creator")
-  const [isCreator, setIsCreator] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
   
   const firstnameRef = useRef()
   const lastnameRef = useRef()
@@ -29,10 +29,9 @@ export default function Register() {
     e.preventDefault()
     const Creator = await Moralis.Object.extend("Creator")
     const query = new Moralis.Query(Creator)
-    const dataCount = await query.equalTo("userId", user.id).count()
-    console.log(dataCount);
-    console.log(isCreator);
-
+    const dataCount = await query.equalTo("parentUser", user).count()
+    // console.log(dataCount);
+    // console.log(isCreator);
     if (dataCount > 0 || isCreator) {
       return alert("already registered")
     }
@@ -42,23 +41,28 @@ export default function Register() {
     }
 
     const registerInfo = {
-      userId: user.id,
+      parentUser: user,
       status: "pending",
       mainAccount: account,
       accounts: isEditor ? [account] : [],
       firstName: firstnameRef.current.value,
       lastName: lastnameRef.current.value,
-      emailAddress: emailRef.current.value,
       isEditor: isEditor,
-      editor: isEditor ? editorNameRef.current.value : "selfEdition",
+      editorName: isEditor ? editorNameRef.current.value : "self-edition",
+      email: emailRef.current.value,
       isPremium: false,
-      isBlacklistedStore: false,
+      isWhitelistedStore: false,
       isWhitelistedFactory: false,
     }
+
     save(registerInfo, {
-      onSuccess: (creator) => {
+      onSuccess: async (creator) => {
         console.log(creator.id);
         alert("New creator added with objectId: " + creator.id)
+        user.set("childCreator", creator)
+        user.set("username", `${firstnameRef.current.value} ${lastnameRef.current.value}`)
+        user.set("email", emailRef.current.value)
+        await user.save()
         firstnameRef = ""
         lastnameRef = ""
         emailRef = ""
@@ -73,28 +77,15 @@ export default function Register() {
     })
   }
 
-  //! Update fetched user "isCreator" data
-  useEffect(() => {
-    if (user) {
-      setIsCreator(null)
-      refetchUserData()
-        .then(() => {
-          setIsCreator(user.get("isCreator"))
-        })
-        .finally(() => setIsLoading(false))
-    } 
-  }, [user, refetchUserData])
-
-  //! Redirect unauthenticated users to login page
+  //! REDIRECT UNAUTHENTICATED USERS TO LOGIN PAGE
   useEffect(() => {
     if (!isAuthenticated && !isAuthUndefined) {
       router.push("/")
     }
   })
   
-  
-  //? If user is authenticated and the user address is not registered yet 
-  if (isAuthenticated && !isCreator && !isLoading) {
+  //? ====================== USER AUTHENTICATED AND USER ADDRESS NOT REGISTERED YET =========================================================
+  if (isAuthenticated && isCreator === false && !isLoading) {
     return (
       <div className="relative w-full flex flex-col items-center">
         
@@ -177,8 +168,7 @@ export default function Register() {
     )
   }
 
-
-  //? If user is already registered as creator
+  //? ====================== IF USER IS ALREADY REGISTERED AS CREATOR =======================================================================
   if (isAuthenticated && isCreator && !isLoading) {
     return (
       <div className="flex flex-col items-center">
@@ -191,7 +181,7 @@ export default function Register() {
   }
 
 
-  //? Loading...
+  //? ====================== LOADING... =======================================================================================================
   return (
     <div className="lg:p-20 flex flex-col justify-center items-center space-y-3">
       <Image 
@@ -206,6 +196,7 @@ export default function Register() {
 };
 
 
+//! ====================== LAYOUT ==============================================================================================================
 Register.getLayout = function getLayout(page) {
   return (
     <Layout>
@@ -214,6 +205,8 @@ Register.getLayout = function getLayout(page) {
   )
 }
 
+
+//! ====================== LOAD TRANSLATIONS ====================================================================================================
 export const getStaticProps = async ({ locale }) => ({
   props: {
     ...await serverSideTranslations(locale, ['navigation', 'footer']),

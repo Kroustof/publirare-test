@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect } from "react"
 import { useMoralis, useMoralisQuery } from "react-moralis"
-import { Moralis } from 'moralis'
+import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider"
 import Layout from "../components/Layout/Layout"
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -13,21 +13,9 @@ import loader from '../public/loader.gif'
 export default function Create() {
 
   const router = useRouter()
-  const { isAuthenticated, isAuthUndefined, user, refetchUserData } = useMoralis()
-  const [isCreator, setIsCreator] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  //! Update fetched user "isCreator" data
-  useEffect(() => {
-    if (user) {
-      setIsCreator(null)
-      refetchUserData()
-        .then(() => {
-          setIsCreator(user.get("isCreator"))
-        })
-        .finally(() => setIsLoading(false))
-    } 
-  }, [user, refetchUserData])
+  const { isAuthenticated, isAuthUndefined } = useMoralis()
+  const { isCreator, isLoading } = useMoralisDapp()
+  
 
   //! Redirect unauthenticated users to login page
   useEffect(() => {
@@ -38,7 +26,7 @@ export default function Create() {
 
 
   //? User is not author or editor
-  if (isAuthenticated && !isCreator && !isLoading) {
+  if (isAuthenticated && isCreator === false && !isLoading) {
     return (
       <div className="py-16 flex flex-col items-center space-y-5">
         <h2 className="">This account is not registered as Author or Editor. Please register before publishing your NFT Book</h2>

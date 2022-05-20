@@ -26,7 +26,7 @@ const Address = (props) => {
       }}
     >
       <DocumentDuplicateIcon className="w-6 h-6" />
-      <title className={`absolute -top-5 text-sm text-black font-semibold`}>Copy Address</title>
+      <title className="absolute -top-5 text-sm text-black font-semibold">Copy Address</title>
     </button>
   ) 
 

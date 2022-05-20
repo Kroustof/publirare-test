@@ -21,6 +21,7 @@ export default function Login() {
       await authenticate({ provider: connectorId, chainId: 80001, signingMessage: "Welcome to Page Tree marketplace!" })
         .then((user) => {
           console.log(user.get("ethAddress"));
+          router.push('/')
         })
         .catch((error) => {
           console.log(error);
@@ -28,12 +29,12 @@ export default function Login() {
     }
   }
 
-  //! Redirect home if already authenticated
+  //! REDIRECT HOME IF ALREADY AUTHENTICATED
   if (isAuthenticated) {
     router.push('/')
   }
 
-  //
+  //? ====================== USER AUTHENTICATED ==================================================================
   if (!isAuthenticated && !isAuthUndefined) {
     return (
       <div className="relative mx-auto w-full py-16 px-4 max-w-7xl">
@@ -69,7 +70,7 @@ export default function Login() {
     )
   }
 
-  //? Loading...
+  //? ====================== LOADING =============================================================================================
   return (
     <div className="lg:p-20 flex justify-center items-center">
       <Image 
@@ -81,6 +82,7 @@ export default function Login() {
 }
 
 
+//! ====================== LAYOUT ====================================================================================================
 Login.getLayout = function getLayout(page) {
   return (
     <Layout>
@@ -89,6 +91,8 @@ Login.getLayout = function getLayout(page) {
   )
 }
 
+
+//! ====================== LOAD TRANSLATIONS ====================================================================================================
 export const getStaticProps = async ({ locale }) => ({
   props: {
     ...await serverSideTranslations(locale, ['login', 'navigation', 'footer']),

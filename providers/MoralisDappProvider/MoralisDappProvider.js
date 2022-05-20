@@ -1,26 +1,31 @@
 import React, { useEffect, useState } from 'react'
 import { useMoralis } from "react-moralis"
-import OKSDappContext from "./context"
+import MoralisDappContext from "./context"
 import { useTranslation } from "next-i18next"
+import factory1155 from '../../contracts/abi/FactoryERC1155.json'
+import store from '../../contracts/abi/PubliRareStore.json'
+import marketplace1155 from '../../contracts/abi/Marketplace1155.json';
 
 
-function OKSDappProvider({ children }) {
+function MoralisDappProvider({ children }) {
 
   const { t } = useTranslation('common')
   
-  const { web3, enableWeb3, isWeb3Enabled, isAuthenticated, isWeb3EnableLoading, Moralis, user, account } = useMoralis()
+  const { web3, enableWeb3, isWeb3Enabled, isAuthenticated, isWeb3EnableLoading, Moralis, user, refetchUserData } = useMoralis()
   const [userId, setUserId] = useState()
+  const [isCreator, setIsCreator] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [walletAddress, setWalletAddress] = useState()
   const [networkId, setNetworkId] = useState()
   const [contractABIs, setContractABIs] = useState({
-    marketplace: null,
-    store: null,
-    factory: null
+    marketplace1155: marketplace1155.abi,
+    store: store.abi,
+    factory1155: factory1155.abi
   }) // Smart contract ABIs here 
   const [contractAddrs, setContractAddrs] = useState({
-    marketplace: null,
-    store: null,
-    factory: null
+    marketplace1155: process.env.NEXT_PUBLIC_MARKETPLACE1155_ADDRESS,
+    store: process.env.NEXT_PUBLIC_STORE_ADDRESS,
+    factory1155: process.env.NEXT_PUBLIC_FACTORY1155_ADDRESS
   }) // Smart contracts proxy addresses here
 
 
@@ -80,22 +85,44 @@ function OKSDappProvider({ children }) {
     }
   }, [isAuthenticated, user])
 
+  useEffect(() => {
+    if (user) {
+      setIsCreator(null)
+      refetchUserData()
+      .then(() => {
+        setIsCreator(user.get("isCreator"))
+      })
+    } 
+    setIsLoading(false)
+  }, [user, refetchUserData])
+
   return (
-    <OKSDappContext.Provider value={{ walletAddress, networkId, contractAddrs, setContractAddrs, contractABIs, setContractABIs, userId, isAuthenticated }}>
+    <MoralisDappContext.Provider value={{ 
+      walletAddress, 
+      networkId, 
+      contractAddrs, 
+      setContractAddrs, 
+      contractABIs, 
+      setContractABIs,
+      userId, 
+      isCreator,
+      isLoading,
+      setIsLoading
+    }}>
       {children}
-    </OKSDappContext.Provider>
+    </MoralisDappContext.Provider>
   )
 }
 
 
 
-function useOKSDapp() {
-  const context = React.useContext(OKSDappContext)
+function useMoralisDapp() {
+  const context = React.useContext(MoralisDappContext)
   if (context === undefined) {
-    throw new Error("useOKSDapp must be used within a OKSDappProvider")
+    throw new Error("useMoralisDapp must be used within a MoralisDappProvider")
   }
   return context
 }
 
 
-export { OKSDappProvider, useOKSDapp }
+export { MoralisDappProvider, useMoralisDapp }

@@ -5,13 +5,12 @@ import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useMoralis } from "react-moralis"
-
+import Link from 'next/link';
 
 export default function Home() {
 
   const router = useRouter()
   const { t } = useTranslation('common')
-
   const { account } = useMoralis()
 
   return (
@@ -32,7 +31,9 @@ export default function Home() {
 
         <p>{account}</p>
 
-
+        <Link href="/security/team-space">
+          <a className="mt-4 text-teal-700 underline">Team Space</a>
+        </Link>
 
       </div>
 
@@ -41,6 +42,7 @@ export default function Home() {
 }
 
 
+//! ====================== LOADING =============================================================================================
 Home.getLayout = function getLayout(page) {
   return (
     <Layout>
@@ -49,6 +51,8 @@ Home.getLayout = function getLayout(page) {
   )
 }
 
+
+//! ====================== LOAD TRANSLATIONS =============================================================================================
 export const getStaticProps = async ({ locale }) => ({
   props: {
     ...await serverSideTranslations(locale, ['common', 'navigation', 'footer']),
