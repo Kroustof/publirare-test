@@ -24,7 +24,7 @@ export default function Home() {
       <div className="flex flex-col items-center">
 
         <h1 className="mt-10 text-center text-6xl font-medium tracking-wide">
-          {t("h1")} <span className="bg-gradient-to-tr from-teal-500 to-sky-500 bg-clip-text text-transparent">OakSquare</span>
+          {t("h1")} <span className="bg-gradient-to-tr from-teal-500 to-sky-500 bg-clip-text text-transparent">PubliRare</span>
         </h1>
 
         <p className="mt-20">{t('welcome')}</p>

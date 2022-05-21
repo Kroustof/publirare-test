@@ -46,7 +46,7 @@ const TransactionMessage = ({ isModalOpen, setIsModalOpen, data }) => {
                     <ul className="text-sm text-sky-700 list-disc">
                       {typeof data === "object" ?
                         Object.keys(data)
-                        .filter(key => key !== "events" && key !== "logsBloom")
+                        .filter(key => key !== "events" && key !== "logsBloom" && key !== "logs")
                         .map(key => (
                           <li key={key} className="text-sm">
                             <span className="font-semibold capitalize">{key} : </span>

@@ -2,18 +2,15 @@ import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 
 
-const ErrorMessage = ({ error, setError }) => {
-
-  const [isOpen, setIsOpen] = useState(true)
+const SuccessMessage = ({ isModalOpen, setIsModalOpen, message }) => {
 
   function closeModal() {
-    setIsOpen(false)
-    setError(null)
+    setIsModalOpen(false)
   }
 
   return (
     <>
-      <Transition appear show={isOpen} as={Fragment}>
+      <Transition appear show={isModalOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <Transition.Child
             as={Fragment}
@@ -38,23 +35,23 @@ const ErrorMessage = ({ error, setError }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-red-50 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-green-50 p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-red-800"
+                    className="text-lg font-medium leading-6 text-green-800"
                   >
-                    Something went wrong!
+                    Successfully done!
                   </Dialog.Title>
                   <div className="mt-2">
-                    <p className="text-sm text-red-700">
-                      {error}
+                    <p className="text-sm text-green-700">
+                      {message}
                     </p>
                   </div>
 
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-700 px-4 py-2 text-sm font-medium text-red-100 hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-green-700 px-4 py-2 text-sm font-medium text-green-100 hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -70,4 +67,4 @@ const ErrorMessage = ({ error, setError }) => {
   )
 }
 
-export default ErrorMessage
+export default SuccessMessage
