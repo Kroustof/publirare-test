@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useMoralis } from "react-moralis"
+import { Moralis } from 'moralis'
 import MoralisDappContext from "./context"
 import { useTranslation } from "next-i18next"
 import factory1155 from '../../contracts/abi/FactoryERC1155.json'
@@ -11,9 +12,16 @@ function MoralisDappProvider({ children }) {
 
   const { t } = useTranslation('common')
   
-  const { web3, enableWeb3, isWeb3Enabled, isAuthenticated, isWeb3EnableLoading, Moralis, user, refetchUserData } = useMoralis()
+  const { web3, enableWeb3, isWeb3Enabled, isAuthenticated, isWeb3EnableLoading, user, refetchUserData } = useMoralis()
   const [userId, setUserId] = useState()
   const [isCreator, setIsCreator] = useState(null)
+  const [creatorInfos, setCreatorInfos] = useState({
+    status: null,
+    isPremium: null,
+    isEditor: null,
+    isWhitelistedStore: null,
+    isWhitelistedFactory: null
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [walletAddress, setWalletAddress] = useState()
   const [networkId, setNetworkId] = useState()
@@ -65,7 +73,7 @@ function MoralisDappProvider({ children }) {
       }
     }
     fetchnetworkId()
-  })
+  }, [web3, isWeb3Enabled])
 
   useEffect(() => {
     async function fetchWalletAddress() {
@@ -88,9 +96,31 @@ function MoralisDappProvider({ children }) {
   useEffect(() => {
     if (user) {
       setIsCreator(null)
-      refetchUserData()
-      .then(() => {
-        setIsCreator(user.get("isCreator"))
+      setCreatorInfos({ id: null, status: null, isPremium: null, isEditor: null, isWhitelistedStore: null, isWhitelistedFactory: null, parentUser: null })
+      refetchUserData().then(
+        async () => {
+        const isUserCreator = user.get("isCreator")
+        setIsCreator(isUserCreator)
+        if (isUserCreator) {
+          try {
+            const creatorId = user.get("childCreator").id
+            const Creator = Moralis.Object.extend("Creator")
+            const query = new Moralis.Query(Creator)
+            const results = await query.get(creatorId)
+            const { status, isPremium, isEditor, isWhitelistedStore, isWhitelistedFactory } = results.attributes
+            setCreatorInfos({
+              id: results.id,
+              status: status,
+              isPremium: isPremium,
+              isEditor: isEditor,
+              isWhitelistedStore: isWhitelistedStore,
+              isWhitelistedFactory: isWhitelistedFactory,
+              parentUser: results.attributes.parentUser.id
+            })
+          } catch (error) {
+            console.log("An error occured during the attempt of retrieving creator infos:", error)
+          }
+        }
       })
     } 
     setIsLoading(false)
@@ -106,6 +136,7 @@ function MoralisDappProvider({ children }) {
       setContractABIs,
       userId, 
       isCreator,
+      creatorInfos,
       isLoading,
       setIsLoading
     }}>

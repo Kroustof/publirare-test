@@ -6,13 +6,12 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link'
 import Image from 'next/image'
 import { Popover } from "@headlessui/react"
-import { KeyIcon, LoginIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from "@heroicons/react/outline"
+import { KeyIcon, LoginIcon, MenuIcon, XIcon } from "@heroicons/react/outline"
 import logo from '../../../public/logo.png'
-import Chains from "../../Chains/Chains";
 import Account from "../../Account/Account";
 
 
-const Header = () => {
+const HeaderSm = () => {
 
   const navigation = {
     pages: [
@@ -186,49 +185,6 @@ const Header = () => {
       {/* :STORE NAVIGATION */}
       <header id="menu" className="relative inset-0 pb-0.5 transition-all duration-500 ease-in-out">
         
-        {/* ::Top Header */}
-        <div className="relative inset-0 z-20 pt-0.5 pb-2 px-4 bg-gray-800 text-white">
-          <div className="mx-auto max-w-7xl flex justify-between items-center space-x-4">
-            {/* :::language & dex */}
-            <div className="flex items-center sm:space-x-8">
-              {/* ::::language */}
-              <span className="hidden sm:inline-flex items-center">
-                <label htmlFor="language" className="sr-only">Select your language</label>
-                <select
-                  name="language" id="language"
-                  defaultValue={router.locale}
-                  onChange={(e) => changeLang(e)}
-                  className="form-select py-0.5 bg-transparent border-none text-sm font-medium text-gray-200 outline-none cursor-pointer focus:ring-0"
-                >
-                  <option value="en" className="text-gray-700">EN</option>
-                  <option value="fr" className="text-gray-700">FR</option>
-                  <option value="jp" className="text-gray-700">JP</option>
-                </select>
-              </span>
-              {/* ::::dex */}
-              <Link href="/dex" className="p-1 shadow-sm rounded bg-gray-500 text-sm text-white font-semibold hover:bg-gray-700">
-                <a>Dex</a>
-              </Link>
-            </div>
-            {/* ::::search nft */}
-            <div className="relative mx-auto w-full max-w-3xl hidden sm:block">
-              <label htmlFor="search" className="sr-only">Search</label>
-              <input type="text" id="search" name="search"
-                placeholder={t('search')}
-                className="form-input py-1 px-5 w-full block shadow-sm rounded-full border-none bg-white bg-opacity-20 text-sm placeholder-transparent sm:placeholder-gray-300 focus:border-transparent focus:ring-0 focus:outline-none focus:bg-opacity-80 focus:text-black"
-              />
-              <SearchIcon className="absolute top-1 right-3 w-5 h-5 text-teal-500" />
-            </div>
-            {/* :::site settings */}
-            <div className="inline-flex items-center space-x-4">
-              {/* ::::uniswap */}
-              <button className="text-sm text-gray-200 font-medium hover:underline">uniswap</button>
-              {/* ::::chain */}
-              <Chains />
-            </div>
-          </div>
-        </div>
-
         {/* ::Main Menu */}
         <div className="relative bg-white bg-opacity-90">
           <div className="mx-auto py-3 px-4 max-w-7xl flex justify-between items-center border-b-2 border-gray-100">
@@ -323,4 +279,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default HeaderSm

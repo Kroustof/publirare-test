@@ -37,7 +37,7 @@ export default function Login() {
   //? ====================== USER AUTHENTICATED ==================================================================
   if (!isAuthenticated && !isAuthUndefined) {
     return (
-      <div className="relative mx-auto w-full py-16 px-4 max-w-7xl">
+      <div className="relative mx-auto w-full max-w-7xl py-16 px-4">
         <div className="flex flex-col justify-center items-center">
   
           <h1 className="text-5xl text-teal-500 font-semibold">{t('h1')}</h1>

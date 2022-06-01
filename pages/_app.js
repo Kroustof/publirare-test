@@ -4,7 +4,6 @@ import { MoralisProvider } from 'react-moralis'
 import { MoralisDappProvider } from "../providers/MoralisDappProvider/MoralisDappProvider"
 
 
-
 function MyApp({ Component, pageProps }) {
   
   const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APP_ID;

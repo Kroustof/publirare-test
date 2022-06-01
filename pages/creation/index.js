@@ -1,31 +1,33 @@
 import { useEffect } from "react"
-import { useMoralis, useMoralisQuery } from "react-moralis"
-import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider"
-import Layout from "../components/Layout/Layout"
+import { useMoralis } from "react-moralis"
+import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider"
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import loader from '../public/loader.gif'
+import loader from '../../public/loader.gif'
+import CreateOptions from "../../components/Creation/CreateOptions"
+import LayoutNFTCreate from "../../components/Layout/LayoutNFTCreate"
 
 
 export default function Create() {
 
   const router = useRouter()
   const { isAuthenticated, isAuthUndefined } = useMoralis()
-  const { isCreator, isLoading } = useMoralisDapp()
-  
+  const { isCreator, creatorInfos, isLoading } = useMoralisDapp()
+  console.log(isCreator);
 
   //! Redirect unauthenticated users to login page
   useEffect(() => {
     if (!isAuthenticated && !isAuthUndefined) {
-      router.push("/")
+      router.push("/login")
     }
   })
 
 
-  //? User is not author or editor
+  //? ====================== USER IS NOT AUTHOR OR EDITOR ==================================================================================
+
   if (isAuthenticated && isCreator === false && !isLoading) {
     return (
       <div className="py-16 flex flex-col items-center space-y-5">
@@ -37,17 +39,28 @@ export default function Create() {
     )
   }
 
-  //? User is certified author or editor
+
+  //? ====================== USER IS CERTIFIED AUTHOR OR EDITOR ==================================================================================
+  
   if (isAuthenticated && isCreator && !isLoading) {
     return (
-      <div className="py-16 flex flex-col items-center space-y-5">
-        <h1 className="">Publication page</h1>
-        <p className="">Choose between options (OakEditions or Full Ownership)</p>
+      <div className="flex flex-col">
+        <h1 className="self-center">Publication page</h1>
+        <p className="self-center mt-5">Choose between options (OakEditions or Full Ownership)</p>
+
+        {/* :Creator options */}
+        <div className="mt-10">
+          <CreateOptions 
+            isPremium={creatorInfos.isPremium}
+          />
+        </div>
       </div>
     )
   }
   
-  //? Loading...
+
+  //? ====================== LOADING... ==================================================================================
+  
   return (
     <div className="lg:p-20 flex flex-col justify-center items-center space-y-3">
       <Image 
@@ -65,9 +78,9 @@ export default function Create() {
 
 Create.getLayout = function getLayout(page) {
   return (
-    <Layout>
+    <LayoutNFTCreate>
       {page}
-    </Layout>
+    </LayoutNFTCreate>
   )
 }
 

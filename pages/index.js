@@ -21,7 +21,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col items-center">
+      <div className="mx-auto w-full max-w-7xl flex flex-col items-center">
 
         <h1 className="mt-10 text-center text-6xl font-medium tracking-wide">
           {t("h1")} <span className="bg-gradient-to-tr from-teal-500 to-sky-500 bg-clip-text text-transparent">PubliRare</span>

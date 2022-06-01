@@ -41,11 +41,11 @@ const Account = () => {
     <>
       <button 
         type="button" 
-        className="relative w-10 h-10 flex justify-center items-center shadow rounded-full bg-slate-400 overflow-hidden"
+        className="relative w-8 h-8 flex justify-center items-center shadow rounded-full bg-slate-400 overflow-hidden"
         onClick={() => setIsModalVisible(!isModalVisible)}
       >
-        <span className="transition duration-200 ease-in transform hover:scale-105">
-          <Blockie currentWallet scale={5} />
+        <span className="transition duration-200 ease-in transform hover:scale-110">
+          <Blockie currentWallet scale={4} />
         </span>
       </button>
 

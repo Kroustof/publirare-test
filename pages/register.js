@@ -87,7 +87,7 @@ export default function Register() {
   //? ====================== USER AUTHENTICATED AND USER ADDRESS NOT REGISTERED YET =========================================================
   if (isAuthenticated && isCreator === false && !isLoading) {
     return (
-      <div className="relative w-full flex flex-col items-center">
+      <div className="relative mx-auto w-full max-w-7xl flex flex-col items-center">
         
         <h1 className="text-center text-4xl text-gray-700 font-semibold">Register</h1>
 
@@ -171,8 +171,9 @@ export default function Register() {
   //? ====================== IF USER IS ALREADY REGISTERED AS CREATOR =======================================================================
   if (isAuthenticated && isCreator && !isLoading) {
     return (
-      <div className="flex flex-col items-center">
+      <div className="mx-auto w-full max-w-7xl flex flex-col items-center text-center">
         <p className="text-red-500">This address is already registered</p>
+        <p className="mt-3 max-w-lg text-sm text-gray-500">You can verify your creator status in your profile dashboard. Once your registration confirmed by our team you will be able to create, sell and manage your NFT books and smart contracts.</p>
         <Link href="/">
           <a className="mt-10 text-gray-500 underline hover:text-gray-700">Return to Homepage</a>
         </Link>

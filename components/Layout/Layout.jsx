@@ -6,7 +6,7 @@ import Header from "./header/Header";
    return (
     <>
       <Header />
-      <main className="py-4 px-2 mx-auto w-full max-w-7xl min-h-screen overflow-hidden">{children}</main>
+      <main className="py-4 px-2 mx-auto w-full min-h-screen overflow-hidden">{children}</main>
       <Footer />
     </>
    )
