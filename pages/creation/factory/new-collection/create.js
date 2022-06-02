@@ -7,7 +7,7 @@ import loader from '../../../../public/loader.gif'
 import { useMoralis } from "react-moralis"
 import { useRouter } from 'next/router'
 import { useMoralisDapp } from "../../../../providers/MoralisDappProvider/MoralisDappProvider"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import CreateNFTBook from "../../../../components/Creation/CreateNFTBook"
 
 
@@ -15,22 +15,32 @@ export default function Create() {
 
   const router = useRouter()
   const { format, extension, size } = router.query
-  console.log("format:", format);
-  console.log("extension:", extension);
-  console.log("size:", size);
-
   const { isAuthenticated, isAuthUndefined } = useMoralis()
   const { isCreator, creatorInfos, isLoading } = useMoralisDapp()
 
+  // NFT Book Customization
+  const [images, setImages] = useState({
+    previewImage: null,
+    cover: null,
+    background: null,
+    pages: []
+  })
+  const canvasBgRef = useRef("")
+  const insideCoverRef = useRef("")
+  const insideBackRef = useRef("")
+  const pagesColorRef = useRef("")
 
+  
+
+
+
+  
   //! Redirect unauthenticated users to login page
   useEffect(() => {
     if (!isAuthenticated && !isAuthUndefined) {
       router.push("/login")
     }
   })
-
-
 
 
   //? ====================== USER IS NOT AUTHOR OR EDITOR ==================================================================================
@@ -80,9 +90,15 @@ export default function Create() {
 
         <div className="mt-10">
           <CreateNFTBook
+            images={images}
+            setImages={setImages}
             format={format}
             extension={extension}
             size={size}
+            canvasBgRef={canvasBgRef}
+            insideCoverRef={insideCoverRef}
+            insideBackRef={insideBackRef}
+            pagesColorRef={pagesColorRef}
           />
         </div>
         

@@ -26,10 +26,9 @@ const PageUpload = ({ images, setImages, accept, details, id, maxSize = 150 }) =
       >
 
         {/* ::Default display */}
-        <span className="flex flex-col items-center space-y-3 text-gray-500 group-hover:text-emerald-600">
-          <PlusIcon className="w-8 h-8 text-teal-500" />
-          <span className="text-sm">Add a page</span>
-          <span className="mt-1 text-center text-xs text-gray-500">{details}</span>
+        <span className="flex flex-col items-center space-y-2 text-gray-500 group-hover:text-emerald-600">
+          <PlusIcon className="w-7 h-7 text-teal-500" />
+          <span className="text-xs">Add a page</span>
         </span>
 
         {/* ::Input */}

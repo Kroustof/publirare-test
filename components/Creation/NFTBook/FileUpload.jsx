@@ -58,10 +58,10 @@ const FileUpload = ({ images, setImages, inputName, required, accept, details, i
           {/* ::Default display */}
           <span className={`
             ${createObjectURL ? "hidden" : ""}
-            flex flex-col items-center space-y-3 text-gray-500 group-hover:text-teal-600`}
+            flex flex-col items-center space-y-2 text-gray-500 group-hover:text-teal-600`}
           >
-            <svg className="h-12 w-12 fill-transparent stroke-current text-teal-500" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
-            <span className="text-sm">Upload a file</span>
+            <svg className="h-11 w-11 fill-transparent stroke-current text-teal-500" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span className="text-xs">Upload a file</span>
           </span>
 
           {/* ::Input */}
@@ -80,7 +80,7 @@ const FileUpload = ({ images, setImages, inputName, required, accept, details, i
             aria-label="delete file"
             className={createObjectURL ? "absolute top-3 right-3 w-7 h-7 flex justify-center items-center rounded-full bg-white bg-opacity-50 text-black text-opacity-70 hover:text-red-500 hover:bg-opacity-100 hover:text-opacity-100" : "hidden"} 
           >
-            <TrashIcon className="w-5 h5" />
+            <TrashIcon className="w-5 h-5" />
           </button>
 
         </label>
