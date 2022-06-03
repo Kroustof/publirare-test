@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import FileUpload from "./NFTBook/FileUpload"
-import { bookTypes } from "../../helpers/bookTypes"
-import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, RefreshIcon } from "@heroicons/react/outline"
-import PageUpload from "./NFTBook/PageUpload"
-import PageDisplay from "./NFTBook/PageDisplay"
-import { bookPreviews, insideBookPreviews } from "../../helpers/bookPreviews"
-import InputText from "../Forms/InputText"
+import FileUpload from "./FileUpload"
+import { bookTypes } from "../../../helpers/bookTypes"
+import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, PlusIcon, RefreshIcon } from "@heroicons/react/outline"
+import PageUpload from "./PageUpload"
+import PageDisplay from "./PageDisplay"
+import { bookPreviews, insideBookPreviews } from "../../../helpers/bookPreviews"
+import InputTextSm from "../../Forms/InputTextSm"
 
 
 const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef, insideCoverRef, insideBackRef, pagesColorRef }) => {
@@ -55,12 +55,13 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
   }, [])
 
   useEffect(() => {
-    setCurrentPage(0)
-  }, [images.pages.length])
+    format === "manga" ? setCurrentPage(images.pages.length > 0 ? images.pages.length - 1 : 0) : setCurrentPage(0)
+    {/* eslint-disable-next-line */}
+  }, [images.pages.length, setCurrentPage])
 
 
   return (
-    <div className="relative mx-auto max-w-7xl flex flex-col lg:flex-row">
+    <div className="relative flex flex-col lg:flex-row">
 
       {/* :BOOK SETTINGS */}
       <div className="w-full grid grid-cols-3 gap-x-2 gap-y-5">
@@ -98,25 +99,25 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
         {/* ::SET Structure Colors */}
         <div className="col-span-full sm:col-span-1 flex flex-row sm:flex-col flex-wrap justify-start items-start space-y-2 space-x-2">
           <span className="w-full text-xs text-gray-700 font-extrabold uppercase">Setting Details</span>
-          <InputText 
+          <InputTextSm 
             inputRef={canvasBgRef}
             name="background color (HEX)"
             id="canvas-bg"
-            placeholder="#fffff"
+            placeholder="#fffff (default)"
           />
-          <InputText 
+          <InputTextSm 
             inputRef={insideCoverRef}
             name="inside cover color (HEX)"
             id="inside-cover"
             placeholder="#3d3d3d"
           />
-          <InputText 
+          <InputTextSm 
             inputRef={insideBackRef}
             name="inside back color (HEX)"
             id="inside-back"
             placeholder="#000"
           />
-          <InputText 
+          <InputTextSm 
             inputRef={pagesColorRef}
             name="pages color (HEX)"
             id="pages-color"
@@ -126,7 +127,7 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
             <button
               type="button"
               onClick={updatePreview}
-              className="relative inline-flex items-center px-3.5 py-1 rounded border border-transparent bg-teal-500 text-sm text-white font-medium whitespace-nowrap hover:bg-teal-600"
+              className="relative inline-flex items-center px-3.5 py-1 rounded border border-transparent bg-gray-500 text-sm text-white font-medium whitespace-nowrap hover:bg-teal-600"
             >
               <RefreshIcon className="mr-2 w-4 h-4" />
               Apply to Preview
@@ -142,11 +143,13 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
             {images.pages.map((page, index) => (
               <div key={index} className="relative m-2 w-24">
                 <PageDisplay 
+                  format={format}
                   file={page}
-                  name={`Page N°${index + 1}`}
+                  name={`Page N°${format === "manga" ? (images.pages.length - index) : (index + 1)}`}
                   index={index}
                   images={images}
                   setImages={setImages}
+                  setCurrentPage={setCurrentPage}
                 />
               </div>
             ))
@@ -155,6 +158,7 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
               <div className="relative m-2 w-28">
                 <PageUpload
                   id="new-page"
+                  format={format}
                   images={images}
                   setImages={setImages}
                   accept={`.${pagesExt}`}
@@ -170,9 +174,8 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
 
 
 
-
       {/* :PREVIEW NFT BOOK */}
-      <div className="relative sm:p-4 flex-nowrap mx-auto w-full max-w-lg">
+      <div className="relative sm:pl-4 flex-nowrap mx-auto w-full max-w-lg">
 
         {/* ::BUTTONS Switch Book & Flip Book */}
         <span className="pb-2 flex space-x-4">
@@ -238,14 +241,13 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
                   backgroundImg={images.background && URL.createObjectURL(images.background)}
                   coverImg={images.cover && URL.createObjectURL(images.cover)}
                   canvasBg={(previewSetting.canvasBg === "" && previewSetting.canvasBg !== null) ? "transparent" : previewSetting.canvasBg}
-                  insideBack={previewSetting.insideBack !== "" && previewSetting.insideBack !== null ? `after:bg-[${previewSetting.insideBack}]` : "after:bg-[#000]"}
+                  insideBack={previewSetting.insideBack !== "" && previewSetting.insideBack !== null ? previewSetting.insideBack : "#000"}
                 />
               </div>
           }
         </div>
 
       </div>
-
       
     </div>
   )

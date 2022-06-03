@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 
 
-const PageUpload = ({ images, setImages, accept, details, id, maxSize = 150 }) => {
+const PageUpload = ({ format, images, setImages, accept, id, maxSize = 150 }) => {
   
   const uploadToClient = (event) => {
     if (event.target.files[0].size > (maxSize * 1024)) {
@@ -13,7 +13,7 @@ const PageUpload = ({ images, setImages, accept, details, id, maxSize = 150 }) =
     if (event.target.files && event.target.files[0]) {
       const newState = {...images}
       const img = event.target.files[0]
-      newState.pages.push(img)
+      format === "manga" ? newState.pages.unshift(img) : newState.pages.push(img)
       setImages(newState)
     }
   }

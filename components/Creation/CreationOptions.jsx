@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 
 
-const CreateOptions = ({ isPremium }) => {
+const CreationOptions = ({ isPremium }) => {
 
   const storeOptions = [
     { name: "NFT", description: "NFT book models limited (PNG model)." },
@@ -84,4 +84,4 @@ const CreateOptions = ({ isPremium }) => {
   )
 }
 
-export default CreateOptions
+export default CreationOptions

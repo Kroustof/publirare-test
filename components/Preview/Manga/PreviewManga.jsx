@@ -29,7 +29,7 @@ const PreviewManga = ({ canvasBg, backgroundImg = bgExample, coverImg = coverExa
       <div className={styles.pseudoCanvas}>
         <div className={`relative z-50 ${styles.canvas}`} style={{ "backgroundColor": `${canvasBg}` }}>
           <div className={styles.bookContainer}>
-            <div className={`${styles.book} ${insideBack}`}>
+            <div className={styles.book}>
               {coverImg 
                 ? <Image 
                     src={coverImg}
@@ -44,6 +44,7 @@ const PreviewManga = ({ canvasBg, backgroundImg = bgExample, coverImg = coverExa
                     height={315}
                   />
               }
+              <div className={styles.bookAfter} style={{ backgroundColor: `${insideBack}` }} />
             </div>
           </div>
         </div>

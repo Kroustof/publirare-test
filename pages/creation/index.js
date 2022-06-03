@@ -7,8 +7,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import loader from '../../public/loader.gif'
-import CreateOptions from "../../components/Creation/CreateOptions"
 import LayoutNFTCreate from "../../components/Layout/LayoutNFTCreate"
+import CreationOptions from "../../components/Creation/CreationOptions"
 
 
 export default function Create() {
@@ -50,7 +50,7 @@ export default function Create() {
 
         {/* :Creator options */}
         <div className="mt-10">
-          <CreateOptions 
+          <CreationOptions 
             isPremium={creatorInfos.isPremium}
           />
         </div>

@@ -124,7 +124,7 @@
     );
 }
 
-.bookContainer .book::after {
+.bookAfter {
   position: absolute;
   top: 0;
   left: 0;
@@ -132,7 +132,6 @@
   width: 209px;
   height: 315px;
   transform: translateZ(-20px);
-  /* background-color: red; */
   border-radius: 0 3px 3px 0;
   box-shadow: -10px 0 50px 10px #777777;
 }

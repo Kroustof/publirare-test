@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-const InputText = ({ name, id, placeholder, inputRef }) => {
+const InputTextSm = ({ name, id, placeholder, inputRef }) => {
   return (
     <span>
       {/* ::Label */}
@@ -19,4 +19,4 @@ const InputText = ({ name, id, placeholder, inputRef }) => {
   )
 }
 
-export default InputText
+export default InputTextSm

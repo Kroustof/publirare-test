@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 import { useMoralisDapp } from "../../../../providers/MoralisDappProvider/MoralisDappProvider"
 import FormatChoices from "../../../../components/Creation/Factory/FormatChoices"
 import { useNFTCreation } from "../../../../providers/NFTCreationProvider/NFTCreationProvider"
-import { bookTypes, bookTypes2 } from "../../../../helpers/bookTypes"
+import { bookTypes } from "../../../../helpers/bookTypes"
 
 
 export default function NewCollection() {
@@ -71,7 +71,6 @@ export default function NewCollection() {
         <div>
           <FormatChoices 
             bookTypes={bookTypes}
-            bookTypes2={bookTypes2}
           />
         </div>
       </div>

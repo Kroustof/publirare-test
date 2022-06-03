@@ -2,13 +2,14 @@ import React from 'react'
 import { TrashIcon } from "@heroicons/react/outline"
 
 
-const PageDisplay = ({ file, name, index, images, setImages }) => {
+const PageDisplay = ({ format, file, name, index, images, setImages, setCurrentPage }) => {
 
   const deleteCurrentImg = () => {
     const newState = {...images}
     newState.pages.splice(index, 1)
     console.log(newState);
     setImages(newState)
+    if (format === "manga") setCurrentPage(images.pages.length - 1)
   }
 
   return (
