@@ -34,7 +34,7 @@ const FileUpload = ({ images, setImages, inputName, required, accept, details, i
       {/* :INPUT LABEL & REQUIREMENT */}
       <p className="flex justify-between">
         <span className="text-xs text-gray-700 font-extrabold uppercase">{inputName}</span>
-        <span className={`${required ? "text-red-700" : "text-gray-400"} text-xs font-medium`}>
+        <span className={`${required ? "text-red-700" : "text-gray-400"} text-xs font-medium italic`}>
           {required ? "(required)" : "(optional)"}
         </span>
       </p>

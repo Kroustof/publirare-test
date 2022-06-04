@@ -10,7 +10,9 @@ import { useMoralisDapp } from "../../../../providers/MoralisDappProvider/Morali
 import { useEffect, useRef, useState } from "react"
 import CreateNFTBook from "../../../../components/Creation/NFTBook/CreateNFTBook"
 import PreviewImage from "../../../../components/Creation/NFTBook/PreviewImage"
-import InformationsNFT from "../../../../components/Creation/NFTBook/InformationsNFT"
+import DetailsCollection from "../../../../components/Creation/NFTBook/DetailsCollection"
+import DetailsNFTBook from "../../../../components/Creation/NFTBook/DetailsNFTBook"
+import { ArrowNarrowRightIcon } from "@heroicons/react/outline"
 
 
 export default function Create() {
@@ -107,8 +109,8 @@ export default function Create() {
       <div className="pb-32 mx-auto w-full max-w-7xl flex flex-col">
 
         <div className="self-center text-center uppercase">
-          <span className="block text-lg text-gray-500 font-bold uppercase">{format}</span>
-          <h1 className="block text-4xl text-gray-700 font-extrabold">New Contract & Book</h1>
+          <span className="block sm:text-lg text-gray-500 font-bold uppercase">{format}</span>
+          <h1 className="block text-2xl sm:text-3xl lg:text-4xl text-gray-700 font-extrabold">New Contract & Book</h1>
           <span className="inline-block w-40 h-0.5 bg-teal-500 opacity-30" />
         </div>
 
@@ -128,7 +130,7 @@ export default function Create() {
           />
         </div>
 
-        <div className="relative mt-10 border-t-2 border-dotted border-teal-500 border-opacity-20">
+        <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
           <h2 className="py-5 text-xl text-teal-500 font-semibold">Upload Preview Image</h2>
           <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 2</span>
           <PreviewImage
@@ -137,12 +139,42 @@ export default function Create() {
           />
         </div>
 
-        <div className="relative mt-10 border-t-2 border-dotted border-teal-500 border-opacity-20">
+        <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
           <h2 className="py-5 text-xl text-teal-500 font-semibold">Collection & NFT Book details</h2>
           <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 3</span>
-          <InformationsNFT 
-
-          />
+          <div className="py-5 flex flex-col">
+            <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
+              <ArrowNarrowRightIcon className="mr-3 w-7" />
+              About Collection
+            </h3>
+            <DetailsCollection
+              collectionNameRef={collectionNameRef}
+              collectionDescRef={collectionDescRef}
+              collectionLinkRef={collectionLinkRef}
+              images={images}
+              setImages={setImages}
+            />
+          </div>
+          <div className="py-5 flex flex-col">
+          <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
+              <ArrowNarrowRightIcon className="mr-3 w-7" />
+              About your book
+            </h3>
+            <DetailsNFTBook
+              formatRef={formatRef}
+              titleRef={titleRef}
+              authorNameRef={authorNameRef}
+              editorNameRef={editorNameRef}
+              tomeRef={tomeRef}
+              descriptionRef={descriptionRef}
+              externalUrlRef={externalUrlRef}
+              languageRef={languageRef}
+              category1Ref={category1Ref}
+              category2Ref={category2Ref}
+              specialEditionRef={specialEditionRef}
+              setpublishingRights={setpublishingRights}
+            />
+          </div>
         </div>
         
       </div>

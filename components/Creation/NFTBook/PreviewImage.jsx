@@ -8,32 +8,32 @@ const PreviewImage = ({ images, setImages }) => {
   const [showInstruction, setShowInstruction] = useState(false)
 
   return (
-    <div className="relative py-5 flex">
+    <div className="relative py-5 flex flex-col md:flex-row items-center md:items-start">
       
       {/* :PREVIEW IMAGE */}
-      <div className="flex-shrink-0 mr-20 w-72">
+      <div className="flex-shrink-0 md:mr-10 lg:mr-20 w-40 sm:w-56 md:w-72">
         <FileUpload
           id="previewImage"
           images={images}
           setImages={setImages}
           inputName="Preview Image"
           required={true}
-          accept=""
-          details="PNG, JPEG or WEBP only (500 Ko MAX)"
+          accept=".png, .jpg, .webp, .gif"
+          details="PNG, JPEG, WEBP or GIF only (500 Ko MAX)"
           maxSize={500} // in Ko
         />
       </div>
 
 
       {/* :INFORMATIONS */}
-      <div className="pl-5 border-l border-gray-200">
+      <div className="pt-5 md:pt-0 md:pl-5 md:border-l border-gray-200">
         {/* ::Title */}
         <h3 className="mb-4 flex items-center text-lg text-gray-500 font-semibold">
           <InformationCircleIcon className="mr-2 w-6 h-6" />
           Informations
         </h3>
         {/* ::Infos */}
-        <p className="text-sm text-gray-500">Because NFT Books are interactive, you need to provide an image (PNG, JPG, or WEBP) for the card display of your item. As a preview image you can choose a custom image or (and this is advisable) use a picture of the NFT model you just built above. <br /> 
+        <p className="text-xs sm:text-sm text-gray-500">Because NFT Books are interactive, you need to provide an image (PNG, JPG, or WEBP) for the card display of your item. As a preview image you can choose a custom image or (and this is advisable) use a picture of the NFT model you just built above. <br /> 
         To use an image of the book you just designed you will need to do a screenshot of it, download it to your computer and then upload it here as preview image. <br /> <br />
         <b>Click below for instructions on your browser screenshot methods.</b>
         </p>
@@ -52,12 +52,12 @@ const PreviewImage = ({ images, setImages }) => {
         {/* ::Instructions */}
         <div className={`
           ${showInstruction ? "block" : "hidden"}
-          mt-5 grid grid-cols-2 gap-x-10 transition-all duration-200 ease-in
+          mt-5 grid grid-cols-1 lg:grid-cols-2 gap-y-5 gap-x-10 transition-all duration-200 ease-in
         `}>
           {/* :::firefox */}
-          <div>
+          <div className="col-span-1">
             <span className="block text-base text-gray-500 font-bold underline">Firefox:</span>
-            <p className="block text-xs text-gray-500">Firefox has a built-in function to do screenshot on web page. Follow these steps.</p>
+            <p className="block text-xs text-gray-500">Firefox has a built-in function to do screenshot on web page. Follow these steps:</p>
             <ul className="mt-2 list-decimal list-inside text-sm text-gray-500 font-semibold">
               <li>Right click on this page.</li>
               <li>Click on &laquo;Take a screenshot&raquo;.</li>
@@ -66,7 +66,7 @@ const PreviewImage = ({ images, setImages }) => {
             </ul>
           </div>
           {/* :::chrome */}
-          <div>
+          <div className="col-span-1">
             <span className="block text-base text-gray-500 font-bold underline">Chrome:</span>
             <p className="block text-xs text-gray-500">
               Chrome does not have a built-in function to do screenshots. So you need to install an add-on in your browser. You have multiple solutions available, here are the most popular: &#160;
