@@ -67,7 +67,7 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
       <div className="w-full grid grid-cols-3 gap-x-2 gap-y-5">
 
         {/* ::UPLOAD Background & Cover images */}
-        <div className="col-span-full sm:col-span-2 flex flex-wrap justify-around">
+        <div className="col-span-full flex flex-wrap justify-around">
           {/* :::background image nft */}
           <div className="relative m-2 w-44">
             <FileUpload
@@ -97,48 +97,56 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
         </div>
 
         {/* ::SET Structure Colors */}
-        <div className="col-span-full sm:col-span-1 flex flex-row sm:flex-col flex-wrap justify-start items-start space-y-2 space-x-2">
+        <div className="col-span-full flex flex-row sm:flex-col flex-wrap justify-start items-start space-y-2 ">
           <span className="w-full text-xs text-gray-700 font-extrabold uppercase">Setting Details</span>
-          <InputTextSm 
-            inputRef={canvasBgRef}
-            name="background color (HEX)"
-            id="canvas-bg"
-            placeholder="#fffff (default)"
-          />
-          <InputTextSm 
-            inputRef={insideCoverRef}
-            name="inside cover color (HEX)"
-            id="inside-cover"
-            placeholder="#3d3d3d"
-          />
-          <InputTextSm 
-            inputRef={insideBackRef}
-            name="inside back color (HEX)"
-            id="inside-back"
-            placeholder="#000"
-          />
-          <InputTextSm 
-            inputRef={pagesColorRef}
-            name="pages color (HEX)"
-            id="pages-color"
-            placeholder="#fbfbf8"
-          />
-          <span className="w-full">
-            <button
-              type="button"
-              onClick={updatePreview}
-              className="relative inline-flex items-center px-3.5 py-1 rounded border border-transparent bg-gray-500 text-sm text-white font-medium whitespace-nowrap hover:bg-teal-600"
-            >
-              <RefreshIcon className="mr-2 w-4 h-4" />
-              Apply to Preview
-            </button>
-          </span>
+          <div className="flex flex-wrap justify-start">
+            <span className="mx-2">
+              <InputTextSm
+                inputRef={canvasBgRef}
+                name="background color (HEX)"
+                id="canvas-bg"
+                placeholder="#fffff (default)"
+              />
+            </span>
+            <span className="mx-2">
+              <InputTextSm
+                inputRef={insideCoverRef}
+                name="inside cover color (HEX)"
+                id="inside-cover"
+                placeholder="#3d3d3d"
+              />
+            </span>
+            <span className="mx-2">
+              <InputTextSm
+                inputRef={insideBackRef}
+                name="inside back color (HEX)"
+                id="inside-back"
+                placeholder="#000"
+              />
+            </span>
+            <span className="mx-2">
+              <InputTextSm
+                inputRef={pagesColorRef}
+                name="pages color (HEX)"
+                id="pages-color"
+                placeholder="#fbfbf8"
+              />
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={updatePreview}
+            className="relative inline-flex items-center px-3.5 py-1 rounded border border-transparent bg-gray-500 text-sm text-white font-medium whitespace-nowrap hover:bg-teal-600"
+          >
+            <RefreshIcon className="mr-2 w-4 h-4" />
+            Apply to Preview
+          </button>
         </div>
 
         {/* ::UPLOAD Book Pages*/}
         <div className="col-span-full py-5 border-t-2 border-gray-200">
-          <h3 className="text-xs text-gray-700 font-bold uppercase">Book Pages (max 10)</h3>
-          <p className="text-xs text-gray-500 font-medium">{`${pagesExt.toUpperCase()} only (150 Ko MAX)`}</p>
+          <h3 className="inline-block text-xs text-gray-700 font-bold uppercase">Book Pages (max 10)</h3>
+          <p className="ml-2 inline-block text-xs text-gray-500 font-medium">{`${pagesExt.toUpperCase()} only (150 Ko MAX)`}</p>
           <div className="flex flex-wrap items-end">
             {images.pages.map((page, index) => (
               <div key={index} className="relative m-2 w-24">

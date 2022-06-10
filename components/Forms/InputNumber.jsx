@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-const InputTextLg = ({ name, id, placeholder, inputRef, required, details, maxlength = false }) => {
+const InputNumber = ({ name, id, placeholder, inputRef, required, details }) => {
   return (
     <span className="relative">
       <span className="flex justify-start items-center space-x-4">
@@ -16,17 +16,17 @@ const InputTextLg = ({ name, id, placeholder, inputRef, required, details, maxle
       <p className="mt-2 text-xs text-gray-400 font-semibold">{details}</p>
       {/* ::Input */}
       <input 
-        type="text" 
+        type="number" 
         ref={inputRef}
         id={id} 
         name={id}
+        defaultValue="0" min="0" max="20000"
         required={required}
         placeholder={placeholder}
-        maxLength={maxlength}
-        className="form-input mt-2 px-5 py-2.5 w-full block shadow-sm rounded-2xl border-gray-200 bg-gray-100 text-base placeholder-gray-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:bg-white"
+        className="form-input mt-2 px-5 py-2.5 w-32 block shadow-sm rounded-2xl border-gray-200 bg-gray-100 text-base placeholder-gray-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:bg-white"
       />
     </span>
   )
 }
 
-export default InputTextLg
+export default InputNumber

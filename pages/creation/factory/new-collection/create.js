@@ -45,6 +45,7 @@ export default function Create() {
   const titleRef = useRef("") //! metadata + pinata (name)
   const authorNameRef = useRef("") //! pinata
   const editorNameRef = useRef("") //! pinata
+  const serieRef = useRef("")
   const tomeRef = useRef("")
   // metadata book
   const descriptionRef = useRef("")
@@ -106,77 +107,81 @@ export default function Create() {
   
   if (isAuthenticated && isCreator && creatorInfos.isPremium && !isLoading) {
     return (
-      <div className="pb-32 mx-auto w-full max-w-7xl flex flex-col">
+      <div className="pb-32 mx-auto w-full max-w-7xl">
+        <div className="mx-auto max-w-5xl flex flex-col">
 
-        <div className="self-center text-center uppercase">
-          <span className="block sm:text-lg text-gray-500 font-bold uppercase">{format}</span>
-          <h1 className="block text-2xl sm:text-3xl lg:text-4xl text-gray-700 font-extrabold">New Contract & Book</h1>
-          <span className="inline-block w-40 h-0.5 bg-teal-500 opacity-30" />
-        </div>
+          <div className="self-center text-center uppercase">
+            <span className="block sm:text-lg text-gray-500 font-bold uppercase">{format}</span>
+            <h1 className="block text-2xl sm:text-3xl lg:text-4xl text-gray-700 font-extrabold">New Contract & Book</h1>
+            <span className="inline-block w-40 h-0.5 bg-teal-500 opacity-30" />
+          </div>
 
-        <div className="relative mt-16 ">
-          <h2 className="py-5 text-xl text-teal-500 font-semibold">Create Your NFT Book</h2>
-          <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 1</span>
-          <CreateNFTBook
-            images={images}
-            setImages={setImages}
-            format={format}
-            extension={extension}
-            size={size}
-            canvasBgRef={canvasBgRef}
-            insideCoverRef={insideCoverRef}
-            insideBackRef={insideBackRef}
-            pagesColorRef={pagesColorRef}
-          />
-        </div>
+          <div className="relative mt-16 ">
+            <h2 className="py-5 text-xl text-teal-500 font-semibold">Create Your NFT Book</h2>
+            <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 1</span>
+            <CreateNFTBook
+              images={images}
+              setImages={setImages}
+              format={format}
+              extension={extension}
+              size={size}
+              canvasBgRef={canvasBgRef}
+              insideCoverRef={insideCoverRef}
+              insideBackRef={insideBackRef}
+              pagesColorRef={pagesColorRef}
+            />
+          </div>
 
-        <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
-          <h2 className="py-5 text-xl text-teal-500 font-semibold">Upload Preview Image</h2>
-          <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 2</span>
-          <PreviewImage
-            images={images}
-            setImages={setImages}
-          />
-        </div>
-
-        <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
-          <h2 className="py-5 text-xl text-teal-500 font-semibold">Collection & NFT Book details</h2>
-          <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 3</span>
-          <div className="py-5 flex flex-col">
-            <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
-              <ArrowNarrowRightIcon className="mr-3 w-7" />
-              About Collection
-            </h3>
-            <DetailsCollection
-              collectionNameRef={collectionNameRef}
-              collectionDescRef={collectionDescRef}
-              collectionLinkRef={collectionLinkRef}
+          <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
+            <h2 className="py-5 text-xl text-teal-500 font-semibold">Upload Preview Image</h2>
+            <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 2</span>
+            <PreviewImage
               images={images}
               setImages={setImages}
             />
           </div>
-          <div className="py-5 flex flex-col">
-          <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
-              <ArrowNarrowRightIcon className="mr-3 w-7" />
-              About your book
-            </h3>
-            <DetailsNFTBook
-              formatRef={formatRef}
-              titleRef={titleRef}
-              authorNameRef={authorNameRef}
-              editorNameRef={editorNameRef}
-              tomeRef={tomeRef}
-              descriptionRef={descriptionRef}
-              externalUrlRef={externalUrlRef}
-              languageRef={languageRef}
-              category1Ref={category1Ref}
-              category2Ref={category2Ref}
-              specialEditionRef={specialEditionRef}
-              setpublishingRights={setpublishingRights}
-            />
+
+          <div className="relative mt-16 border-t-2 border-dotted border-teal-500 border-opacity-20">
+            <h2 className="py-5 text-xl text-teal-500 font-semibold">Collection & NFT Book details</h2>
+            <span className="absolute inset-0 text-7xl text-teal-500 font-black uppercase opacity-10">Step 3</span>
+            <div className="py-5 flex flex-col">
+              <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
+                <ArrowNarrowRightIcon className="mr-3 w-7" />
+                About Collection
+              </h3>
+              <DetailsCollection
+                collectionNameRef={collectionNameRef}
+                collectionDescRef={collectionDescRef}
+                collectionLinkRef={collectionLinkRef}
+                images={images}
+                setImages={setImages}
+              />
+            </div>
+            <div className="py-5 flex flex-col">
+            <h3 className="inline-flex items-center text-base text-teal-500 font-extrabold uppercase underline">
+                <ArrowNarrowRightIcon className="mr-3 w-7" />
+                About your NFT book
+              </h3>
+              <DetailsNFTBook
+                format={format}
+                size={size}
+                titleRef={titleRef}
+                authorNameRef={authorNameRef}
+                editorNameRef={editorNameRef}
+                serieRef={serieRef}
+                tomeRef={tomeRef}
+                descriptionRef={descriptionRef}
+                externalUrlRef={externalUrlRef}
+                languageRef={languageRef}
+                category1Ref={category1Ref}
+                category2Ref={category2Ref}
+                specialEditionRef={specialEditionRef}
+                setpublishingRights={setpublishingRights}
+              />
+            </div>
           </div>
-        </div>
         
+        </div>
       </div>
     )
   }
