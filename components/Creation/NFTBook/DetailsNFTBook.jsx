@@ -1,10 +1,11 @@
 import React from 'react'
 import InputNumber from "../../Forms/InputNumber"
 import InputTextLg from "../../Forms/InputTextLg"
+import { categories } from "../../../helpers/bookCategories"
+import InputCombobox from "../../Forms/InputCombobox"
+import { languageArray, languageISO } from "../../../helpers/languageISO"
 
-
-const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, serieRef, tomeRef, descriptionRef, externalUrlRef, languageRef, category1Ref, category2Ref, specialEditionRef, setpublishingRights }) => {
-
+const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, serieRef, tomeRef, descriptionRef, externalUrlRef, languageRef, category1Ref, category2Ref, specialEditionRef, publishingRights, setPublishingRights }) => {
   return (
     <div className="relative py-5 grid grid-cols-1 lg:grid-cols-10 gap-x-10 gap-y-10">
 
@@ -83,7 +84,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
 
       {/* :LANGUAGE */}
       <span className="col-span-3 max-w-md">
-        <InputTextLg 
+        {/* <InputTextLg 
           name="Book Language"
           id="language"
           inputRef={languageRef}
@@ -91,6 +92,17 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
           required={true}
           maxlength={2}
           details="Language version of the book"
+        /> */}
+        <InputCombobox 
+          inputRef={languageRef}
+          data={languageArray}
+          label="Book Language"
+          emptyValue="None"
+          required={true}
+          details="Language version of the book"
+          maxLength="2"
+          uppercase={true}
+          language={true}
         />
       </span>
 
@@ -112,7 +124,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
 
       {/* :NFT BOOK DESCRIPTION */}
       <div className="col-span-full max-w-4xl">
-        <span className="flex justify-between">
+        <span className="flex justify-start items-center space-x-4">
           <label htmlFor="book-description" className="px-1 text-sm text-gray-500 font-bold">NFT BOOK Description</label>
           <span className="text-xs text-gray-400 font-medium italic">(optional)</span>
         </span>
@@ -123,10 +135,101 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
           id="book-description" 
           cols="30" rows="8"
           maxLength={1000}
-          placeholder=""
+          placeholder="Provide a detailed description of your item."
           className="form-textarea resize-none w-full shadow-sm rounded border-gray-300 bg-gray-50 placeholder-gray-300 focus:border-teal-500 focus:ring-teal-500"
         ></textarea>
       </div>
+
+      {/* :CATEGORY BOOK 1 */}
+      <span className="col-span-3 max-w-md">
+        <InputCombobox 
+          inputRef={category1Ref}
+          data={categories}
+          label="Book Category 1"
+          emptyValue="None"
+          required={true}
+        />
+      </span>
+
+      {/* :CATEGORY BOOK 2 */}
+      <span className="col-span-3 max-w-md">
+        <InputCombobox 
+          inputRef={category2Ref}
+          data={categories}
+          label="Book Category 2"
+          emptyValue="None"
+          required={false}
+        />
+      </span>
+
+      {/* :SPECIAL EDITION */}
+      <span className="col-span-5 max-w-md">
+        <InputTextLg 
+          name="Special Edition?"
+          id="special-edition"
+          inputRef={specialEditionRef}
+          placeholder="Gold Limited Edition"
+          required={false}
+          details="Is there anything special about this edition?"
+        />
+      </span>
+
+      {/* :PUBLISHING RIGHTS */}
+      <span className="col-span-full">
+        <span className="flex justify-start items-center space-x-4">
+          <p className="px-1 text-sm text-gray-500 font-bold">Copyrights</p>
+          <span className="text-xs text-red-600 font-medium italic">(required)</span>
+        </span>
+        <p className="my-2 text-xs text-gray-400 font-semibold">Important condition required before creating your NFT Book. <b>Please read carefully.</b></p>
+        <div className="mt-2 flex flex-col space-y-3">
+          {/* ::Own publishing rights */}
+          <span className={`
+            flex items-center px-3 max-w-3xl border rounded-2xl 
+            ${publishingRights ? "bg-teal-50 border-teal-300" : "border-gray-100 hover:border-gray-300"}
+          `}>
+            <input 
+              type="radio" 
+              name="rights" 
+              id="rights-owned"
+              value={true}
+              onChange={() => setPublishingRights(true)}
+              required
+              className="form-radio text-teal-500 focus:ring-teal-100" 
+            />
+            <label htmlFor="rights-owned" className={`ml-3 py-4 w-full flex items-center space-x-1 text-sm ${publishingRights ? "text-teal-500 font-semibold" : "text-gray-400 font-medium"}`} >
+              I own the copyright and I hold the necessary publishing rights.&#160; 
+              <p className="group relative text-sky-600 font-medium hover:text-sky-500 hover:underline">
+                What are publishing rights?
+                <span className="z-50 absolute -bottom-16 left-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Choose this option if your book is under copyright and you hold the necessary rights for the content being published. (Exception on Fan Art)</span>
+              </p>
+            </label>
+          </span>
+          {/* ::Public domain */}
+          <span className={`
+            flex items-center px-3 max-w-3xl border border-gray-100 rounded-2xl hover:border-gray-300
+            ${publishingRights === false ? "bg-gray-100 border-gray-300" : "border-gray-100 hover:border-gray-300"}
+          `}>
+            <input 
+              type="radio" 
+              name="rights" 
+              id="public-domain"
+              value={false}
+              onChange={() => setPublishingRights(false)}
+              className="form-radio text-gray-500 focus:ring-gray-100" 
+            />
+            <label htmlFor="public-domain" className={`ml-3 py-4 w-full flex items-center space-x-1 text-sm ${publishingRights === false ? "text-gray-800 font-semibold" : "text-gray-400 font-medium"}`} >
+              This is a public domain work or fan art work.&#160;
+              <p className="group relative text-sky-600 font-medium hover:text-sky-500 hover:underline">
+                What is a public domain work?
+                <span className="z-50 absolute -bottom-24 left-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Select this option if the related book is in the public domain. Keep in mind that the duration of copyright varies between countries/regions. So, if your book is in the public domain in one country/region but not another, you must identify your territory rights accordingly.</span>
+              </p>
+            </label>
+          </span>
+        </div>
+        <p className="mt-3 text-xs text-gray-500 font-medium">
+          <span className="text-red-600 font-semibold">Attention!</span> Any violation of the copyrights may lead to prosecution on the part of the author and beneficiaries. PubliRare will ensure compliance with these conditions and will work with rights holders against those who violate copyrights. <b>DO NOT create NFT books if you don&apos;t have the author&apos;s consent.</b>
+        </p>
+      </span>
 
     </div>
   )

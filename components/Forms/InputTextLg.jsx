@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-const InputTextLg = ({ name, id, placeholder, inputRef, required, details, maxlength = false }) => {
+const InputTextLg = ({ name, id, placeholder, inputRef, required, details, maxlength = "" }) => {
   return (
     <span className="relative">
       <span className="flex justify-start items-center space-x-4">

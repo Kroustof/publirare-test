@@ -53,7 +53,7 @@ const DetailsCollection = ({ collectionNameRef, collectionDescRef, collectionLin
 
       {/* :COLLECTION DESCRIPTION */}
       <div className="col-span-full max-w-4xl">
-        <span className="flex justify-between">
+        <span className="flex justify-start items-center space-x-4">
           <label htmlFor="collection-description" className="px-1 text-sm text-gray-500 font-bold">Collection Description</label>
           <span className="text-xs text-gray-400 font-medium italic">(optional)</span>
         </span>

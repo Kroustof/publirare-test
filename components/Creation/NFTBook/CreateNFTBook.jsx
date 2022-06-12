@@ -98,7 +98,10 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
 
         {/* ::SET Structure Colors */}
         <div className="col-span-full flex flex-row sm:flex-col flex-wrap justify-start items-start space-y-2 ">
-          <span className="w-full text-xs text-gray-700 font-extrabold uppercase">Setting Details</span>
+          <span className="flex justify-start items-center space-x-4">
+            <h3 className="w-full text-xs text-gray-700 font-extrabold uppercase">Setting Details</h3>
+            <span className="text-xs text-gray-400 font-medium italic">(optional)</span>
+          </span>
           <div className="flex flex-wrap justify-start">
             <span className="mx-2">
               <InputTextSm
@@ -145,8 +148,11 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
 
         {/* ::UPLOAD Book Pages*/}
         <div className="col-span-full py-5 border-t-2 border-gray-200">
-          <h3 className="inline-block text-xs text-gray-700 font-bold uppercase">Book Pages (max 10)</h3>
-          <p className="ml-2 inline-block text-xs text-gray-500 font-medium">{`${pagesExt.toUpperCase()} only (150 Ko MAX)`}</p>
+          <span className="flex justify-start items-center">
+            <h3 className="inline-block text-xs text-gray-700 font-bold uppercase">Book Pages (max 10)</h3>
+            <span className="ml-2 inline-block text-xs text-gray-500 font-medium">{`${pagesExt.toUpperCase()} only (150 Ko MAX)`}</span>
+            <span className="ml-4 text-xs text-red-700 font-medium italic">(required)</span>
+          </span>
           <div className="flex flex-wrap items-end">
             {images.pages.map((page, index) => (
               <div key={index} className="relative m-2 w-24">
@@ -224,10 +230,10 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
           {/* :::BUTTONS previous & next page */}
           {showInside &&
             <div className="z-50 absolute top-0 right-0 flex space-x-4 bg-white bg-opacity-80">
-              <button className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={previousPage}>
+              <button type="button" className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={previousPage}>
                 <ArrowLeftIcon className="w-8 h-8" />
               </button>
-              <button className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={nextPage}>
+              <button type="button" className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={nextPage}>
                 <ArrowRightIcon className="w-8 h-8" />
               </button>
             </div>
