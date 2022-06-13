@@ -1,13 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 import InputNumber from "../../Forms/InputNumber"
 import InputTextLg from "../../Forms/InputTextLg"
 import { categories } from "../../../helpers/bookCategories"
 import InputCombobox from "../../Forms/InputCombobox"
 import { languageArray, languageISO } from "../../../helpers/languageISO"
 
-const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, serieRef, tomeRef, descriptionRef, externalUrlRef, languageRef, category1Ref, category2Ref, specialEditionRef, publishingRights, setPublishingRights }) => {
+const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, serieRef, tomeRef, descriptionRef, externalUrlRef, languageRef, category1Ref, category2Ref, specialEditionRef, publishingRights, setPublishingRights, amountRef, maxCopiesRef, royaltyFeeInBipsRef }) => {
+
+  const [cut, setCut] = useState(0)
+  const calculateCut = () => {
+    if (!amountRef.current.value && !maxCopiesRef.current.value) {
+      setCut(0)
+    }
+    if (maxCopiesRef.current.value !== "") {
+      maxCopiesRef.current.value < 10
+        ? setCut(0)
+        : (maxCopiesRef.current.value >= 10 && maxCopiesRef.current.value < 50)
+        ? setCut(1)
+        : setCut(Math.floor(maxCopiesRef.current.value * 2 / 100))
+    } else {
+      amountRef.current.value < 10
+        ? setCut(0)
+        : (amountRef.current.value >= 10 && amountRef.current.value < 50)
+        ? setCut(1)
+        : setCut(Math.floor(amountRef.current.value * 2 / 100))
+    }
+  }
+
   return (
-    <div className="relative py-5 grid grid-cols-1 lg:grid-cols-10 gap-x-10 gap-y-10">
+    <div className="relative py-5 grid grid-cols-1 sm:col-span-2 lg:grid-cols-10 gap-x-10 gap-y-10">
 
       <div className="col-span-full flex items-center space-x-10">
         {/* :BOOK FORMAT */}
@@ -23,7 +44,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </div>
 
       {/* :COLLECTION NAME */}
-      <span className="col-span-4 max-w-md">
+      <span className="col-span-full lg:col-span-4 mx-auto lg:mx-0 w-full max-w-md">
         <InputTextLg 
           name="Book Title"
           id="book-title"
@@ -35,7 +56,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :AUTHOR NAME */}
-      <span className="col-span-3 max-w-md">
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputTextLg 
           name="Author Name"
           id="author-name"
@@ -47,7 +68,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :EDITOR NAME */}
-      <span className="col-span-3 max-w-md">
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputTextLg 
           name="Editor Name"
           id="editor-name"
@@ -59,7 +80,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :SERIE TITLE */}
-      <span className="col-span-4 max-w-md">
+      <span className="col-span-full lg:col-span-4 mx-auto lg:mx-0 w-full max-w-md">
         <InputTextLg 
           name="Serie Title"
           id="serie-title"
@@ -71,28 +92,22 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :TOME */}
-      <span className="col-span-3 max-w-md">
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputNumber 
           name="Tome"
           id="tome"
           inputRef={tomeRef}
           placeholder="Tome 1"
           required={false}
+          defaultValue={0}
+          min={1}
+          max={20000}
           details="Tome number in the current serie"
         />
       </span>
 
       {/* :LANGUAGE */}
-      <span className="col-span-3 max-w-md">
-        {/* <InputTextLg 
-          name="Book Language"
-          id="language"
-          inputRef={languageRef}
-          placeholder="i.e: 'EN' for english version"
-          required={true}
-          maxlength={2}
-          details="Language version of the book"
-        /> */}
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputCombobox 
           inputRef={languageRef}
           data={languageArray}
@@ -106,8 +121,62 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
         />
       </span>
 
+      {/* :NUMBER OF COPIES */}
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
+        <InputNumber 
+          name="Number of copies"
+          id="amount"
+          inputRef={amountRef}
+          placeholder="1000"
+          required={true}
+          min={2}
+          max={25000000}
+          calculateCut={calculateCut}
+          details="Copies minted at NFT creation (2 up to 25M)"
+        />
+      </span>
+
+      {/* :MAX COPIES */}
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
+        <InputNumber 
+          name="Max copies"
+          id="max-copies"
+          inputRef={maxCopiesRef}
+          placeholder=""
+          required={false}
+          min={2}
+          max={25000000}
+          calculateCut={calculateCut}
+          details="Max number of NFT book copies you can mint."
+        />
+        <p className="text-xs text-gray-400 font-light italic">*Rarity based on max copies. Default value: copies minted at creation.</p>
+      </span>
+
+      {/* :PUBLIRARE CUT INFOS */}
+      <span className="col-span-full lg:col-span-4 pl-3 mx-auto lg:mx-0 w-full max-w-sm border-l border-teal-200 bg-gradient-to-r from-teal-50">
+        <p className="text-teal-500 font-bold">PubliRare Cut</p>
+        <span className="mt-2 text-lg text-gray-700 font-bold">2%</span>
+        <span className="ml-4 text-xs text-gray-500">(based on max copies)</span>
+        <p className="mt-1 text-lg text-teal-400 font-semibold">{`${cut} copies`}</p>
+      </span>
+
+      {/* :ROYALTIES */}
+      <span className="col-span-full relative mx-auto lg:mx-0 w-full max-w-xs">
+        <InputNumber 
+          name="Royalties"
+          id="royalties"
+          inputRef={royaltyFeeInBipsRef}
+          placeholder=""
+          required={false}
+          min={0}
+          max={50}
+          details="Suggested: 0%, 10%, 20%, 30%. Maximum is 50%."
+        />
+        <span className="absolute bottom-2.5 right-16 text-lg text-gray-400 font-semibold">%</span>
+      </span>
+
       {/* :EXTERNAL LINK TO WEB3 BOOK */}
-      <span className="col-span-full">
+      <span className="col-span-full mx-auto lg:mx-0 w-full max-w-3xl">
         <InputTextLg 
           name="External link (to your book)"
           id="external-link"
@@ -123,7 +192,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :NFT BOOK DESCRIPTION */}
-      <div className="col-span-full max-w-4xl">
+      <div className="col-span-full mx-auto lg:mx-0 w-full max-w-4xl">
         <span className="flex justify-start items-center space-x-4">
           <label htmlFor="book-description" className="px-1 text-sm text-gray-500 font-bold">NFT BOOK Description</label>
           <span className="text-xs text-gray-400 font-medium italic">(optional)</span>
@@ -141,7 +210,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </div>
 
       {/* :CATEGORY BOOK 1 */}
-      <span className="col-span-3 max-w-md">
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputCombobox 
           inputRef={category1Ref}
           data={categories}
@@ -152,7 +221,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :CATEGORY BOOK 2 */}
-      <span className="col-span-3 max-w-md">
+      <span className="col-span-1 lg:col-span-3 mx-auto lg:mx-0 w-full max-w-md">
         <InputCombobox 
           inputRef={category2Ref}
           data={categories}
@@ -163,7 +232,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :SPECIAL EDITION */}
-      <span className="col-span-5 max-w-md">
+      <span className="col-span-full lg:col-span-5 mx-auto lg:mx-0 w-full max-w-md">
         <InputTextLg 
           name="Special Edition?"
           id="special-edition"
@@ -175,7 +244,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       </span>
 
       {/* :PUBLISHING RIGHTS */}
-      <span className="col-span-full">
+      <span className="col-span-full mx-auto lg:mx-0 w-full max-w-3xl">
         <span className="flex justify-start items-center space-x-4">
           <p className="px-1 text-sm text-gray-500 font-bold">Copyrights</p>
           <span className="text-xs text-red-600 font-medium italic">(required)</span>
@@ -184,7 +253,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
         <div className="mt-2 flex flex-col space-y-3">
           {/* ::Own publishing rights */}
           <span className={`
-            flex items-center px-3 max-w-3xl border rounded-2xl 
+            flex items-center px-3 mx-auto lg:mx-0 w-full max-w-3xl border rounded-2xl 
             ${publishingRights ? "bg-teal-50 border-teal-300" : "border-gray-100 hover:border-gray-300"}
           `}>
             <input 
@@ -198,15 +267,15 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
             />
             <label htmlFor="rights-owned" className={`ml-3 py-4 w-full flex items-center space-x-1 text-sm ${publishingRights ? "text-teal-500 font-semibold" : "text-gray-400 font-medium"}`} >
               I own the copyright and I hold the necessary publishing rights.&#160; 
-              <p className="group relative text-sky-600 font-medium hover:text-sky-500 hover:underline">
+              <p className="group relative ml-1 text-sky-600 font-medium hover:text-sky-500 hover:underline">
                 What are publishing rights?
-                <span className="z-50 absolute -bottom-16 left-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Choose this option if your book is under copyright and you hold the necessary rights for the content being published. (Exception on Fan Art)</span>
+                <span className="z-50 absolute -bottom-16 right-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Choose this option if your book is under copyright and you hold the necessary rights for the content being published. (Exception on Fan Art)</span>
               </p>
             </label>
           </span>
           {/* ::Public domain */}
           <span className={`
-            flex items-center px-3 max-w-3xl border border-gray-100 rounded-2xl hover:border-gray-300
+            flex items-center px-3 mx-auto lg:mx-0 w-full max-w-3xl border border-gray-100 rounded-2xl hover:border-gray-300
             ${publishingRights === false ? "bg-gray-100 border-gray-300" : "border-gray-100 hover:border-gray-300"}
           `}>
             <input 
@@ -219,9 +288,9 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
             />
             <label htmlFor="public-domain" className={`ml-3 py-4 w-full flex items-center space-x-1 text-sm ${publishingRights === false ? "text-gray-800 font-semibold" : "text-gray-400 font-medium"}`} >
               This is a public domain work or fan art work.&#160;
-              <p className="group relative text-sky-600 font-medium hover:text-sky-500 hover:underline">
+              <p className="group relative ml-1 text-sky-600 font-medium hover:text-sky-500 hover:underline">
                 What is a public domain work?
-                <span className="z-50 absolute -bottom-24 left-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Select this option if the related book is in the public domain. Keep in mind that the duration of copyright varies between countries/regions. So, if your book is in the public domain in one country/region but not another, you must identify your territory rights accordingly.</span>
+                <span className="z-50 absolute -bottom-24 right-0 p-3 w-[450px] hidden group-hover:block border border-gray-200 rounded bg-white text-left text-xs text-gray-500">Select this option if the related book is in the public domain. Keep in mind that the duration of copyright varies between countries/regions. So, if your book is in the public domain in one country/region but not another, you must identify your territory rights accordingly.</span>
               </p>
             </label>
           </span>

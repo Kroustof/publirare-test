@@ -5,7 +5,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Link from 'next/link'
 import Image from 'next/image'
 import loader from '../../../../public/loader.gif'
-import { useMoralis } from "react-moralis"
+import { useMoralis, useChain } from "react-moralis"
 import { useRouter } from 'next/router'
 import { useMoralisDapp } from "../../../../providers/MoralisDappProvider/MoralisDappProvider"
 import CreateNFTBook from "../../../../components/Creation/NFTBook/CreateNFTBook"
@@ -15,18 +15,20 @@ import DetailsNFTBook from "../../../../components/Creation/NFTBook/DetailsNFTBo
 import ErrorArrayMessage from "../../../../components/Alerts/ErrorArrayMessage"
 import FactoryCreationStatus from "../../../../components/Creation/Factory/FactoryCreationStatus"
 import { CloudUploadIcon, CogIcon, DocumentAddIcon, SpeakerphoneIcon } from "@heroicons/react/outline"
+import FactoryCreationConfirmation from "../../../../components/Creation/Factory/FactoryCreationConfirmation"
 
 
 export default function Create() {
 
   const router = useRouter()
   const { format, extension, size } = router.query
-  const { isAuthenticated, isAuthUndefined, chainId } = useMoralis()
+  const { isAuthenticated, isAuthUndefined, account } = useMoralis()
+  const { switchNetwork, chainId } = useChain()
   const { isCreator, creatorInfos, isLoading } = useMoralisDapp()
-  const [isOpenValidation, setIsOpenValidation] = useState(false)
+  const [isOpenValidation, setIsOpenValidation] = useState(true)
   const [isOpenErrorFields, setIsOpenErrorFields] = useState(false)
   const [errorFields, setErrorFields] = useState(null)
-  const [loadingState, setLoadingState] = useState(1)
+  const [loadingState, setLoadingState] = useState(0)
   // creation steps ("upcoming" / "completed" / "current")
   const [steps, setSteps] = useState([
     { id: 1, title: "Build NFT Book", icon: CogIcon, status: "upcoming" },
@@ -34,7 +36,14 @@ export default function Create() {
     { id: 3, title: "Create Smart Contract", icon: DocumentAddIcon, status: "upcoming" },
     { id: 4, title: "Congratulations!", icon: SpeakerphoneIcon, status: "upcoming" }
   ])
+  const [nftInfos, setNftInfos] = useState({
+    contractURI: null,
+    metadataURI: null,
+    contractAddress: null,
+    isNftMinted: false
+  })
   
+  //! INPUTS
   // customization
   const [images, setImages] = useState({
     collectionImage: null,
@@ -60,6 +69,9 @@ export default function Create() {
   const editorNameRef = useRef("") //! pinata
   const serieRef = useRef("")
   const tomeRef = useRef("")
+  const amountRef = useRef("") //! contract 
+  const maxCopiesRef = useRef("") //! contract
+  const royaltyFeeInBipsRef = useRef("") //! contract
   // metadata book
   const descriptionRef = useRef("")
   const externalUrlRef = useRef("") //! Web 3 Book URL
@@ -82,6 +94,42 @@ export default function Create() {
     }
   }
 
+  //! CREATION HELP FUNCTIONS 
+  // const buildBodyPOST = () => {
+  //   const body = new FormData()
+  //   return new Promise((res, rej) => {
+  //     // Info & Customization
+  //     body.append("clientAddress", account)
+  //     body.append("format", formatRef.current.value)
+  //     body.append("title", titleRef.current.value)
+  //     body.append("authorName", authorNameRef.current.value)
+  //     body.append("editorName", editorNameRef.current.value)
+  //     body.append("collection", collectionRef.current.value)
+  //     body.append("tome", tomeRef.current.value)
+  //     body.append("background", canvasBgRef.current.value)
+  //     body.append("insideCover", insideCoverRef.current.value)
+  //     body.append("insideBack", insideBackRef.current.value)
+  //     body.append("pagesColor", pagesColorRef.current.value)
+  //     body.append("description", descriptionRef.current.value)
+  //     body.append("external_url", externalUrlRef.current.value)
+  //     body.append("language", languageRef.current.value)
+  //     body.append("specialEdition", specialEditionRef.current.value)
+  //     body.append("category1", category1Ref.current.value)
+  //     body.append("category2", category2Ref.current.value)
+  //     body.append("rights", publishingRights)
+  //     // Files
+  //     body.append("file", images.previewImage)
+  //     body.append("bookLength", images.pages.length)
+  //     body.append("cover", images.cover, "cover.png")
+  //     body.append("background", images.background, "background.png")
+  //     images.pages.map((page, index) => {
+  //       body.append(`page${index + 1}`, page, `${index + 1}.png`)
+  //     })
+  //     // setBodyPOST(body)
+  //     console.log("data POST completed")
+  //     res(body)
+  //   })
+  // }
 
   //! CREATION STEPS
   // Step 1: Check input fields requirements
@@ -89,8 +137,13 @@ export default function Create() {
     e.preventDefault()
     setIsOpenValidation(false)
     setErrorFields(null)
-    setLoadingState(1)
     let errorsArray = []
+    // Check chain and switch to Polygon (testnet)
+    if (chainId !== "0x13881") {
+      alert("You are connected to the wrong blockchain! Change to Polygon blockchain.")
+      switchNetwork("0x13881")
+      return
+    }
     // validate images
     if (!images.cover) errorsArray.push("Book cover missing! Please upload a cover image.")
     if (images.pages.length < 1) errorsArray.push("Your NFT book must have at least 1 page! Please upload a page or more to your NFT book.")
@@ -108,6 +161,12 @@ export default function Create() {
     if (category1Ref.current.value === "") errorsArray.push("Book category missing! Please select at least 1 category to your NFT book.")
     if (category1Ref.current.value === "") errorsArray.push("Book category missing! Please select at least 1 category to your NFT book.")
     if (publishingRights === null) errorsArray.push("Copyrights infos required! Please choose between the two copyright options.")
+    if (amountRef.current.value < 2) errorsArray.push("Number of copies too low! Please set a number of copy over 2.")
+    if (amountRef.current.value > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
+    if (maxCopiesRef.current.value !== "" && (maxCopiesRef.current.value < amountRef.current.value)) errorsArray.push("Maximum copies cannot be lower than the number of copies minted at creation! Please set a valid number or delete max copies value.")
+    if (maxCopiesRef.current.value !== "" && maxCopiesRef.current.value > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
+    if (royaltyFeeInBipsRef.current.value !== "" && royaltyFeeInBipsRef.current.value > 50) errorsArray.push("Royalties cannot exceed 50%! Please set a valid royalty percentage.")
+    if (royaltyFeeInBipsRef.current.value !== "" && royaltyFeeInBipsRef.current.value < 0) errorsArray.push("Royalties cannot be a negative number! Please set a valid royalty percentage.")
 
     if (errorsArray.length > 0) {
       setErrorFields(errorsArray)
@@ -124,7 +183,8 @@ export default function Create() {
   // Step 2: Create NFT Book
   const mintNewNFTBook = async (e) => {
     e.preventDefault()
-    setLoadingState(2)
+    setIsOpenValidation(false)
+    setLoadingState(1)
     updateSteps(1)
   }
   
@@ -195,8 +255,8 @@ export default function Create() {
             className="flex flex-col"
           >
             
-            {/* :Fields Container */}
-            <div className={`${loadingState > 1 ? "hidden" : "flex flex-col"}`}>
+            {/* :FIELDS CONTAINER */}
+            <div className={`${loadingState > 0 ? "hidden" : "flex flex-col"}`}>
 
               <div className="self-center text-center uppercase">
                 <span className="block sm:text-lg text-gray-500 font-bold uppercase">{format}</span>
@@ -260,23 +320,33 @@ export default function Create() {
                   specialEditionRef={specialEditionRef}
                   publishingRights={publishingRights}
                   setPublishingRights={setPublishingRights}
+                  amountRef={amountRef}
+                  maxCopiesRef={maxCopiesRef}
+                  royaltyFeeInBipsRef={royaltyFeeInBipsRef}
                 />
               </div>
 
             </div>
 
-            {/* :Currently Building */}
-            <div className="pt-20 text-center">
+            {/* :BUILDING STATUS */}
+            <div className={`
+              pt-20 text-center 
+              ${loadingState === 0 ? "hidden" : "flex flex-col"}
+            `}>
               <h2 className="text-5xl text-gray-700 font-bold">Do not close this window</h2>
               <p className="mt-5">PubliRare Factory is currently creating your NFT Book. Please wait.</p>
+              <FactoryCreationStatus 
+                steps={steps}
+                nftInfos={nftInfos}
+              />
             </div>
 
-            {/* :Submit Button & Status */}
+            {/* :SUBMIT BUTTON */}
             <div className="mt-16 flex justify-center items-center">
               <button 
                 type="submit"
                 disabled={loadingState !== 0}
-                className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
+                className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
               >
                 <span className={`mr-2 ${loadingState !== 0 ? "block" : "hidden"}`}>
                   {loadingState !== 0 &&
@@ -288,32 +358,18 @@ export default function Create() {
                     />
                   }
                 </span>
-                {loadingState === 1
-                  ? "Checking fields..."
-                  : loadingState === 2
-                  ? "Build NFT Book"
-                  : loadingState === 3
-                  ? "Pin Metadata to IPFS"
-                  : loadingState === 4
-                  ? "Create Smart Contract"
+                {loadingState !== 0 && loadingState < 4
+                  ? "Please Wait..."
                   : "Create"
                 }
-              </button>
-              <button
-                onClick={() => setIsOpenValidation(true)}
-                className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
-              >
-                Check Status
               </button>
             </div>
 
           </form>
 
-          <FactoryCreationStatus 
+          <FactoryCreationConfirmation 
             isOpen={isOpenValidation}
             setIsOpen={setIsOpenValidation}
-            steps={steps}
-            setSteps={setSteps}
             start={mintNewNFTBook}
             loadingState={loadingState}
           />

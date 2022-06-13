@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-const InputNumber = ({ name, id, placeholder, inputRef, required, details }) => {
+const InputNumber = ({ name, id, placeholder, inputRef, required, details, defaultValue, min, max, calculateCut = null }) => {
   return (
     <span className="relative">
       <span className="flex justify-start items-center space-x-4">
@@ -20,10 +20,11 @@ const InputNumber = ({ name, id, placeholder, inputRef, required, details }) => 
         ref={inputRef}
         id={id} 
         name={id}
-        defaultValue="0" min="0" max="20000"
+        defaultValue={defaultValue} min={min} max={max}
         required={required}
         placeholder={placeholder}
-        className="form-input mt-2 px-5 py-2.5 w-32 block shadow-sm rounded-2xl border-gray-200 bg-gray-100 text-base placeholder-gray-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:bg-white"
+        onChange={calculateCut}
+        className="form-input mt-2 px-5 py-2.5 w-full block shadow-sm rounded-2xl border-gray-200 bg-gray-100 text-base placeholder-gray-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:bg-white"
       />
     </span>
   )
