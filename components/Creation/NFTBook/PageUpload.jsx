@@ -6,7 +6,6 @@ const PageUpload = ({ format, images, setImages, accept, id, maxSize = 150 }) =>
   
   const uploadToClient = (event) => {
     if (event.target.files[0].size > (maxSize * 1024)) {
-      setCreateObjectURL(null)
       alert(`Error: File size is too big (${maxSize} Ko maximum)`)
       return
     }

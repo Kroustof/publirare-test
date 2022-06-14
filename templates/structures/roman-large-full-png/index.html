@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+
+    /* ------------------------------ CSS VARIABLES ----------------------------------------------------------- */
+
+    :root {
+      --book-width: 270px;
+      --book-height: 378px;
+      --book-rotate: rotateY(-25deg);
+      --book-insidecover: #3d3d3d;
+      --book-insideback: #3d3d3d;
+      --book-pagescolor: #ffffff;
+    }
+
+
+    /* ----------------------------- BODY & SCROLL BAR --------------------------------------------------------- */
+
+    body {
+      position: relative;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    /* ===== Scrollbar CSS ===== */
+    /* Firefox */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #ababab80 #ffffff33;
+    }
+
+    *::-moz-scrollbar-thumb {
+    border-radius: 100px;
+    }
+
+    /* Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+      width: 11px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #ffffff33;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: #ababab80;
+      border-radius: 100px;
+      border: 3px solid #ffffff33;
+    }
+
+
+
+
+    /* ----------------------------- PSEUDO CANVAS (BACKGROUND) --------------------------------------------------------- */
+
+    .pseudo-canvas {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      display: block;
+      max-width: 500px;
+      width: 100%;
+      height: 500px;
+      border-radius: 3px;
+      background-color: transparent;
+      transform: translateX(-50%);
+      overflow: hidden;
+    }
+
+    .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      background-color: transparent;
+      border-radius: 3px;
+      padding: 1px;
+    }
+
+    .pseudo-canvas-inner {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+
+
+    /* ----------------------------- BACKGROUUND ONLY BUTTONS --------------------------------------------------------- */
+
+    .bg-only-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      z-index: 1;
+      width: 30px;
+      height: 30px;
+      fill: currentColor;
+      border: none;
+      border-radius: 1000px;
+      background-color: rgba(255, 255, 255, 0.4);
+      fill: rgba(0, 0, 0, 0.5);
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    .bg-only-btn svg {
+      padding: 2px;
+    }
+
+    .bg-only-btn:hover {
+      opacity: 0.9;
+    }
+
+    #show-book {
+      display: none;
+    }
+
+
+
+
+    /* ----------------------------- REFRESH BUTTON --------------------------------------------------------- */
+
+    #refresh-btn {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      padding: 5px;
+      width: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+      box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transform: translateX(-50%) rotate(-45deg);
+      opacity: 0;
+    }
+
+    #refresh-btn:hover {
+      color: rgba(0, 0, 0, 1);
+    }
+
+    #refresh-btn svg {
+      margin-left: 4px;
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    #refresh-msg span {
+      margin: 10px 0;
+    }
+
+    #refresh-msg {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      top: 100px;
+      left: 50%;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      transform: translate(-50%);
+      text-transform: uppercase;
+      background-image: linear-gradient(
+        -225deg,
+        #bdc3c7 0%, 
+        #425d79 29%, 
+        #929699 67%, 
+        #2c3e50 100% 
+      );
+      background-size: auto auto;
+      background-clip: border-box;
+      background-size: 200% auto;
+      color: #fff;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textclip 2s linear infinite;
+    }
+
+    @keyframes textclip {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+
+
+
+    /* ---------------------------- BOOK CANVAS ---------------------------------------------------------- */
+
+    .canvas {
+      position: relative;
+      margin: auto;
+      width: 100%;
+      height: 500px;
+      max-width: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+
+
+
+    /* ------------------------------ NFT BOOK CSS -------------------------------------------------------------- */
+
+    .book-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+      z-index: 2;
+    }
+
+    @keyframes initAnimation-id {
+      0% {
+        transform: rotateY(0deg);
+      }
+      100% {
+        transform: var(--book-rotate);
+      }
+    }
+
+    .book-container .book {
+      width: var(--book-width);
+      height: var(--book-height);
+      position: relative;
+      transform-style: preserve-3d;
+      transform: var(--book-rotate);
+      transition: transform 1s ease;
+      animation: 1s ease 0s 1 initAnimation-id;
+    }
+
+    .book-container .book:hover {
+      transform: rotateY(0deg);
+    }
+
+    .book-container .book > :first-child {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--book-width);
+      height: var(--book-height);
+      transform: translateZ(50px);
+      background-color: #01060f;
+      border-radius: 1px 3px 3px 1px;
+      box-shadow: 5px 5px 20px #777777;
+    }
+
+    .book-container .book::before {
+      position: absolute;
+      content: ' ';
+      left: 0;
+      top: 7px;
+      width: 98px;
+      height: 364px;
+      transform: translateX(213px) rotateY(90deg);
+      background: linear-gradient(90deg, 
+        #fff 0%,
+        #f9f9f9 5%,
+        #fff 10%,
+        #f9f9f9 15%,
+        #fff 20%,
+        #f9f9f9 25%,
+        #fff 30%,
+        #f9f9f9 35%,
+        #fff 40%,
+        #f9f9f9 45%,
+        #fff 50%,
+        #f9f9f9 55%,
+        #fff 60%,
+        #f9f9f9 65%,
+        #fff 70%,
+        #f9f9f9 75%,
+        #fff 80%,
+        #f9f9f9 85%,
+        #fff 90%,
+        #f9f9f9 95%,
+        #fff 100%
+        );
+    }
+
+    .book-container .book::after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: ' ';
+      width: var(--book-width);
+      height: var(--book-height);
+      transform: translateZ(-50px);
+      background-color: var(--book-insideback);
+      border-radius: 0 3px 3px 0;
+      box-shadow: -10px 0 50px 10px #aaaaaa;
+    }
+
+
+
+
+    /* ---------------------------- FLIPBOOK CSS -------------------------------------------------------- */
+
+    .nft-book {
+      position: relative;
+      cursor: grab;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      background-color: var(--book-pagescolor);
+      font-size: small;
+    }
+
+    .content-img {
+      height: 100%;
+    }
+
+    .content-img-zoomin {
+      width: auto;
+      object-fit: contain;
+    }
+
+    .content-img-zoomout {
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .interactive-container {
+      position: absolute;
+      padding: 8px 30px 8px 3px;
+      width: var(--book-width);
+      height: var(--book-height);
+      display: none;
+      background: #ffffff;
+      border-radius: 2px 5px 5px 2px;
+      overflow: hidden;
+      z-index: 9998;
+    }
+
+    .interactive-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 35%;
+      height: 100%;
+      background: var(--book-insidecover);
+      box-shadow: -2px 1px 5px #494949;
+    }
+
+    #cover-binding {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 7%;
+      height: 100%;
+      background: #f0f0f0;
+      box-shadow: inset -2px 0px 5px 1px #b8b8b86e;
+    }
+
+    #book-depth {
+      position: absolute;
+      top: 50%;
+      right: 9px;
+      width: 40px;
+      height: calc(var(--book-height) + 3px);
+      transform: translateY(-50%);
+    }
+
+    #book-spine {
+      position: absolute;
+      top: 50%;
+      left: 1px;
+      height: var(--book-height);
+      z-index: 9999;
+      transform: translateY(-50%);
+    }
+
+
+
+
+    /* ----------------------------- CLOSE BOOK --------------------------------------------------------- */
+
+    #close-book {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      padding: 4px 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: transparent;
+      font-size: 15px;
+      color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+    }
+
+    #close-book:hover {
+      color: rgba(0, 0, 0, 1);
+    }
+
+    #close-book svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+    
+  </style>
+  <script
+    src="https://code.jquery.com/jquery-1.7.1.min.js"
+    integrity="sha256-iBcUE/x23aI6syuqF7EeT/+JFBxjPs5zeFJEXxumwb0="
+    crossorigin="anonymous">
+  </script>
+  <script type="text/javascript">
+    if (!window.jQuery) {
+      document.write(unescape("%3Cscript src='./jquery.min.1.7.js' type='text/javascript'%3E%3C/script%3E")); 
+    }
+    </script>
+  <script type="module" src="./00-turn.min.js"></script>
+  <link rel="preload" href="./cover.png" as="image"> 
+  
+  <title>NFT Book</title>
+</head>
+
+
+<body>
+  
+  <!-- ! DEFAULT DISPLAY BEFORE BOOK -->
+  <span class="pseudo-canvas">
+    <img src="./background.png" alt="" class="background">
+    <span class="pseudo-canvas-inner">
+      <!-- ? Refresh Button -->
+      <button id="refresh-btn">
+        <span>Refresh NFT</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 18c4.667 4.667 12 1.833 12-4.042h-3l5-6 5 6h-3c-1.125 7.98-11.594 11.104-16 4.042zm14-11.984c-4.667-4.667-12-1.834-12 4.041h3l-5 6-5-6h3c1.125-7.979 11.594-11.104 16-4.041z"/></svg>
+      </button>
+      <!-- ? Default Text, Ask to Refresh -->
+      <p id="refresh-msg" class="animate-charcter">
+        <span id="msg1">Your NFT is <br> on his way!</span>
+        <span id="msg2">Please wait <br> OR <br> refresh</span>
+      </p>
+    </span>
+  </span>
+
+  
+  <!-- ! RELOAD PAGE IF ERROR -->
+  <script>
+    const refresh = document.querySelector("#refresh-btn");
+    refresh.addEventListener("click", () => {
+      location.reload();
+    })
+  </script>
+
+
+  <!-- ! BOOK + INTERACTIVE BOOK -->
+  <script type="module">
+    // import { html, Component, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
+    import { html, Component, render, useState, useEffect, useRef } from './htm&preact-standalone.module.js';
+    import './00-turn.min.js';
+    import params from './01-book-params.js';
+
+    
+    const Turn = ({ className, style, children, zoomIn, bookZoomOut, bookZoomIn, openBook }) => {
+
+      const turnRef = useRef()
+      
+      var options = {
+        width: params.widthSm,
+        height: params.heightSm,
+        autoCenter: true,
+        display: "single",
+        acceleration: true,
+        elevation: 50,
+        gradients: true,
+        pages: params.pages,
+        when: {
+          turned: function(e, page) {
+            console.log("Current view: ", $(turnRef.current).turn("view"));
+          },
+          start: function(event, pageObject, corner) {
+            if(corner == 'tl' || corner == 'bl') {
+              event.preventDefault();
+              pageObject.next = (pageObject.page - 1)
+            }
+          },
+          missing: function(e, pages) {
+            for (var i = 0; i < pages.length; i++) {
+              addPage(pages[i], $(this));
+            }
+          },
+        }
+      };
+
+      const loadPage = (page) => {
+        let img = $('<img class="content-img content-img-zoomout" />')
+        img.load(() => {
+          const container = $('.nft-book .p' + page)
+          img.appendTo($('.nft-book .p' + page))
+        })
+        img.attr('src', page + '.png');
+      }
+
+      const addPage = (page, book) => {
+        let id, pages = book.turn('pages');
+        let element = $('<div />', {});
+        if (book.turn('addPage', element, page)) {
+          loadPage(page)
+        }
+      }
+
+      const handleKeyDown = event => {
+        if (event.keyCode === 37) {
+          $(turnRef.current).turn("previous");
+        }
+        if (event.keyCode === 39) {
+          $(turnRef.current).turn("next");
+        }
+        if (event.keyCode === 27) {
+          bookZoomOut()
+        }
+        if (event.keyCode === 13) {
+          bookZoomIn()
+        }
+      };
+
+      useEffect(() => {
+        if (turnRef.current) {
+          $(turnRef.current).turn(options)
+        }
+        document.addEventListener("keydown", handleKeyDown, false);
+        return () => {
+          if (turnRef.current) {
+            $(turnRef.current)
+              .turn("destroy")
+              .remove()
+          }
+          document.removeEventListener("keydown", handleKeyDown, false);
+        }
+      }, [])
+
+      useEffect(() => {
+        if (zoomIn) {
+          $(turnRef.current).turn("size", params.widthLg, params.heightLg)
+        } else {
+          $(turnRef.current).turn("size", params.widthSm, params.heightSm)
+        }
+      }, [zoomIn])
+
+      useEffect(() => {
+        if (!openBook) {
+          $(turnRef.current).turn("page", 1)
+        }
+      }, [openBook])
+
+      return (
+        html`
+          <div
+            className=${className}
+            style=${style}
+            ref=${turnRef}
+          >
+            ${children}
+          </div>
+        `
+      )
+    }
+    
+    function NFT() {
+      
+      const [openBook, setOpenBook] = useState(false)
+      const [zoomIn, setZoomIn] = useState(false)
+      const [onlyBg, setOnlyBg] = useState(false)
+
+      const BookDepth = () => {
+        return(
+          html` 
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAJOCAYAAADWGwX3AAAEkklEQVR4Xu3WS08iXRSF4Y0IykUQMU5FURpFQY1D/74jYxw5cALBEZAAhqhcpbpXJXyxFQRsKAffW4mRcKm9zrP3OeCzH758P1zfCDBR4Pb21mm327a1tWX9ft98Pp+trq5ao9Gwq6urhcmNvVG5XHYqlYp1Oh1LJpPW6/XcAIFAwOr1uiUSCfe5YDBo+Xz+n8KM/XCpVHKq1ap1u92pAfx+v+VyuW+HGPvBYrHo1Gq1mQJoF0nn9PT0WyEWEkDt2N7etlQqNXeIhQXQPOgvm83OFWJhATSgmoeTk5OfC6BZGAwGdnFxMXOIhQoowLzzsJQAOifS6fRMCksJEIvFrNVq2eXl5dQQSwkQjUbdI3tnZ8cODg6+DLGUAJFIxJrNpkliOBx+eVwvJUA4HHYDxONx94vs/Px8ooInARzHmbg1PQmgNkhj3Dx4FkDzcHh4+KmeZwG0M3RQZTKZv2p6FkCDqVZ8/O3gaQDtiI+/oDwLEAqF3C1ZKBR+pgUKoC+qs7MzAiCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIDA/1ig3+9boVD4OYHBYGD5fN77ACr89vZmGxsblsvlvA3Q6/VsOBya4zgWj8ctk8l4F2Bzc9Pq9boFAgGLRCKf+O3P9VcaPaGrWCw6tVrNut2uJZNJ0yp8Pp97I90wkUi4zwWDQff9eqzX9B49DofD1mw23RU/PT1ZKBRy+T+ufqkBGo2GG0ghtfrj4+Oxi12awPPzsxtgfX3dYrGY7e7uehPg5eXF/H6/u3L9VzvS6fTY4hNbUCqVnGq1OtcMqKAmvd1uu8W18rW1tS+LTwxQLpedSqVinU5n5iFUUQ2eCkejUbfvqVRq4spHAz/xDTc3N87r6+vEAKMbiFwr16X/Kqye7+/vTy0+UUAv3N3dOa1Wa2oAnXI6aEaXttuvX79mKv5lgIeHB0f9VB8lsbKy8ukc0A20/zVs7s3+TP3Ho/a/ZBMeTEz6+PjoBtCfzvFZAqj3s/T9fZYvqRRCq1cAnYoatPcn4XsB9X5vb29m+qlD+D7l/f29Ow/qrwLojNe0jwYvm83OXXimANfX187om0wTrh7rGu1znfXfWfVcLdCBNCqsD2rgtPqjo6Nvr3rmANMmeBGvL2QV/xLkNyMMvx3cxA0eAAAAAElFTkSuQmCC" alt="" id="book-depth"/>
+          `
+        )
+      }
+
+      const BookSpine = () => {
+        return(
+          html`
+            <img src="data:image/png;base64,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" alt="" id="book-spine"/>
+          `
+        )
+      }
+      
+
+      const bookZoomIn = () => {
+        const insideBook = document.querySelector(".interactive-container")
+        const contentImg = document.querySelector(".content-img")
+        const bookSpine = document.querySelector("#book-spine")
+        insideBook.style.setProperty("--book-width", "100%")
+        insideBook.style.setProperty("--book-height", "100%")
+        insideBook.style.setProperty("overflow-x", "scroll")
+        $(".content-img").removeClass("content-img-zoomout")
+        $(".content-img").addClass("content-img-zoomin")
+        $("#book-spine").hide()
+        setZoomIn(true)
+      }
+
+      const bookZoomOut = () => {
+        const insideBook = document.querySelector(".interactive-container")
+        insideBook.style.setProperty("--book-width", "270px")
+        insideBook.style.setProperty("--book-height", "378px")
+        insideBook.style.setProperty("overflow-x", "hidden")
+        $(".content-img").removeClass("content-img-zoomin")
+        $(".content-img").addClass("content-img-zoomout")
+        $("#book-depth").height(`${params.heightSm + 3}px`)
+        $("#book-spine").height(`${params.heightSm}px`)
+        $("#book-spine").show()
+        setZoomIn(false)
+      }
+
+      const closeBook = () => {
+        setOpenBook(false)
+        bookZoomOut()
+      }
+      
+      const hideBook = () => {
+        setOpenBook(false)
+        bookZoomOut()
+        setOnlyBg(true)
+      }
+
+      const showBook = () => {
+        setOpenBook(false)
+        bookZoomOut()
+        setOnlyBg(false)
+      }
+
+      useEffect(() => {
+        const insideBook = document.querySelector(".interactive-container")
+        const insideBack = document.querySelector(".book-container")
+        insideBook.style.setProperty("--book-insidecover", params.insideCover)
+        insideBook.style.setProperty("--book-pagescolor", params.pagesColor)
+        insideBack.style.setProperty("--book-insideback", params.insideBack)
+      })
+
+      useEffect(() => {
+        const book = document.querySelector(".book-container")
+        const insideBook = document.querySelector(".interactive-container")
+        const closeButton = document.querySelector("#close-book")
+        const contentImg = document.querySelector(".content-img")
+
+        if (openBook) {
+          book.style.setProperty("--book-rotate", "rotateY(0deg)")
+          $('.book-container').hide()
+          $('.interactive-container').show()
+          $('#close-book').show()
+          $('#close-book').css('display', 'flex')
+          if (!zoomIn) {
+            $('.interactive-container').dblclick(() => {
+              bookZoomIn()
+            })
+          } 
+          if (zoomIn) {
+            $('.interactive-container').dblclick(() => {
+              bookZoomOut()
+            })
+          }
+        } else {
+          book.style.setProperty("--book-rotate", "rotateY(-25deg)")
+          $('.book-container').show()
+          $('.interactive-container').hide()
+          $('#close-book').hide()
+        }
+      }, [openBook, zoomIn])
+
+      useEffect(() => {
+        $('.pseudo-canvas').hover(
+          () => $('#refresh-btn').css("opacity", 100),
+          () => $('#refresh-btn').css("opacity", 0)
+        )
+        $('.canvas').hover(
+          () => $('#refresh-btn').css("opacity", 100),
+          () => $('#refresh-btn').css("opacity", 0)
+        )
+      })
+      
+      useEffect(() => {
+        const book = document.querySelector(".book-container")
+        if (onlyBg) {
+          $('.book-container').hide();
+          $('.interactive-container').hide();
+          $('#refresh-msg').hide();
+          $('#show-book').show()
+          $('#hide-book').hide()
+        } else {
+          $('#show-book').hide()
+          $('#hide-book').show()
+          book.style.setProperty("--book-rotate", "rotateY(-25deg)")
+          $('.book-container').show()
+          $('.interactive-container').hide()
+          $('#close-book').hide()
+        }
+      }, [onlyBg])
+      
+      return(
+        html`
+          <div class="canvas" style=${{ "backgroundColor": params.canvasBg }}>
+            
+            <div class="book-container" onClick=${() => setOpenBook(true)} >
+              <div class="book">
+                <img alt="Test Book" src="./cover.png" id="book-cover" rel="preload"/>
+              </div>
+            </div>
+            
+            <div class="interactive-container">
+              <div id="cover-binding"></div>
+              <${BookDepth} />
+              <${BookSpine} />
+              <${Turn} className="nft-book" zoomIn=${zoomIn} bookZoomOut=${bookZoomOut} bookZoomIn=${bookZoomIn} openBook=${openBook}>
+              // Loaded pages
+              </${Turn}>
+            </div>
+             
+
+            <button id="close-book" title="close book" onClick=${closeBook}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 24h-17c-1.657 0-3-1.343-3-3v-18c0-1.657 1.343-3 3-3h17v24zm-2-4h-14.505c-1.375 0-1.375 2 0 2h14.505v-2zm0-18h-15v16h15v-16zm-3 3v3h-9v-3h9z"/></svg>
+            </button>
+
+            <button class="bg-only-btn" id="hide-book" title="hide book" onClick=${hideBook} >
+              <svg id="btn-gradient" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 9l-2.519 4-2.481-1.96-5 6.96h16l-6-9zm8-5v16h-20v-16h20zm2-2h-24v20h24v-20zm-20 6c0-1.104.896-2 2-2s2 .896 2 2c0 1.105-.896 2-2 2s-2-.895-2-2z"/></svg>
+            </button>
+
+            <button class="bg-only-btn" id="show-book" title="show book" onClick=${showBook}>
+              <svg id="btn-gradient" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23 5v13.883l-1 .117v-16c-3.895.119-7.505.762-10.002 2.316-2.496-1.554-6.102-2.197-9.998-2.316v16l-1-.117v-13.883h-1v15h9.057c1.479 0 1.641 1 2.941 1 1.304 0 1.461-1 2.942-1h9.06v-15h-1zm-12 13.645c-1.946-.772-4.137-1.269-7-1.484v-12.051c2.352.197 4.996.675 7 1.922v11.613zm9-1.484c-2.863.215-5.054.712-7 1.484v-11.613c2.004-1.247 4.648-1.725 7-1.922v12.051z"/></svg>
+            </button>
+            
+          </div>
+        `
+      )
+    }
+
+
+    render(html`<${NFT} />`, document.body);
+  </script>
+  
+</body>
+</html>

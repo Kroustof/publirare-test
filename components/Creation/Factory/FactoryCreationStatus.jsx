@@ -64,7 +64,7 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
             Contract URI:&#160;
             {nftInfos.contractURI
               ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  {nftInfos.contractURI}
+                  {nftInfos.contractMetadataCID}
                   <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
                 </span>
               : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
@@ -76,9 +76,9 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
           {/* ::NFT Metadata URI */}
           <li className="text-base text-gray-500 font-semibold">
             NFT Metadata URI:&#160;
-            {nftInfos.metadataURI
+            {nftInfos.metadataCID
               ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  {nftInfos.metadataURI}
+                  {nftInfos.metadataCID}
                   <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
                 </span>
               : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
@@ -117,6 +117,22 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
           </li>
         </ul>
       </div>
+
+
+      {/* :LINK TO PREVIEW BOOK */}
+      <p className="mt-10 flex flex-col items-center text-base text-gray-500 font-semibold">
+        <span className="">Preview Live NFT Book:</span>
+        {nftInfos.nftbookCID
+          ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
+              http://...{nftInfos.nftbookCID}
+              <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+            </span>
+          : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
+              Awaiting...
+              <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+            </span>
+        }
+      </p>
 
     </div>
   )

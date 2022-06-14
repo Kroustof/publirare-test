@@ -16,6 +16,7 @@ import ErrorArrayMessage from "../../../../components/Alerts/ErrorArrayMessage"
 import FactoryCreationStatus from "../../../../components/Creation/Factory/FactoryCreationStatus"
 import { CloudUploadIcon, CogIcon, DocumentAddIcon, SpeakerphoneIcon } from "@heroicons/react/outline"
 import FactoryCreationConfirmation from "../../../../components/Creation/Factory/FactoryCreationConfirmation"
+import ErrorMessage from "../../../../components/Alerts/ErrorMessage"
 
 
 export default function Create() {
@@ -25,10 +26,15 @@ export default function Create() {
   const { isAuthenticated, isAuthUndefined, account } = useMoralis()
   const { switchNetwork, chainId } = useChain()
   const { isCreator, creatorInfos, isLoading } = useMoralisDapp()
-  const [isOpenValidation, setIsOpenValidation] = useState(true)
+
+  //!=============== STATES ===============================================================================================
+  const [isOpenValidation, setIsOpenValidation] = useState(false)
   const [isOpenErrorFields, setIsOpenErrorFields] = useState(false)
   const [errorFields, setErrorFields] = useState(null)
+  const [errorCreation, setErrorCreation] = useState(null)
   const [loadingState, setLoadingState] = useState(0)
+  const [creationStatus, setCreationStatus] = useState("")
+  const [readyToMint, setReadyToMint] = useState(false)
   // creation steps ("upcoming" / "completed" / "current")
   const [steps, setSteps] = useState([
     { id: 1, title: "Build NFT Book", icon: CogIcon, status: "upcoming" },
@@ -36,14 +42,24 @@ export default function Create() {
     { id: 3, title: "Create Smart Contract", icon: DocumentAddIcon, status: "upcoming" },
     { id: 4, title: "Congratulations!", icon: SpeakerphoneIcon, status: "upcoming" }
   ])
+  const [pinValidation, setPinValidation] = useState({
+    collectionImg: null,
+    contractMetadata: null,
+    previewImg: null,
+    nftbook: null,
+    metadata: null
+  })
   const [nftInfos, setNftInfos] = useState({
-    contractURI: null,
-    metadataURI: null,
+    collectionImgCID: null,
+    contractMetadataCID: null,
+    previewImgCID: null,
+    nftbookCID: null,
+    metadataCID: null,
     contractAddress: null,
     isNftMinted: false
   })
   
-  //! INPUTS
+  //!=============== INPUTS ===============================================================================================
   // customization
   const [images, setImages] = useState({
     collectionImage: null,
@@ -93,46 +109,138 @@ export default function Create() {
       }
     }
   }
+  
+  //!=============== CREATION HELP FUNCTIONS ===============================================================================================
+  // Body POST full (contain all inputs)
+  const buildBodyPOST = () => {
+    const body = new FormData()
+    return new Promise((res, rej) => {
+      // Info & Customization
+      body.append("clientAddress", account)
+      body.append("format", format)
+      body.append("extension", extension)
+      body.append("size", size)
+      body.append("title", titleRef.current.value)
+      body.append("authorName", authorNameRef.current.value)
+      body.append("editorName", editorNameRef.current.value || "Self-Publishing")
+      body.append("collectionName", collectionNameRef.current.value)
+      body.append("collectionLink", collectionLinkRef.current.value)
+      body.append("collectionDescRef", collectionDescRef.current.value)
+      body.append("tome", tomeRef.current.value)
+      body.append("canvasBg", canvasBgRef.current.value)
+      body.append("insideCover", insideCoverRef.current.value)
+      body.append("insideBack", insideBackRef.current.value)
+      body.append("pagesColor", pagesColorRef.current.value)
+      body.append("description", descriptionRef.current.value)
+      body.append("external_url", externalUrlRef.current.value)
+      body.append("language", languageRef.current.value)
+      body.append("specialEdition", specialEditionRef.current.value)
+      body.append("category1", category1Ref.current.value)
+      body.append("category2", category2Ref.current.value)
+      body.append("rights", publishingRights ? "Rights Owner" : "Public Domain")
+      body.append("amount", amountRef.current.value)
+      body.append("maxCopies", maxCopiesRef.current.value ? maxCopiesRef.current.value : amountRef.current.value)
+      body.append("royaltyFeeInBips", (royaltyFeeInBipsRef.current.value * 1000)) // User input is a percentage (0% to 50%)
+      // Files
+      body.append("collectionImage", images.collectionImage)
+      body.append("previewImage", images.previewImage)
+      body.append("bookLength", images.pages.length)
+      body.append("cover", images.cover, "cover.png")
+      images.background && body.append("background", images.background, "background.png")
+      images.pages.map((page, index) => {
+        body.append(`page${index + 1}`, page, `${index + 1}.png`)
+      })
+      console.log("data POST completed")
+      res(body)
+    })
+  }
+  // Upload Collection Image to IPFS
+  const pinCollectionImage = async (collectedData) => {
+    const response = await fetch(`${router.basePath}/api/publirare-builder/collection/pinCollectionImgIPFS/`, {
+      method: "POST",
+      body: collectedData
+    })
+    const data = await response.json()
+    if (data.error) {
+      console.log(data.error);
+      setErrorCreation(prevState => prevState + ` An error occured with collection image: ${data.error}`)
+      setPinValidation(prevState => ({ ...prevState, collectionImg: "error" }))
+    } else {
+      console.log(data);
+      data.source = "collection image"
+      setPinValidation(prevState => ({ ...prevState, collectionImg: "success" }))
+      setNftInfos(prevState => ({ ...prevState, collectionImgCID: data.IpfsHash }))
+      setCreationStatus("Collection image successfully pinned to IPFS")
+      return data
+    }
+  } 
+  // Upload Preview Image to IPFS
+  const pinPreviewImage = async (collectedData) => {
+    const response = await fetch(`${router.basePath}/api/publirare-builder/nftbook/pinPreviewImgIPFS/`, {
+      method: "POST",
+      body: collectedData
+    })
+    const data = await response.json()
+    if (data.error) {
+      console.log(data.error);
+      setErrorCreation(prevState => prevState + ` An error occured with preview image: ${data.error}`)
+      setPinValidation(prevState => ({ ...prevState, previewImg: "error" }))
+    } else {
+      console.log(data);
+      data.source = "preview image"
+      setPinValidation(prevState => ({ ...prevState, previousImg: "success" }))
+      setNftInfos(prevState => ({ ...prevState, previewImgCID: data.IpfsHash }))
+      setCreationStatus("Preview image successfully pinned to IPFS")
+      return data
+    }
+  }
+  // Upload Book to IPFS
+  const pinBook = async (collectedData) => {
+    const response = await fetch(`${router.basePath}/api/publirare-builder/nftbook/pinBookIPFS/`, {
+      method: "POST",
+      body: collectedData
+    })
+    const data = await response.json()
+    if (data.error) {
+      console.log(data.error);
+      setErrorCreation(prevState => prevState + ` An error occured with the book: ${data.error}`)
+      setPinValidation(prevState => ({ ...prevState, nftbook: "error" }))
+    } else {
+      console.log(data);
+      data.source = "book"
+      setPinValidation(prevState => ({ ...prevState, nftbook: "success" }))
+      setNftInfos(prevState => ({ ...prevState, nftbookCID: data.IpfsHash }))
+      setCreationStatus("Book successfully pinned to IPFS")
+      return data
+    }
+  }
+  // Upload NFT Metadata to IPFS
+  const pinNftMetadata = async (collectedData, timestamp, previewImgCID, bookCID) => {
+    const customBody = collectedData
+    customBody.append("timestamp", timestamp)
+    customBody.append("previewIpfsURL", `ipfs://${previewImgCID}`)
+    customBody.append("nftBookURI", `https://gateway.pinata.cloud/ipfs/${bookCID}/`)
+    const response = await fetch(`${router.basePath}/api/publirare-builder/nftbook/pinMetadataIPFS/`, {
+      method: "POST",
+      body: customBody
+    })
+    const data = await response.json()
+    if (data.error) {
+      console.log(data.error);
+      setErrorCreation(prevState => prevState + ` An error occured with nft metadata: ${data.error}`)
+      setPinValidation(prevState => ({ ...prevState, metadata: "error" }))
+    } else {
+      console.log(data);
+      data.source = "metadata"
+      setPinValidation(prevState => ({ ...prevState, metadata: "success" }))
+      setNftInfos(prevState => ({ ...prevState, metadataCID: data.IpfsHash }))
+      setCreationStatus("NFT Book metadata successfully pinned to IPFS")
+      return data
+    }
+  }
 
-  //! CREATION HELP FUNCTIONS 
-  // const buildBodyPOST = () => {
-  //   const body = new FormData()
-  //   return new Promise((res, rej) => {
-  //     // Info & Customization
-  //     body.append("clientAddress", account)
-  //     body.append("format", formatRef.current.value)
-  //     body.append("title", titleRef.current.value)
-  //     body.append("authorName", authorNameRef.current.value)
-  //     body.append("editorName", editorNameRef.current.value)
-  //     body.append("collection", collectionRef.current.value)
-  //     body.append("tome", tomeRef.current.value)
-  //     body.append("background", canvasBgRef.current.value)
-  //     body.append("insideCover", insideCoverRef.current.value)
-  //     body.append("insideBack", insideBackRef.current.value)
-  //     body.append("pagesColor", pagesColorRef.current.value)
-  //     body.append("description", descriptionRef.current.value)
-  //     body.append("external_url", externalUrlRef.current.value)
-  //     body.append("language", languageRef.current.value)
-  //     body.append("specialEdition", specialEditionRef.current.value)
-  //     body.append("category1", category1Ref.current.value)
-  //     body.append("category2", category2Ref.current.value)
-  //     body.append("rights", publishingRights)
-  //     // Files
-  //     body.append("file", images.previewImage)
-  //     body.append("bookLength", images.pages.length)
-  //     body.append("cover", images.cover, "cover.png")
-  //     body.append("background", images.background, "background.png")
-  //     images.pages.map((page, index) => {
-  //       body.append(`page${index + 1}`, page, `${index + 1}.png`)
-  //     })
-  //     // setBodyPOST(body)
-  //     console.log("data POST completed")
-  //     res(body)
-  //   })
-  // }
-
-  //! CREATION STEPS
-  // Step 1: Check input fields requirements
+  //!=============== CREATION STEPS ===============================================================================================
+  //! Step 1: Check input fields requirements
   const checkRequiredFields = (e) => {
     e.preventDefault()
     setIsOpenValidation(false)
@@ -180,13 +288,56 @@ export default function Create() {
       setIsOpenValidation(true)
     }
   }
-  // Step 2: Create NFT Book
-  const mintNewNFTBook = async (e) => {
+  //! Step 2: Create NFT Book
+  const pinNewNFTBook = async (e) => {
     e.preventDefault()
     setIsOpenValidation(false)
+    try {
     setLoadingState(1)
     updateSteps(1)
+    const collectedData = await buildBodyPOST()
+    setCreationStatus("Working on your new collection & NFT book...")
+      // PIN COLLECTION IMAGE
+      const pinCollectionImageToIPFS = pinCollectionImage(collectedData)
+      // PIN PREVIEW IMAGE
+      const pinPreviewImageToIPFS = pinPreviewImage(collectedData)
+      // PIN BOOK
+      const pinBookToIPFS = pinBook(collectedData)
+      // WAIT TO RESOLVE ASYNC CONTENTS PIN
+      const pinNFTContents = await Promise.all([pinCollectionImageToIPFS, pinPreviewImageToIPFS, pinBookToIPFS])
+      setLoadingState(2)
+      updateSteps(2)
+
+      // COLLECT ADDITIONAL IPFS INFOS FOR NFT BOOK METADATAs
+      const pinTimestamp = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "preview image")].Timestamp
+      const collectionImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "collection image")].IpfsHash
+      const previewImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "preview image")].IpfsHash
+      const bookCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "book")].IpfsHash
+      
+      // PIN CONTRACT METADATA
+      // const pinContractMetadataToIPFS = await pinContractMetadata(collectedData, pinTimestamp, collectionImgCID)
+      // PIN CONTRACT METADATA
+      await pinNftMetadata(collectedData, pinTimestamp, previewImgCID, bookCID)
+
+      // Check pin validation in IF statement before setReadyToMint
+      setCreationStatus("Ready to mint NFT !")
+      setLoadingState(3)
+      updateSteps(3)
+      setReadyToMint(true)
+
+    } catch (error) {
+      console.log(error);
+      setLoadingState(0)
+      updateSteps(0)
+      
+      setErrorCreation(prevState => prevState + ` ==> ${error}`)
+    }
   }
+  //! Step 3: Create contract & Mint NFT (server side)
+  const mintNewNFTBook = async (e) => {
+    e.preventDefault()
+  }
+
   
 
   //? ====================== USER NOT AUTHENTICATED ==================================================================================
@@ -239,7 +390,7 @@ export default function Create() {
     return (
       <div className="relative pb-40 mx-auto w-full max-w-7xl">
         <div className="mx-auto max-w-5xl">
-
+          <button onClick={pinNewNFTBook}>test</button>
           {errorFields && 
             <ErrorArrayMessage
               isOpen={isOpenErrorFields}
@@ -248,6 +399,7 @@ export default function Create() {
               setErrorArray={setErrorFields}
             />
           }
+          { errorCreation && <ErrorMessage error={errorCreation} setError={setErrorCreation} /> }
 
           <form 
             action=""
@@ -335,6 +487,7 @@ export default function Create() {
             `}>
               <h2 className="text-5xl text-gray-700 font-bold">Do not close this window</h2>
               <p className="mt-5">PubliRare Factory is currently creating your NFT Book. Please wait.</p>
+              <p className="mt-2 text-sm text-teal-400 font-medium">{`Current status: ${creationStatus}`}</p>
               <FactoryCreationStatus 
                 steps={steps}
                 nftInfos={nftInfos}
@@ -342,27 +495,59 @@ export default function Create() {
             </div>
 
             {/* :SUBMIT BUTTON */}
-            <div className="mt-16 flex justify-center items-center">
-              <button 
-                type="submit"
-                disabled={loadingState !== 0}
-                className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
-              >
-                <span className={`mr-2 ${loadingState !== 0 ? "block" : "hidden"}`}>
-                  {loadingState !== 0 &&
+            <div className="mt-16 flex flex-wrap justify-center items-center">
+              {/* ::Create */}
+              { loadingState < 3 &&
+                <button 
+                  type="submit"
+                  disabled={loadingState !== 0}
+                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
+                >
+                  <span className={`mr-2 ${loadingState !== 0 ? "block" : "hidden"}`}>
                     <Image
                       src={loader}
                       alt="loading spinner"
                       width={40}
                       height={40}
                     />
+                  </span>
+                  {loadingState !== 0 && loadingState < 4
+                    ? "Please Wait..."
+                    : "Create"
                   }
-                </span>
-                {loadingState !== 0 && loadingState < 4
-                  ? "Please Wait..."
-                  : "Create"
-                }
-              </button>
+                </button>
+              }
+              {/* ::Cancel Before Minting */}
+              { loadingState === 3 &&
+                <button 
+                  type="button"
+                  disabled={loadingState > 3}
+                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 text-2xl text-gray-500 font-bold tracking-wide underline hover:tex-gray-700"
+                >
+                  Cancel
+                </button>
+              }
+              {/* ::Mint */}
+              { readyToMint &&
+                <button 
+                  type="button"
+                  disabled={loadingState > 3}
+                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
+                >
+                  <span className={`mr-2 ${loadingState > 3 ? "block" : "hidden"}`}>
+                    <Image
+                      src={loader}
+                      alt="loading spinner"
+                      width={40}
+                      height={40}
+                    />
+                  </span>
+                  {loadingState > 3
+                    ? "Please Wait..."
+                    : "Mint"
+                  }
+                </button>
+              }
             </div>
 
           </form>
@@ -370,7 +555,7 @@ export default function Create() {
           <FactoryCreationConfirmation 
             isOpen={isOpenValidation}
             setIsOpen={setIsOpenValidation}
-            start={mintNewNFTBook}
+            start={pinNewNFTBook}
             loadingState={loadingState}
           />
           

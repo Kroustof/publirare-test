@@ -100,7 +100,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
           placeholder="Tome 1"
           required={false}
           defaultValue={0}
-          min={1}
+          min={0}
           max={20000}
           details="Tome number in the current serie"
         />

@@ -5,7 +5,9 @@ export const bookTypes = {
       "full-png": { name: "full-png", background: "png", cover:"png", book: "png" },
       "full-jpg": { name: "full-jpg", background: "jpg", cover:"jpg", book: "jpg" },
     },
-    sizes: ["standard"]
+    sizes: ["standard"],
+    width: 209,
+    height: 315
   },
   roman: {
     format: "roman",
@@ -13,7 +15,9 @@ export const bookTypes = {
       "full-png": { name: "full-png", background: "png", cover:"png", book: "png" },
       "full-jpg": { name: "full-jpg", background: "jpg", cover:"jpg", book: "jpg" },
     },
-    sizes: ["small", "standard", "large"]
+    sizes: ["small", "standard", "large"],
+    width: 270,
+    height: 378
   },
   comic: {
     format: "comic",
@@ -21,7 +25,9 @@ export const bookTypes = {
       "full-png": { name: "full-png", background: "png", cover:"png", book: "png" },
       "full-jpg": { name: "full-jpg", background: "jpg", cover:"jpg", book: "jpg" },
     },
-    sizes: ["small", "large"]
+    sizes: ["small", "large"],
+    width: 281,
+    height: 430
   },
 }
 

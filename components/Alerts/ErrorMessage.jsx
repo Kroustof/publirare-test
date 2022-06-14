@@ -45,7 +45,7 @@ const ErrorMessage = ({ error, setError }) => {
                   >
                     Something went wrong!
                   </Dialog.Title>
-                  <div className="mt-2">
+                  <div className="mt-2 py-3">
                     <p className="text-sm text-red-700">
                       {error}
                     </p>
