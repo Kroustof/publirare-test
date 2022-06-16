@@ -53,12 +53,13 @@ contract FactoryERC1155 is
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
-  function initialize() public initializer {
+  function initialize(address _adminBackup) public initializer {
     __Ownable_init();
     __AccessControl_init();
     __Pausable_init();
     __UUPSUpgradeable_init();
 
+    _grantRole(DEFAULT_ADMIN_ROLE, _adminBackup);
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(OPERATOR_ROLE, msg.sender);
     _grantRole(CENSOR_ROLE, msg.sender);

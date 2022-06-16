@@ -54,7 +54,7 @@ export default async function pinBookIPFS(req, res) {
           editorName: fields.editorName,
           collection: fields.collectionName,
           tome: fields.tome,
-          pages: fields.bookLength
+          rights: fields.rights
         }
       })
       data.append('pinataMetadata', metadata)
@@ -121,7 +121,7 @@ export default async function pinBookIPFS(req, res) {
 
   try {
     //! WAIT FOR ALL DATA REGROUPED IN FORM DATA
-    const regroupData = await Promise.all([addMetadataAndContent, addStructureToData, addParamsToData])
+    await Promise.all([addMetadataAndContent, addStructureToData, addParamsToData])
     // console.log("After adding all content:", data);
     //! PIN NFT BOOK TO PINATA
     const pinToIPFS = await axios.post(url, data, {

@@ -1,7 +1,7 @@
 import { ClockIcon, ColorSwatchIcon } from "@heroicons/react/outline"
 import { CheckCircleIcon } from "@heroicons/react/solid"
 
-const FactoryCreationStatus = ({ steps, nftInfos }) => {
+const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError }) => {
   return (
     <div className="py-5 text-gray-500">
                   
@@ -27,8 +27,10 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
                   {/* ::::step details */}
                   <div className={`
                     relative flex flex-col items-center 
-                    ${step.status === "current" 
+                    ${(step.status === "current" && !isFatalError)
                       ? "text-sky-500 animate-pulse"
+                      : (step.status === "current" && isFatalError)
+                      ? "text-red-600 animate-pulse"
                       : step.status !== "upcoming" 
                       ? "text-teal-400 hover:text-teal-500" 
                       : "text-gray-300 hover:text-gray-400"
@@ -37,8 +39,10 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
                     <span className={`${step.status !== "current" && "hidden md:inline-block"} absolute -top-7 text-xs font-semibold whitespace-nowrap`}>{step.title}</span>
                     <span className={`
                       p-1.5 inline-flex justify-center items-center rounded-full border-2 
-                      ${step.status === "current" 
+                      ${(step.status === "current" && !isFatalError)
                         ? "border-sky-400"
+                        : (step.status === "current" && isFatalError)
+                        ? "border-red-600 animate-pulse"
                         : step.status !== "upcoming" 
                         ? "border-teal-400" 
                         : "border-gray-300"
@@ -58,81 +62,71 @@ const FactoryCreationStatus = ({ steps, nftInfos }) => {
       {/* :INFOS */}
       <div className="flex flex-col items-center">
         <h3 className="text-base text-gray-500 font-bold">NFT Creation Infos:</h3>
-        <ul className="mt-5 flex flex-col items-start space-y-2">
-          {/* ::Contract URI */}
-          <li className="text-base text-gray-500 font-semibold">
-            Contract URI:&#160;
-            {nftInfos.contractURI
-              ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  {nftInfos.contractMetadataCID}
-                  <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                </span>
-              : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
-                  Awaiting...
-                  <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                </span>
-            }
-          </li>
-          {/* ::NFT Metadata URI */}
-          <li className="text-base text-gray-500 font-semibold">
-            NFT Metadata URI:&#160;
-            {nftInfos.metadataCID
-              ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  {nftInfos.metadataCID}
-                  <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                </span>
-              : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
-                  Awaiting...
-                  <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                </span>
-            }
-          </li>
-          {/* ::Contract Address */}
-          <li className="text-base text-gray-500 font-semibold">
-            Smart Contract Address:&#160;
-            {nftInfos.contractAddress
-              ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  {nftInfos.contractAddress}
-                  <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                </span>
-              : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
-                  Awaiting...
-                  <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                </span>
-            }
-          </li>
-          {/* ::Is NFT Minted */}
-          <li className="text-base text-gray-500 font-semibold">
-            Is Nft Book #1 minted:&#160;
-            {nftInfos.contractAddress
-              ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-                  Yes!
-                  <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                </span>
-              : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
-                  Not yet
-                  <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                </span>
-            }
-          </li>
-        </ul>
-      </div>
-
-
-      {/* :LINK TO PREVIEW BOOK */}
-      <p className="mt-10 flex flex-col items-center text-base text-gray-500 font-semibold">
-        <span className="">Preview Live NFT Book:</span>
-        {nftInfos.nftbookCID
-          ? <span className="ml-1 inline-flex items-center text-sm text-gray-500 font-medium">
-              http://...{nftInfos.nftbookCID}
-              <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-            </span>
-          : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
-              Awaiting...
-              <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-            </span>
+        {isFatalError
+          ? <p>
+              <span className="mt-5 block text-sm text-gray-700 font-bold animate-pulse">Fatal Error at building. Click cancel and retry.</span>
+              <span className="mt-2 block text-sm text-gray-500">If the problem persist, contact our support.</span>
+            </p>
+          : <ul className="mt-5 flex flex-col items-start space-y-2">
+              {/* ::Contract URI */}
+              <li className="text-xs text-gray-500 font-semibold">
+                Contract URI:&#160;
+                {nftInfos.contractMetadataCID
+                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
+                      {nftInfos.contractMetadataCID}
+                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+                    </span>
+                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
+                      Awaiting...
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </li>
+              {/* ::NFT Metadata URI */}
+              <li className="text-xs text-gray-500 font-semibold">
+                NFT Metadata URI:&#160;
+                {nftInfos.metadataCID
+                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
+                      {nftInfos.metadataCID}
+                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+                    </span>
+                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
+                      Awaiting...
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </li>
+              {/* ::Contract Address */}
+              <li className="text-xs text-gray-500 font-semibold">
+                Smart Contract Address:&#160;
+                {nftInfos.contractAddress
+                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
+                      {nftInfos.contractAddress}
+                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+                    </span>
+                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
+                      Awaiting...
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </li>
+              {/* ::Is NFT Minted */}
+              <li className="text-xs text-gray-500 font-semibold">
+                Is Nft Book #1 minted:&#160;
+                {nftInfos.contractAddress
+                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
+                      Yes!
+                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+                    </span>
+                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
+                      Not yet
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </li>
+            </ul>
         }
-      </p>
+      </div>
 
     </div>
   )

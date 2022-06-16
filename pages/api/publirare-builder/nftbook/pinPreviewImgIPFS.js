@@ -49,7 +49,7 @@ export default async function pinPreviewImgIPFS(req, res) {
   };
 
   const fileInfos = await getPOST()
-  console.log(fileInfos);
+  // console.log(fileInfos);
 
   //! Create a readable stream of the image
   const readableStreamForFile = fs.createReadStream(fileInfos.pathFile);

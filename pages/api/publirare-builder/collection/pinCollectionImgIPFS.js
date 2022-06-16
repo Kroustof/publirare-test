@@ -47,7 +47,7 @@ export default async function pinCollectionImgIPFS(req, res) {
   };
 
   const fileInfos = await getPOST()
-  console.log(fileInfos);
+  // console.log(fileInfos);
 
   //! Create a readable stream of the image
   const readableStreamForFile = fs.createReadStream(fileInfos.pathFile);

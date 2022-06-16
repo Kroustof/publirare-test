@@ -198,4 +198,23 @@ contract NFTBook1155 is
     {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    function isApprovedForAll(
+        address _owner,
+        address _operator
+    ) public override view returns (bool isOperator) {
+        // if OpenSea's ERC1155 Proxy Address is detected, auto-return true
+            // for Polygon's Mumbai testnet, use 0x53d791f18155C211FF8b58671d0f7E9b50E596ad
+       if (_operator == address(0x207Fa8Df3a17D96Ca7EA4f2893fcdCb78a304101)) {
+            return true;
+        }
+        // if PubliRare's ERC1155 Proxy Address is detected, auto-return true
+            // for Polygon's Mumbai testnet, use 0x5B94Ef00531C80C5657bb0F5Cd35c692082f235E
+       if (_operator == address(0x5B94Ef00531C80C5657bb0F5Cd35c692082f235E)) {
+            return true;
+        }
+        // otherwise, use the default ERC1155.isApprovedForAll()
+        return ERC1155.isApprovedForAll(_owner, _operator);
+    }
+
 }

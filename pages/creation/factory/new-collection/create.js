@@ -14,9 +14,10 @@ import DetailsCollection from "../../../../components/Creation/NFTBook/DetailsCo
 import DetailsNFTBook from "../../../../components/Creation/NFTBook/DetailsNFTBook"
 import ErrorArrayMessage from "../../../../components/Alerts/ErrorArrayMessage"
 import FactoryCreationStatus from "../../../../components/Creation/Factory/FactoryCreationStatus"
-import { CloudUploadIcon, CogIcon, DocumentAddIcon, SpeakerphoneIcon } from "@heroicons/react/outline"
+import { ClockIcon, CloudUploadIcon, CogIcon, DocumentAddIcon, ExternalLinkIcon, SpeakerphoneIcon, XIcon } from "@heroicons/react/outline"
 import FactoryCreationConfirmation from "../../../../components/Creation/Factory/FactoryCreationConfirmation"
-import ErrorMessage from "../../../../components/Alerts/ErrorMessage"
+import ErrorCreationMessage from "../../../../components/Alerts/ErrorCreationMessage"
+import FuncWriteCreateNewNftBook from "../../../../components/Functions/Factory/FuncWriteCreateNewNftBook"
 
 
 export default function Create() {
@@ -32,6 +33,7 @@ export default function Create() {
   const [isOpenErrorFields, setIsOpenErrorFields] = useState(false)
   const [errorFields, setErrorFields] = useState(null)
   const [errorCreation, setErrorCreation] = useState(null)
+  const [isFatalError, setIsFatalError] = useState(false)
   const [loadingState, setLoadingState] = useState(0)
   const [creationStatus, setCreationStatus] = useState("")
   const [readyToMint, setReadyToMint] = useState(false)
@@ -44,9 +46,9 @@ export default function Create() {
   ])
   const [pinValidation, setPinValidation] = useState({
     collectionImg: null,
-    contractMetadata: null,
     previewImg: null,
     nftbook: null,
+    contractMetadata: null,
     metadata: null
   })
   const [nftInfos, setNftInfos] = useState({
@@ -57,6 +59,12 @@ export default function Create() {
     metadataCID: null,
     contractAddress: null,
     isNftMinted: false
+  })
+  const [mintOptions, setMintOptions] = useState({
+    amount: null,
+    maxCopies: null,
+    royaltyFeesInBips: null,
+    collectionName: null,
   })
   
   //!=============== INPUTS ===============================================================================================
@@ -76,10 +84,7 @@ export default function Create() {
   const collectionNameRef = useRef("") //! Name ref change be careful to update functions (name) + pinata
   const collectionDescRef = useRef("") //! New ref (description)
   const collectionLinkRef = useRef("") //! New ref (external_link)
-  let openseaGlobalRoyaltyInBips //! REDONDANT Value provide later (seller_fee_basis_points)
-  let openseaGlobalRoyaltyBeneficiary //! REDONDANT Value provide later (fee_recipient)
   // book infos
-  const formatRef = useRef("") //! ALREADY PROVIDED IN QUERY URL FORMAT
   const titleRef = useRef("") //! metadata + pinata (name)
   const authorNameRef = useRef("") //! pinata
   const editorNameRef = useRef("") //! pinata
@@ -97,6 +102,9 @@ export default function Create() {
   const specialEditionRef = useRef("") //! attributes
   const [publishingRights, setPublishingRights] = useState(null) //! attributes
 
+
+  //!=============== CREATION HELP FUNCTIONS ===============================================================================================
+  // Update steps
   const updateSteps = (currentStep) => {
     let newState = [...steps]
     for (let i = 0; i < steps.length; i++) {
@@ -108,9 +116,33 @@ export default function Create() {
         newState[i].status = "upcoming"
       }
     }
+    setSteps(newState)
   }
-  
-  //!=============== CREATION HELP FUNCTIONS ===============================================================================================
+  // Delete All Pinned Files from IPFS
+  const deleteAllFilesIPFS = async () => {
+    if ((loadingState >= 1.9 && isFatalError) || loadingState === 3) {
+      const infos = {...nftInfos}
+      console.log(infos);
+      const body = new FormData()
+      Object.keys(infos).map(cid => {
+        body.append(`${cid}`, infos[cid] || "")
+      })
+      const response = await fetch(`${router.basePath}/api/publirare-builder/unpinAllFiles/`, {
+        method: "POST",
+        body: body,
+      })
+      const data = await response.json()
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        console.log(data.success);
+        let newState = Object.keys(infos).map(key => infos[key] = null)
+        setNftInfos(newState)
+      }
+    } else {
+      console.log("Pinning work not finished...");
+    }
+  }
   // Body POST full (contain all inputs)
   const buildBodyPOST = () => {
     const body = new FormData()
@@ -125,7 +157,7 @@ export default function Create() {
       body.append("editorName", editorNameRef.current.value || "Self-Publishing")
       body.append("collectionName", collectionNameRef.current.value)
       body.append("collectionLink", collectionLinkRef.current.value)
-      body.append("collectionDescRef", collectionDescRef.current.value)
+      body.append("collectionDesc", collectionDescRef.current.value)
       body.append("tome", tomeRef.current.value)
       body.append("canvasBg", canvasBgRef.current.value)
       body.append("insideCover", insideCoverRef.current.value)
@@ -138,9 +170,9 @@ export default function Create() {
       body.append("category1", category1Ref.current.value)
       body.append("category2", category2Ref.current.value)
       body.append("rights", publishingRights ? "Rights Owner" : "Public Domain")
-      body.append("amount", amountRef.current.value)
-      body.append("maxCopies", maxCopiesRef.current.value ? maxCopiesRef.current.value : amountRef.current.value)
-      body.append("royaltyFeeInBips", (royaltyFeeInBipsRef.current.value * 1000)) // User input is a percentage (0% to 50%)
+      body.append("amount", Number.parseInt(amountRef.current.value))
+      body.append("maxCopies", maxCopiesRef.current.value ? Number.parseInt(maxCopiesRef.current.value) : Number.parseInt(amountRef.current.value))
+      body.append("royaltyFeeInBips", (Number.parseInt(royaltyFeeInBipsRef.current.value) * 100)) // User input is a percentage (0% to 50%)
       // Files
       body.append("collectionImage", images.collectionImage)
       body.append("previewImage", images.previewImage)
@@ -163,10 +195,11 @@ export default function Create() {
     const data = await response.json()
     if (data.error) {
       console.log(data.error);
-      setErrorCreation(prevState => prevState + ` An error occured with collection image: ${data.error}`)
+      setIsFatalError(true)
+      setErrorCreation(prevState => (prevState || "") + ` An error occured with collection image: ${data.error}`)
       setPinValidation(prevState => ({ ...prevState, collectionImg: "error" }))
     } else {
-      console.log(data);
+      // console.log(data);
       data.source = "collection image"
       setPinValidation(prevState => ({ ...prevState, collectionImg: "success" }))
       setNftInfos(prevState => ({ ...prevState, collectionImgCID: data.IpfsHash }))
@@ -183,12 +216,13 @@ export default function Create() {
     const data = await response.json()
     if (data.error) {
       console.log(data.error);
-      setErrorCreation(prevState => prevState + ` An error occured with preview image: ${data.error}`)
+      setIsFatalError(true)
+      setErrorCreation(prevState => (prevState || "") + ` An error occured with preview image: ${data.error}`)
       setPinValidation(prevState => ({ ...prevState, previewImg: "error" }))
     } else {
-      console.log(data);
+      // console.log(data);
       data.source = "preview image"
-      setPinValidation(prevState => ({ ...prevState, previousImg: "success" }))
+      setPinValidation(prevState => ({ ...prevState, previewImg: "success" }))
       setNftInfos(prevState => ({ ...prevState, previewImgCID: data.IpfsHash }))
       setCreationStatus("Preview image successfully pinned to IPFS")
       return data
@@ -203,14 +237,39 @@ export default function Create() {
     const data = await response.json()
     if (data.error) {
       console.log(data.error);
-      setErrorCreation(prevState => prevState + ` An error occured with the book: ${data.error}`)
+      setIsFatalError(true)
+      setErrorCreation(prevState => (prevState || "") + ` An error occured with the book: ${data.error}`)
       setPinValidation(prevState => ({ ...prevState, nftbook: "error" }))
     } else {
-      console.log(data);
+      // console.log(data);
       data.source = "book"
       setPinValidation(prevState => ({ ...prevState, nftbook: "success" }))
       setNftInfos(prevState => ({ ...prevState, nftbookCID: data.IpfsHash }))
       setCreationStatus("Book successfully pinned to IPFS")
+      return data
+    }
+  }
+  // Upload Contract Metadata to IPFS
+  const pinContractMetadata = async (collectedData, timestamp, collectionImgCID) => {
+    const customBody = collectedData
+    customBody.append("timestamp", timestamp)
+    customBody.append("collectionImgIpfsURL", `ipfs://${collectionImgCID}`)
+    const response = await fetch(`${router.basePath}/api/publirare-builder/collection/pinContractMetadataIPFS/`, {
+      method: "POST",
+      body: customBody
+    })
+    const data = await response.json()
+    if (data.error) {
+      console.log(data.error);
+      setIsFatalError(true)
+      setErrorCreation(prevState => (prevState || "") + ` An error occured with contract metadata: ${data.error}`)
+      setPinValidation(prevState => ({ ...prevState, contractMetadata: "error" }))
+    } else {
+      // console.log(data);
+      data.source = "metadata"
+      setPinValidation(prevState => ({ ...prevState, contractMetadata: "success" }))
+      setNftInfos(prevState => ({ ...prevState, contractMetadataCID: data.IpfsHash }))
+      setCreationStatus("Contract metadata successfully pinned to IPFS")
       return data
     }
   }
@@ -220,17 +279,18 @@ export default function Create() {
     customBody.append("timestamp", timestamp)
     customBody.append("previewIpfsURL", `ipfs://${previewImgCID}`)
     customBody.append("nftBookURI", `https://gateway.pinata.cloud/ipfs/${bookCID}/`)
-    const response = await fetch(`${router.basePath}/api/publirare-builder/nftbook/pinMetadataIPFS/`, {
+    const response = await fetch(`${router.basePath}/api/publirare-builder/nftbook/pinNftMetadataIPFS/`, {
       method: "POST",
       body: customBody
     })
     const data = await response.json()
     if (data.error) {
       console.log(data.error);
-      setErrorCreation(prevState => prevState + ` An error occured with nft metadata: ${data.error}`)
+      setIsFatalError(true)
+      setErrorCreation(prevState => (prevState || "") + ` An error occured with nft metadata: ${data.error}`)
       setPinValidation(prevState => ({ ...prevState, metadata: "error" }))
     } else {
-      console.log(data);
+      // console.log(data);
       data.source = "metadata"
       setPinValidation(prevState => ({ ...prevState, metadata: "success" }))
       setNftInfos(prevState => ({ ...prevState, metadataCID: data.IpfsHash }))
@@ -238,8 +298,20 @@ export default function Create() {
       return data
     }
   }
+  // Check pin validation
+  const checkPinValidation = () => {
+    return Object.keys(pinValidation).every(key => {
+            pinValidation[key] === "success"
+          })
+  }
+  // Cancel creation
+  const cancelCreation = async () => {
+    await deleteAllFilesIPFS()
+    router.reload()
+  }
 
   //!=============== CREATION STEPS ===============================================================================================
+  
   //! Step 1: Check input fields requirements
   const checkRequiredFields = (e) => {
     e.preventDefault()
@@ -269,13 +341,13 @@ export default function Create() {
     if (category1Ref.current.value === "") errorsArray.push("Book category missing! Please select at least 1 category to your NFT book.")
     if (category1Ref.current.value === "") errorsArray.push("Book category missing! Please select at least 1 category to your NFT book.")
     if (publishingRights === null) errorsArray.push("Copyrights infos required! Please choose between the two copyright options.")
-    if (amountRef.current.value < 2) errorsArray.push("Number of copies too low! Please set a number of copy over 2.")
-    if (amountRef.current.value > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
-    if (maxCopiesRef.current.value !== "" && (maxCopiesRef.current.value < amountRef.current.value)) errorsArray.push("Maximum copies cannot be lower than the number of copies minted at creation! Please set a valid number or delete max copies value.")
-    if (maxCopiesRef.current.value !== "" && maxCopiesRef.current.value > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
-    if (royaltyFeeInBipsRef.current.value !== "" && royaltyFeeInBipsRef.current.value > 50) errorsArray.push("Royalties cannot exceed 50%! Please set a valid royalty percentage.")
-    if (royaltyFeeInBipsRef.current.value !== "" && royaltyFeeInBipsRef.current.value < 0) errorsArray.push("Royalties cannot be a negative number! Please set a valid royalty percentage.")
-
+    if (Number.parseInt(amountRef.current.value) < 2) errorsArray.push("Number of copies too low! Please set a number of copy over 2.")
+    if (Number.parseInt(amountRef.current.value) > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
+    if (Number.parseInt(maxCopiesRef.current.value) < Number.parseInt(amountRef.current.value)) errorsArray.push("Maximum copies cannot be lower than the number of copies minted at creation! Please set a valid number or delete max copies value.")
+    if (Number.parseInt(maxCopiesRef.current.value) > 25000000) errorsArray.push("Limit of copies exceeded! Please set a maximum number of 25,000,000.")
+    if (Number.parseInt(royaltyFeeInBipsRef.current.value) > 50) errorsArray.push("Royalties cannot exceed 50%! Please set a valid royalty percentage.")
+    if (Number.parseInt(royaltyFeeInBipsRef.current.value) < 0) errorsArray.push("Royalties cannot be a negative number! Please set a valid royalty percentage.")
+    
     if (errorsArray.length > 0) {
       setErrorFields(errorsArray)
       setIsOpenValidation(false)
@@ -303,33 +375,47 @@ export default function Create() {
       const pinPreviewImageToIPFS = pinPreviewImage(collectedData)
       // PIN BOOK
       const pinBookToIPFS = pinBook(collectedData)
-      // WAIT TO RESOLVE ASYNC CONTENTS PIN
-      const pinNFTContents = await Promise.all([pinCollectionImageToIPFS, pinPreviewImageToIPFS, pinBookToIPFS])
-      setLoadingState(2)
-      updateSteps(2)
-
-      // COLLECT ADDITIONAL IPFS INFOS FOR NFT BOOK METADATAs
-      const pinTimestamp = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "preview image")].Timestamp
-      const collectionImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "collection image")].IpfsHash
-      const previewImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "preview image")].IpfsHash
-      const bookCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.source === "book")].IpfsHash
       
-      // PIN CONTRACT METADATA
-      // const pinContractMetadataToIPFS = await pinContractMetadata(collectedData, pinTimestamp, collectionImgCID)
-      // PIN CONTRACT METADATA
-      await pinNftMetadata(collectedData, pinTimestamp, previewImgCID, bookCID)
+      // WAIT TO RESOLVE ASYNC CONTENTS PIN
+      const pinNFTContents = await Promise.allSettled([pinCollectionImageToIPFS, pinPreviewImageToIPFS, pinBookToIPFS])
 
-      // Check pin validation in IF statement before setReadyToMint
-      setCreationStatus("Ready to mint NFT !")
-      setLoadingState(3)
-      updateSteps(3)
-      setReadyToMint(true)
+      console.log(pinNFTContents);
+      if (
+        pinNFTContents.every(result => result.status === "fulfilled" && result.value)
+      ) 
+      {
+        setLoadingState(2)
+        updateSteps(2)
+        // COLLECT ADDITIONAL IPFS INFOS FOR NFT BOOK METADATAs
+        const pinTimestamp = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.value.source === "preview image")].Timestamp
+        const collectionImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.value.source === "collection image")].IpfsHash
+        const previewImgCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.value.source === "preview image")].IpfsHash
+        const bookCID = await pinNFTContents[pinNFTContents.findIndex(ipfs => ipfs.value.source === "book")].IpfsHash
+        
+        // PIN CONTRACT METADATA
+        await pinContractMetadata(collectedData, pinTimestamp, collectionImgCID)
+        // PIN CONTRACT METADATA
+        await pinNftMetadata(collectedData, pinTimestamp, previewImgCID, bookCID)
+        
+        setLoadingState(3)
+        updateSteps(3)
+        setMintOptions({
+          amount: Number.parseInt(amountRef.current.value),
+          maxCopies: Number.parseInt(maxCopiesRef.current.value) < Number.parseInt(amountRef.current.value) ? Number.parseInt(amountRef.current.value) : Number.parseInt(maxCopiesRef.current.value),
+          collectionName: collectionNameRef.current.value,
+          royaltyFeesInBips: (Number.parseInt(royaltyFeeInBipsRef.current.value) * 100) || 0,
+        })
+        setReadyToMint(true)
+        setCreationStatus("Ready to mint NFT !")
+      } else {
+        setLoadingState(1.9)
+        updateSteps(1, true)
+        setCreationStatus("Fatal error during building. Please cancel and retry.")
+      }
 
     } catch (error) {
       console.log(error);
-      setLoadingState(0)
-      updateSteps(0)
-      
+      setIsFatalError(true)
       setErrorCreation(prevState => prevState + ` ==> ${error}`)
     }
   }
@@ -337,9 +423,8 @@ export default function Create() {
   const mintNewNFTBook = async (e) => {
     e.preventDefault()
   }
-
+  console.log("mint options:", mintOptions);
   
-
   //? ====================== USER NOT AUTHENTICATED ==================================================================================
 
   //! Redirect unauthenticated users to login page
@@ -390,7 +475,7 @@ export default function Create() {
     return (
       <div className="relative pb-40 mx-auto w-full max-w-7xl">
         <div className="mx-auto max-w-5xl">
-          <button onClick={pinNewNFTBook}>test</button>
+          
           {errorFields && 
             <ErrorArrayMessage
               isOpen={isOpenErrorFields}
@@ -399,7 +484,14 @@ export default function Create() {
               setErrorArray={setErrorFields}
             />
           }
-          { errorCreation && <ErrorMessage error={errorCreation} setError={setErrorCreation} /> }
+          { errorCreation && 
+            <ErrorCreationMessage 
+              error={errorCreation} 
+              setError={setErrorCreation} 
+              deleteAllFiles={deleteAllFilesIPFS} 
+              loadingState={loadingState}
+            /> 
+          }
 
           <form 
             action=""
@@ -482,22 +574,47 @@ export default function Create() {
 
             {/* :BUILDING STATUS */}
             <div className={`
-              pt-20 text-center 
+              pt-5 text-center 
               ${loadingState === 0 ? "hidden" : "flex flex-col"}
             `}>
-              <h2 className="text-5xl text-gray-700 font-bold">Do not close this window</h2>
-              <p className="mt-5">PubliRare Factory is currently creating your NFT Book. Please wait.</p>
+              {isFatalError 
+                ? <>
+                    <h2 className="flex justify-center items-center text-5xl text-gray-700 font-bold">
+                      <XIcon className="relative top-1 mr-3 w-12 h-12" />
+                      Creation Failed
+                    </h2>
+                    <p className="mt-5 mx-auto max-w-lg text-gray-500">Something went wrong during the creation process... In order to help us clean this problem please click on &ldquo;Cancel&rdquo; below.</p>
+                  </>
+                : <>
+                    <h2 className="text-5xl text-gray-700 font-bold">Do not close this window</h2>
+                    <p className="mt-5">PubliRare Factory is currently creating your NFT Book.</p>
+                  </>
+              }
               <p className="mt-2 text-sm text-teal-400 font-medium">{`Current status: ${creationStatus}`}</p>
               <FactoryCreationStatus 
                 steps={steps}
                 nftInfos={nftInfos}
+                loadingStatus={loadingState}
+                isFatalError={isFatalError}
               />
             </div>
-
-            {/* :SUBMIT BUTTON */}
-            <div className="mt-16 flex flex-wrap justify-center items-center">
+            
+            {/* :ACTION BUTTONS */}
+            <div className="mt-5 flex flex-wrap justify-center items-center">
+              {/* ::Cancel Before Minting */}
+              { (loadingState === 3 || isFatalError) &&
+                  <button
+                    type="button"
+                    onClick={cancelCreation}
+                    disabled={loadingState > 3 || loadingState < 1.9}
+                    className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 text-2xl text-red-700 font-bold tracking-wide underline hover:text-gray-800 disabled:cursor-wait"
+                  >
+                    { loadingState < 1.9 && <ClockIcon className="mr-3 w-7 h-7 text-red-700" /> }
+                    Cancel
+                  </button>
+              }
               {/* ::Create */}
-              { loadingState < 3 &&
+              { loadingState < 3 && loadingState !== 1.9 && !isFatalError &&
                 <button 
                   type="submit"
                   disabled={loadingState !== 0}
@@ -517,38 +634,43 @@ export default function Create() {
                   }
                 </button>
               }
-              {/* ::Cancel Before Minting */}
-              { loadingState === 3 &&
-                <button 
-                  type="button"
-                  disabled={loadingState > 3}
-                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 text-2xl text-gray-500 font-bold tracking-wide underline hover:tex-gray-700"
-                >
-                  Cancel
-                </button>
-              }
               {/* ::Mint */}
-              { readyToMint &&
-                <button 
-                  type="button"
-                  disabled={loadingState > 3}
-                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-teal-400 text-2xl text-white font-bold tracking-wide hover:bg-teal-500"
+              { readyToMint && !isFatalError &&
+                <FuncWriteCreateNewNftBook 
+                  name="createNewNFTBook"
+                  amount={mintOptions.amount}
+                  maxCopies={mintOptions.maxCopies}
+                  royaltyFeesInBips={mintOptions.royaltyFeesInBips}
+                  uri={`https://gateway.pinata.cloud/ipfs/${nftInfos.metadataCID}/`}
+                  contractURI={`https://gateway.pinata.cloud/ipfs/${nftInfos.contractMetadataCID}/`}
+                  collectionName={mintOptions.collectionName}
+                  className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
                 >
-                  <span className={`mr-2 ${loadingState > 3 ? "block" : "hidden"}`}>
-                    <Image
-                      src={loader}
-                      alt="loading spinner"
-                      width={40}
-                      height={40}
-                    />
-                  </span>
-                  {loadingState > 3
-                    ? "Please Wait..."
-                    : "Mint"
-                  }
-                </button>
+                  Mint
+                </FuncWriteCreateNewNftBook>
               }
             </div>
+
+            {/* :LINK TO LIVE PREVIEW BOOK */}
+            {loadingState > 1.9 && !isFatalError &&
+              <p className="mt-10 flex flex-col items-center text-base text-gray-500 font-semibold">
+                <span>Preview Live NFT Book:</span>
+                {nftInfos.nftbookCID
+                  ? <a 
+                      href={`https://gateway.pinata.cloud/ipfs/${nftInfos.nftbookCID}/`}
+                      target="__blank"
+                      className="mt-1 inline-flex items-center text-sm text-sky-500 font-medium underline hover:text-sky-600"
+                    >
+                      LIVE PREVIEW BOOK
+                      <ExternalLinkIcon className="ml-2 w-4 h-4 text-teal-500" />
+                    </a>
+                  : <span className="ml-1 inline-flex items-center text-sm text-gray-300 font-semibold">
+                      Awaiting...
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </p>
+            }
 
           </form>
 
