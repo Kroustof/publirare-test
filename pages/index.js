@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useMoralis } from "react-moralis"
 import Link from 'next/link';
+import FuncWriteCreateNewNftBook from "../components/Functions/Factory/FuncWriteCreateNewNftBook"
 
 export default function Home() {
 
@@ -34,6 +35,21 @@ export default function Home() {
         <Link href="/security/team-space">
           <a className="mt-4 text-teal-700 underline">Team Space</a>
         </Link>
+
+        <div className="mt-10">
+          <FuncWriteCreateNewNftBook 
+            name="createNewNFTBook"
+            amount={20000}
+            maxCopies={50000}
+            royaltyFeesInBips={500}
+            uri="https://gateway.pinata.cloud/ipfs/QmXVkcYHasVNUXYqDSaDaUSS4yVu4cr94L2t6NPqCf9J3Q/"
+            contractURI="https://gateway.pinata.cloud/ipfs/QmPV9PePBQCJyc43yBYhibZRkPEfwwJoXSz5GHKJzULQAJ/"
+            collectionName="One Piece Serie"
+            className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
+          >
+            Mint
+          </FuncWriteCreateNewNftBook>
+        </div>
 
       </div>
 

@@ -298,12 +298,6 @@ export default function Create() {
       return data
     }
   }
-  // Check pin validation
-  const checkPinValidation = () => {
-    return Object.keys(pinValidation).every(key => {
-            pinValidation[key] === "success"
-          })
-  }
   // Cancel creation
   const cancelCreation = async () => {
     await deleteAllFilesIPFS()
@@ -418,10 +412,6 @@ export default function Create() {
       setIsFatalError(true)
       setErrorCreation(prevState => prevState + ` ==> ${error}`)
     }
-  }
-  //! Step 3: Create contract & Mint NFT (server side)
-  const mintNewNFTBook = async (e) => {
-    e.preventDefault()
   }
   console.log("mint options:", mintOptions);
   
@@ -644,6 +634,11 @@ export default function Create() {
                   uri={`https://gateway.pinata.cloud/ipfs/${nftInfos.metadataCID}/`}
                   contractURI={`https://gateway.pinata.cloud/ipfs/${nftInfos.contractMetadataCID}/`}
                   collectionName={mintOptions.collectionName}
+                  setLoadingState={setLoadingState}
+                  setCreationStatus={setCreationStatus}
+                  updateSteps={updateSteps}
+                  setIsFatalError={setIsFatalError}
+                  isDisabled={loadingState > 3 || isFatalError}
                   className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
                 >
                   Mint

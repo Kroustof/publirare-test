@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Moralis } from 'moralis'
 import CreatorTools from "./dashboard/CreatorTools"
 import HeaderDashboard from "./dashboard/HeaderDashboard"
+import FactoryTools from "./dashboard/FactoryTools"
+import ContractsTools from "./dashboard/ContractsTools"
 import {
   CogIcon,
   CurrencyDollarIcon,
@@ -38,7 +40,7 @@ export default function TeamDashboard({ memberInfos }) {
   const [showSideNav, setShowSideNav] = useState(true)
   
   const [isDataLoading, setIsDataLoading] = useState(false)
-
+  console.log(memberInfos.role);
   return (
     <div>
 
@@ -102,10 +104,28 @@ export default function TeamDashboard({ memberInfos }) {
               {/* :CATEGORY DISPLAY */}
               <div className={`flex-grow py-6 w-full px-3 divide-y divide-gray-200 overflow-x-auto`}>
 
+                {/* ::Creators Tools */}
                 {currentSubNav === "Creators" &&
                   <CreatorTools 
                     isDataLoading={isDataLoading}
                     setIsDataLoading={setIsDataLoading}
+                  />
+                }
+
+                {/* ::Factory Tools */}
+                {currentSubNav === "Factory" &&
+                  <FactoryTools 
+                    isDataLoading={isDataLoading}
+                    setIsDataLoading={setIsDataLoading}
+                  />
+                }
+
+                {/* ::Contracts Tools */}
+                {currentSubNav === "Contracts" &&
+                  <ContractsTools 
+                    isDataLoading={isDataLoading}
+                    setIsDataLoading={setIsDataLoading}
+                    memberInfos={memberInfos}
                   />
                 }
 

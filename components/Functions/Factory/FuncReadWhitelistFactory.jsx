@@ -34,14 +34,14 @@ const FuncReadWhitelistFactory = ({ children, name, userAddress, ...props }) => 
       setIsModalOpen(true)
       setIsFetching(false)
     } catch (error) {
-      setError(error)
+      setError(error.message)
       setIsFetching(false)
     }
   }
 
   return (
     <>
-      {error && <ErrorMessage error={error} />}
+      {error && <ErrorMessage error={error} setError={setError}  />}
       {data !== null && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
       <button
         type="button"

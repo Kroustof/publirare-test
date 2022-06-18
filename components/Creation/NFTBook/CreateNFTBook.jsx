@@ -231,10 +231,10 @@ const CreateNFTBook = ({ format, extension, size, images, setImages, canvasBgRef
           {showInside &&
             <div className="z-50 absolute top-0 right-0 flex space-x-4 bg-white bg-opacity-80">
               <button type="button" className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={previousPage}>
-                <ArrowLeftIcon className="w-8 h-8" />
+                <ArrowLeftIcon className="w-6 h-6" />
               </button>
               <button type="button" className="p-3 text-gray-400 bg-white hover:bg-teal-50 hover:text-teal-500" onClick={nextPage}>
-                <ArrowRightIcon className="w-8 h-8" />
+                <ArrowRightIcon className="w-6 h-6" />
               </button>
             </div>
           }

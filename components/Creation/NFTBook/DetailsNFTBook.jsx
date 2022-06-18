@@ -3,7 +3,7 @@ import InputNumber from "../../Forms/InputNumber"
 import InputTextLg from "../../Forms/InputTextLg"
 import { categories } from "../../../helpers/bookCategories"
 import InputCombobox from "../../Forms/InputCombobox"
-import { languageArray, languageISO } from "../../../helpers/languageISO"
+import { languageArray } from "../../../helpers/languageISO"
 
 const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, serieRef, tomeRef, descriptionRef, externalUrlRef, languageRef, category1Ref, category2Ref, specialEditionRef, publishingRights, setPublishingRights, amountRef, maxCopiesRef, royaltyFeeInBipsRef }) => {
 
@@ -17,13 +17,13 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
         ? setCut(0)
         : (maxCopiesRef.current.value >= 10 && maxCopiesRef.current.value < 50)
         ? setCut(1)
-        : setCut(Math.floor(maxCopiesRef.current.value * 2 / 100))
+        : setCut(Math.floor(maxCopiesRef.current.value * 2.5 / 100))
     } else {
       amountRef.current.value < 10
         ? setCut(0)
         : (amountRef.current.value >= 10 && amountRef.current.value < 50)
         ? setCut(1)
-        : setCut(Math.floor(amountRef.current.value * 2 / 100))
+        : setCut(Math.floor(amountRef.current.value * 2.5 / 100))
     }
   }
 
@@ -155,7 +155,7 @@ const DetailsNFTBook = ({ format, size, titleRef, authorNameRef, editorNameRef, 
       {/* :PUBLIRARE CUT INFOS */}
       <span className="col-span-full lg:col-span-4 pl-3 mx-auto lg:mx-0 w-full max-w-sm border-l border-teal-200 bg-gradient-to-r from-teal-50">
         <p className="text-teal-500 font-bold">PubliRare Cut</p>
-        <span className="mt-2 text-lg text-gray-700 font-bold">2%</span>
+        <span className="mt-2 text-lg text-gray-700 font-bold">2.5%</span>
         <span className="ml-4 text-xs text-gray-500">(based on max copies)</span>
         <p className="mt-1 text-lg text-teal-400 font-semibold">{`${cut} copies`}</p>
       </span>

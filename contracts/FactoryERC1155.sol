@@ -28,7 +28,7 @@ contract FactoryERC1155 is
   CountersUpgradeable.Counter public _CONTRACT_IDS;
   CountersUpgradeable.Counter public _TOTAL_CONTRACTS;
 
-  address private _CUT_RECEIVER; // PubliRare address to receive cut
+  address public _CUT_RECEIVER; // PubliRare address to receive cut
   uint16 public _CUT_IN_BIPS; // 1% equal 100 bips
 
   // Store address of each created contract
@@ -73,7 +73,7 @@ contract FactoryERC1155 is
   
   function createNewNFTBook(
     uint256 amount, 
-    uint256 maxCopies, 
+    uint256 maxCopies,
     string memory uri, 
     uint16 royaltyFeesInBips, 
     string memory contractURI, 

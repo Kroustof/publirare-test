@@ -7,7 +7,7 @@ import ErrorMessage from "../../Alerts/ErrorMessage"
 import TransactionMessage from "../../Alerts/TransactionMessage"
 
 
-const FuncReadWhitelistStore = ({ children, name, userAddress, ...props }) => {
+const FuncWriteCutReceiverFactory = ({ children, name, newReceiver, isDisabled, ...props }) => {
 
   const { contractAddrs, contractABIs } = useMoralisDapp()
   const [isFetching, setIsFetching] = useState(false)
@@ -16,23 +16,25 @@ const FuncReadWhitelistStore = ({ children, name, userAddress, ...props }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const sendOptions = {
-    abi: contractABIs.store,
-    contractAddress: contractAddrs.store,
+    abi: contractABIs.factory1155,
+    contractAddress: contractAddrs.factory1155,
     functionName: name,
   }
 
   const executeFunction = async () => {
     sendOptions.params = {
-      userAddress: userAddress.current.value
+      _newReceiver: newReceiver.current.value
     }
     try {
       setIsFetching(true)
+      setError(null)
       setIsModalOpen(false)
-      const response = await Moralis.executeFunction(sendOptions)
-      console.log("Response:", response);
-      setData(response)
-      setIsModalOpen(true)
+      const transaction = await Moralis.executeFunction(sendOptions)
+      console.log(transaction.hash)
+      const receipt = await transaction.wait()
+      setData(receipt)
       setIsFetching(false)
+      setIsModalOpen(true)
     } catch (error) {
       setError(error.message)
       setIsFetching(false)
@@ -42,11 +44,11 @@ const FuncReadWhitelistStore = ({ children, name, userAddress, ...props }) => {
   return (
     <>
       {error && <ErrorMessage error={error} setError={setError} />}
-      {data !== null && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
+      {data && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
       <button
         type="button"
         onClick={executeFunction}
-        disabled={isFetching}
+        disabled={isFetching || isDisabled}
         {...props}
       >
         {isFetching
@@ -65,4 +67,4 @@ const FuncReadWhitelistStore = ({ children, name, userAddress, ...props }) => {
   )
 }
 
-export default FuncReadWhitelistStore
+export default FuncWriteCutReceiverFactory

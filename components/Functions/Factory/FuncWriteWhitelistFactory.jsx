@@ -36,14 +36,14 @@ const FuncWriteWhitelistFactory = ({ children, name, userAddress, isDisabled, ..
       setIsFetching(false)
       setIsModalOpen(true)
     } catch (error) {
-      setError(error)
+      setError(error.message)
       setIsFetching(false)
     }
   }
 
   return (
     <>
-      {error && <ErrorMessage error={error} />}
+      {error && <ErrorMessage error={error} setError={setError} />}
       {data && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
       <button
         type="button"
