@@ -3,7 +3,7 @@ import bgExample from '../../../public/images/preview-books/example-roman-backgr
 import Image from 'next/image'
 
 
-const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundImg = bgExample, insideCover, pagesColor, content }) => {
+const PreviewInsideRomanSmall = ({ isFullWidth = false, canvasBg, backgroundImg = bgExample, insideCover, pagesColor, content }) => {
   return (
     <div className="relative w-full max-w-[500px] h-[500px] flex justify-center items-center overflow-hidden" style={{ "backgroundColor": `${canvasBg}` }}>
       {/* :Background */}
@@ -30,7 +30,7 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
       <div className={`${
           isFullWidth 
             ? "absolute inset-0 w-full h-full" 
-            : "relative py-[8px] pr-[25px] pl-[3px] w-[298px] h-[386px] overflow-hidden"
+            : "relative py-[8px] pr-[15px] pl-[3px] w-[289px] h-[390px] overflow-hidden"
           } 
           rounded-l-sm rounded-r bg-white
       `}>
@@ -40,9 +40,9 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
         <div className={`absolute top-0 right-0 w-[35%] h-full`} style={{ boxShadow: "-2px 1px 5px #494949", backgroundColor: insideCover }} />
         {/* ::book depth */}
         {/* eslint-disable-next-line */}
-        <img className="absolute top-1/2 right-1 w-10 h-[381px] transform -translate-y-1/2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAJOCAYAAADWGwX3AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAK8AAACvABQqw0mAAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAVdEVYdENyZWF0aW9uIFRpbWUANC8zMC8xMl2VLOQAAAP6SURBVHic7dY7bxNBFIbhb3w3Ei2iHYWKJoKGAiHYXz7/AERDZ40QTTqKSLGd2B4Kz7En6/Ul8SUU75FGqzi7+z1zZndsl1LSS1brRdMldSTJObft/y6PVjHs5IWNlNL8KMAB4R1J7Tysa7MY4+1oNJJzrlvAUsNorJTS1iWoh/ckDSQN87EfQri1m8QYH/J5Ngxq99laTYCm8H4OH0oaxBhvyllIUgjhLp/Xk9TN1+5F1AH7wochhFheUL5FMca/WnepdwiiBOwKfyVpGGP8tW0mViGEm3yNdWMnwgB7w0MIP/eFW8UY/xyKqHegreX61Wf+/dBwqxDC70MQZQfa+aS+1k/8MITw5HCrGONehAFaWs9+9co9Z+b1qnWim3O2dsDa3w8h/Dg23Cp3YpDvbfuEk9Y7oW2ztgzdU4UXNZA0lzRTsY2XHSgR7TMA+mpYhvpGVP/COWXZ7mjbdKsOcMXxHIDyy2w1yUv+HiiXeVWXBpRdvjigsQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFACUnFMDeeeHSBJizwuDkhF+DyPiwLK8JmkhzNklUu76nDZgXkOnkqaVlX14QwAm+iqyg4Y4F7SRNLYe//xFMne+89aL+2j56zegZmWHZhIGksaV1V1FKKqqq9aL+ushth4DctlGEu60xGd8N5/07Kj9/me03z/uRo6YGs0Ky5YIaqqun5KeFVVFm73meS/DdDYgZ0I7/37A2f+RcWzVACmWi/Dow4cgrBnwpcXOOfqM/9UC7/Lx432NwEOQUy892+bAN776x3h9/l+iyJDLqW0MQu7dx4tSR1J7TwMPYsx3o5GI11dXcl7/05SN19jb9PO8JTSzm/Deidsj1g9zd771845ee/faHPNd4avZpnS8793nHO9POuupH6efaqBt4anlNR5dvqybAd1DZ/ZxtYYbnUswDYvO9pnCz3ecre2+aglOEX9Vz/JXqT+ASUPTD/w2fkJAAAAAElFTkSuQmCC" alt=""/>
+        <img className="absolute top-1/2 right-0.5 w-10 h-[386px] transform -translate-y-1/2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAJNCAYAAABUeqdkAAAFEElEQVR4Xu3d60pqWxjG8SEs+qKE3kFZCWJ30Je88OgagkToYOmnSkEETTrhbsyde9tMbdpKWuz9WzBpLddMX59x+r/POMxc+EP+5P6QOIJA0iVBkd9S5OTkZLK5uRmur6/D1tbWPz/Pzs5CpVL58Hq8r16vZ1L905va7fbk/v4+jMfjMBgM3gUwDWhZILMBb29vL/y8pYHMBlEqleZ+4/hBWQMZDochn8+Hcrn84XMXBtLpdBIl4rVIiVUV+VIgr99yMhqNQrFYXKjE2gNptVpJEL1eb26dWKWyztaRfr8fCoVCrNjZiiaqEWX8rEhWVWTlQJrNZhJIvGa/UVqJtQfSaDSSoonXdwYSizoWTbVazVY0p6enSSCxxfwnA+l2u0k/UqvVflaRu7u7JJD9/X2BJHWNIul+hyIUWTQWTV9XR9QRdWRVQtNqtBqtRqv53UxPP6If0Y/oR/Qj3+0Y6Vn1rHpWPaueVc86nYtd1+yEscZYY6wx1hhrjDXGmlcF5q6oMfqm14RRhCIzCmg1mRZNajVajVZj+VdqbbQkXBIuCZeES8Il4ZJwSbh18W+ABIyAETACRsAIGAEjYASMgFHKO7MZbNHgCJ7BM3gGz+AZPINn8AyewTN4XnIM2eypP+AZPINn8AyewTN4Bs/gGTyDZ/C8wqnG0ollx6hKsCRYEiwJlgRLgiXBkmBJsCRYEiwJlgRrQSuAilARKkJFqAgVoSJUhIpQESqu6aFtZifMTpidkHJKOaWcUk4pp5RTyinllHJKOaWcUs7UIb5ONXaqsVONnWrsVONPBkeuIleRq8hV5CpyFbmKXEWuIleRq8hV5CpyFbmKXMV/FfA8Pc/Ti7vnOUYcI44Rx4hjxDHiGHGMOEYcI44Rx4hjxDHiGHGMOEZ3IZ/Ph31gBIyAETACRsAIGAEjYASMroMjuB3BHRU4A0bACBgBI2AEjIARMHqvgDVG1hhZY2SNkTVG1hhZY2QqzVSaqTSOEceIY8Qx4hhxjDhGHCOO0d8KmEpL+yQUochn/qk6oo6oIw6KdVCsg2IdFOugWAfFvikAjIARMAJGwAgYASNgBIyA0YI6ABWhIlSEilARKkJFqAgVoSJUvL9/t8vdJg6bOGzisInDJg6bOGzisInDJg6bOGzisInDJg6bOGzisInDJo75dcDkoslFk4smF00umlw0uWhy0eSiyUWTiyYX30ZDYASMgBEwAkbACBgBI2AEjELIpaEo/hsqQkWoCBWhIlSEilARKkJFqLj/gZXBc5qTKUKReMTuHXgGz+D5fwPPjUZjMhqNQryWPa937Y8oazabk+FwGOL1o4G8rsZMAhkMBj8bSKvVSoqm1+v9bCBxZIyqxGCKxWL4rrWK3W435PP5UKvVshFaDKTT6UziNtt4fVZEWRfWRoULhUKoVqvZA4nBtNvtJJjxeBxKpdJCZdYeSDqYRcpkDaTf7yeKVCqV1RSZUtRUmcfHx7C5uflBmSyBbGxsJL8b60i5XP5aIFNlHh4ewvPzc7i9vX3XmpYFksvlwmQyCd8WyFSdq6uryfTv09Z0fn4e9vb23in169ev8PLykgQQv0D8eXBwMBfW4/st/I95kwXp146Pjyex5724uAi7u7tzAzk8PMz0GZluWhZUVOjy8jLs7OwkCjw9PYWbm5tQr9dXeu+Vbl4U0NHR0eS1AiaBvCrzpff80i9lKbZV7xFIpkxvVVm/435Fk1bxL9bPk4UN09xqAAAAAElFTkSuQmCC" alt=""/>
         {/* ::page */}
-        <div className={`${isFullWidth ? "absolute inset-0 w-full h-full" : "relative bottom-1 w-[270px] h-[378px]"}`} style={{ backgroundColor: pagesColor }}>
+        <div className={`${isFullWidth ? "absolute inset-0 w-full h-full" : "relative bottom-0.5 w-[270px] h-[378px]"}`} style={{ backgroundColor: pagesColor }}>
           {content &&
             <>
               {/* eslint-disable-next-line */}
@@ -59,4 +59,4 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
   )
 }
 
-export default PreviewInsideRomanStandard
+export default PreviewInsideRomanSmall

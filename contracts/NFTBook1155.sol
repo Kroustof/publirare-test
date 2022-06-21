@@ -16,109 +16,116 @@ contract NFTBook1155 is
 {
     
     using Counters for Counters.Counter;
-    Counters.Counter private _BOOK_IDS;
+    Counters.Counter private BOOK_IDS;
 
     string public name;
-    string public contractURI;
+    string public CONTRACT_URI;
     // PubliRare cut
-    uint16 public _PUBLIRARE_CUT; // 1% equal 100
-    address private _CUT_RECEIVER;
+    uint16 public PUBLIRARE_CUT; // 1% equal 100
+    address private CUT_RECEIVER;
 
     struct Royalty {
         address royaltyReceiver;
         uint16 royaltyFeesInBips;
     }
 
-    mapping(uint256 => uint256) private _MAX_COPIES;
-    mapping(uint256 => string) private _BOOK_URIS;
-    mapping(uint256 => Royalty) private _ROYALTIES;
+    mapping(uint256 => uint256) private MAX_COPIES;
+    mapping(uint256 => string) private BOOK_URIS;
+    mapping(uint256 => Royalty) private ROYALTIES;
     
 
-    event NewBookMinted(address indexed _from, address indexed _to, uint256 indexed _id, uint256 _amount, uint256 _maxCopies);
-    event MoreCopyMinted(address indexed _from, address indexed _to, uint256 indexed _id, uint256 _amount);
+    event NewBookMinted(address indexed from, address indexed to, uint256 indexed id, uint256 amount, uint256 maxCopies);
+    event MoreCopyMinted(address indexed from, address indexed to, uint256 indexed id, uint256 amount);
 
-    constructor(address owner, uint256 amount, uint256 maxCopies, string memory bookURI, uint16 _royaltyFeesInBips, string memory _contractURI, string memory contractName, address cutReceiver, uint16 cutInBips) ERC1155("") {
+    constructor(address owner, uint256 amount, uint256 maxCopies, string memory bookURI, uint16 royaltyFeesInBips, string memory contractUri, string memory contractName, address cutReceiver, uint16 cutInBips) ERC1155("") {
         if (amount > maxCopies) {
-            _MAX_COPIES[0] = amount;  
+            MAX_COPIES[0] = amount;  
         } else {
-            _MAX_COPIES[0] = maxCopies;
+            MAX_COPIES[0] = maxCopies;
         }
-        _BOOK_URIS[0] = bookURI;
-        _ROYALTIES[0] = Royalty({royaltyReceiver: owner, royaltyFeesInBips: _royaltyFeesInBips});
-        contractURI = _contractURI;
+        BOOK_URIS[0] = bookURI;
+        ROYALTIES[0] = Royalty({royaltyReceiver: owner, royaltyFeesInBips: royaltyFeesInBips});
+        CONTRACT_URI = contractUri;
         name = contractName;
-        _PUBLIRARE_CUT = cutInBips;
-        _CUT_RECEIVER = cutReceiver;
-        _BOOK_IDS.increment();
+        PUBLIRARE_CUT = cutInBips;
+        CUT_RECEIVER = cutReceiver;
+        BOOK_IDS.increment();
         _mint(cutReceiver, 0, calculateCut(maxCopies), "");
         _mint(owner, 0, (amount - calculateCut(maxCopies)), "");
         transferOwnership(owner);
 
-        emit NewBookMinted(msg.sender, owner, 0, amount, _MAX_COPIES[0]);
+        emit NewBookMinted(msg.sender, owner, 0, amount, MAX_COPIES[0]);
     }
 
-    function uri(uint256 bookID) 
+    function uri(uint256 _id) 
         public view 
         override 
         returns (string memory) 
     {
-        return (_BOOK_URIS[bookID]);
+        return (BOOK_URIS[_id]);
     }
 
-    function setbookUri(uint256 bookID, string memory bookURI) 
+    function contractURI() 
+        public view 
+        returns (string memory) 
+    {
+        return CONTRACT_URI;
+    }
+
+    function setbookUri(uint256 _id, string memory _uri) 
         public 
         onlyOwner 
     {
-        _BOOK_URIS[bookID] = bookURI;
+        BOOK_URIS[_id] = _uri;
     }
 
-    function getMaxCopies(uint256 bookID) 
+    function getMaxCopies(uint256 _id) 
         public view 
         returns (uint256) 
     {
-        return (_MAX_COPIES[bookID]);
+        return (MAX_COPIES[_id]);
     }
 
     // Add a new book to the collection
-    function mintNewBook(address to, uint256 amount, uint256 maxCopies, string memory bookURI, uint16 _royaltyFeesInBips) 
+    function mintNewBook(address to, uint256 amount, uint256 maxCopies, string memory _uri, uint16 _royaltyFeesInBips) 
         public 
         onlyOwner 
     {
         require(amount <= maxCopies, "Amount cant exceed copies limit");
-        uint256 newBookId = _BOOK_IDS.current();
-        _MAX_COPIES[newBookId] = maxCopies;
-        _BOOK_URIS[newBookId] = bookURI;
-        _ROYALTIES[newBookId] = Royalty({royaltyReceiver: msg.sender, royaltyFeesInBips: _royaltyFeesInBips});
-        _BOOK_IDS.increment();
-        _mint(_CUT_RECEIVER, newBookId, calculateCut(maxCopies), "");
+        uint256 newBookId = BOOK_IDS.current();
+        MAX_COPIES[newBookId] = maxCopies;
+        BOOK_URIS[newBookId] = _uri;
+        ROYALTIES[newBookId] = Royalty({royaltyReceiver: msg.sender, royaltyFeesInBips: _royaltyFeesInBips});
+        BOOK_IDS.increment();
+        _mint(CUT_RECEIVER, newBookId, calculateCut(maxCopies), "");
         _mint(to, newBookId, (amount - calculateCut(maxCopies)), "");
 
         emit NewBookMinted(msg.sender, to, newBookId, amount, maxCopies);
     }
     
     // Mint more copies of a specified book
-    function mintBook(address to, uint256 bookID, uint256 amount) 
+    function mintBook(address to, uint256 _id, uint256 amount) 
         public 
         onlyOwner 
     {
-        uint256 newTotalCopies = totalSupply(bookID) + amount;
-        require(newTotalCopies <= _MAX_COPIES[bookID], "Maximum copies limit reached");
-        _mint(to, bookID, amount, "");
+        uint256 newTotalCopies = totalSupply(_id) + amount;
+        require(newTotalCopies <= MAX_COPIES[_id], "Maximum copies limit reached");
+        _mint(to, _id, amount, "");
 
-        emit MoreCopyMinted(msg.sender, to, bookID, amount);
+        emit MoreCopyMinted(msg.sender, to, _id, amount);
     }
 
     // Mint more copies of multiple books
-    function mintBookBatch(address to, uint256[] memory bookIDs, uint256[] memory amounts) 
+    function mintBookBatch(address to, uint256[] memory _ids, uint256[] memory amounts) 
         public 
         onlyOwner 
     {
         uint256 newTotalCopies;
-        for (uint256 i = 0; i < bookIDs.length; i++) {
-            newTotalCopies = totalSupply(bookIDs[i]) + amounts[i];
-            require(newTotalCopies <= _MAX_COPIES[bookIDs[i]], "One or more copies limit reached");
+        for (uint256 i = 0; i < _ids.length; i++) {
+            newTotalCopies = totalSupply(_ids[i]) + amounts[i];
+            require(newTotalCopies <= MAX_COPIES[_ids[i]], "One or more copies limit reached");
         }
-        _mintBatch(to, bookIDs, amounts, "");
+        _mintBatch(to, _ids, amounts, "");
     }
 
     // Calculate PubliRre cut
@@ -126,7 +133,7 @@ contract NFTBook1155 is
         internal view
         returns (uint256)
     {
-        uint256 cut = amount * _PUBLIRARE_CUT / 10000;
+        uint256 cut = amount * PUBLIRARE_CUT / 10000;
         if (amount <= 10) {
         return 0;
         } else if(cut <= 1) {
@@ -147,38 +154,38 @@ contract NFTBook1155 is
     }
 
     // Get royalty infos of a bookID 
-    function royaltyInfo(uint256 bookID, uint256 salePrice) 
+    function royaltyInfo(uint256 _id, uint256 salePrice) 
         external view 
         returns (address receiver, uint256 royaltyAmount) 
     {
-        return (_ROYALTIES[bookID].royaltyReceiver, calculateRoyalty(bookID, salePrice));
+        return (ROYALTIES[_id].royaltyReceiver, calculateRoyalty(_id, salePrice));
     } 
 
 
-    function calculateRoyalty(uint256 bookID, uint256 salePrice) 
+    function calculateRoyalty(uint256 _id, uint256 salePrice) 
         public view 
         returns (uint256) 
     {
-        return salePrice * _ROYALTIES[bookID].royaltyFeesInBips / 10000;
+        return salePrice * ROYALTIES[_id].royaltyFeesInBips / 10000;
     }
 
 
     // Change royalty infos
-    function setRoyaltyInfo(uint256 bookID, address _receiver, uint16 _royaltyFeesInBips) 
+    function setRoyaltyInfo(uint256 _id, address receiver, uint16 royaltyFeesInBips) 
         public 
         onlyOwner 
     {
-        _ROYALTIES[bookID].royaltyReceiver = _receiver;
-        _ROYALTIES[bookID].royaltyFeesInBips = _royaltyFeesInBips;
+        ROYALTIES[_id].royaltyReceiver = receiver;
+        ROYALTIES[_id].royaltyFeesInBips = royaltyFeesInBips;
     }
 
 
     // Change contract URI
-    function setContractURI(string calldata _contractURI) 
+    function setContractURI(string calldata contractUri) 
         public 
         onlyOwner 
     {
-        contractURI = _contractURI;
+        CONTRACT_URI = contractUri;
     }
 
 

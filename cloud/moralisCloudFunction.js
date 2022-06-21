@@ -1,3 +1,5 @@
+import Moralis from "moralis/types";
+
 const logger = Moralis.Cloud.getLogger();
 
 Moralis.Cloud.define("updateStoreWhitelist", async (request) => {
@@ -16,9 +18,9 @@ Moralis.Cloud.define("updateStoreWhitelist", async (request) => {
   await user.save(null,{useMasterKey:true});
 });
 
-Moralis.Cloud.afterSave("StoreWhitelistAdded", async function (request) {
+Moralis.Cloud.afterSave("STOREAddWhitelist", async function (request) {
   const confirmed = request.object.get("confirmed");
-  const account = request.object.get("account")
+  const account = request.object.get("account");
   if (confirmed) {
     const params =  { account: account, boolValue: true, status: "confirmed" };
 	await Moralis.Cloud.run("updateStoreWhitelist", params);
@@ -32,12 +34,12 @@ Moralis.Cloud.afterSave("StoreWhitelistAdded", async function (request) {
   }
 });
 
-Moralis.Cloud.afterSave("StoreWhitelistRemoved", async function (request) {
+Moralis.Cloud.afterSave("STORERemoveWhitelist", async function (request) {
   const confirmed = request.object.get("confirmed");
-  const account = request.object.get("account")
+  const account = request.object.get("account");
   if (confirmed) {
     const params =  { account: account, boolValue: false, status: "rejected" };
-	await Moralis.Cloud.run("updateStoreWhitelist", params);
+	  await Moralis.Cloud.run("updateStoreWhitelist", params);
   } else {
     logger.info("Not confirmed yet");
     const queryCreator = new Moralis.Query("Creator");
@@ -65,12 +67,12 @@ Moralis.Cloud.define("updateFactoryWhitelist", async (request) => {
   await user.save(null,{useMasterKey:true});
 });
 
-Moralis.Cloud.afterSave("FactoryWhitelistAdded", async function (request) {
+Moralis.Cloud.afterSave("FACTORYAddWhitelist", async function (request) {
   const confirmed = request.object.get("confirmed");
-  const account = request.object.get("account")
+  const account = request.object.get("account");
   if (confirmed) {
     const params =  { account: account, boolValue1: true, boolValue2: true, status: "confirmed" };
-	await Moralis.Cloud.run("updateFactoryWhitelist", params);
+	  await Moralis.Cloud.run("updateFactoryWhitelist", params);
   } else {
     logger.info("Not confirmed yet");
     const queryCreator = new Moralis.Query("Creator");
@@ -81,16 +83,39 @@ Moralis.Cloud.afterSave("FactoryWhitelistAdded", async function (request) {
   }
 });
 
-Moralis.Cloud.afterSave("FactoryWhitelistRemoved", async function (request) {
+Moralis.Cloud.afterSave("FACTORYRemoveWhitelist", async function (request) {
   const confirmed = request.object.get("confirmed");
-  const account = request.object.get("account")
+  const account = request.object.get("account");
   if (confirmed) {
     const params =  { account: account, boolValue1: true, boolValue2: false, status: "confirmed" };
-	await Moralis.Cloud.run("updateFactoryWhitelist", params);
+	  await Moralis.Cloud.run("updateFactoryWhitelist", params);
   } else {
     logger.info("Not confirmed yet");
     const queryCreator = new Moralis.Query("Creator");
     queryCreator.equalTo("mainAccount", account);
+    const creator = await queryCreator.first();
+    creator.set("processing", true);
+    await creator.save();
+  }
+});
+
+Moralis.Cloud.afterSave("FACTORYCreateContract", async function (request) {
+  const confirmed = request.object.get("confirmed");
+  const creatorAddr = request.object.get("creator");
+  const contractAddr = request.object.get("contractAddress");
+  if (confirmed) {
+    const queryCreator = new Moralis.Query("Creator");
+    queryCreator.equalTo("mainAccount", creatorAddr);
+    const creator = await queryCreator.first();
+    const contractArray = creator.get("nftContracts");
+    contractArray.push(contractAddr);
+    creator.set("nftContracts", contractArray);
+    creator.set("processing", false);
+    await creator.save();
+  } else {
+    logger.info("Not confirmed yet");
+    const queryCreator = new Moralis.Query("Creator");
+    queryCreator.equalTo("mainAccount", creatorAddr);
     const creator = await queryCreator.first();
     creator.set("processing", true);
     await creator.save();

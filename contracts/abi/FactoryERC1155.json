@@ -70,26 +70,32 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_contractAddress",
+          "name": "contractAddress",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_creator",
+          "name": "creator",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_contractID",
+          "name": "contractID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "string",
-          "name": "_type",
+          "name": "nftType",
           "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "cutReceiver",
+          "type": "address"
         }
       ],
       "name": "NewNFTContractDeployed",
@@ -256,6 +262,45 @@
     },
     {
       "inputs": [],
+      "name": "CONTRACT_IDS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CUT_IN_BIPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CUT_RECEIVER",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "DEFAULT_ADMIN_ROLE",
       "outputs": [
         {
@@ -295,51 +340,25 @@
     },
     {
       "inputs": [],
+      "name": "TOTAL_CONTRACTS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "UPGRADER_ROLE",
       "outputs": [
         {
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "_CONTRACT_IDS",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_value",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "_CUT_IN_BIPS",
-      "outputs": [
-        {
-          "internalType": "uint16",
-          "name": "",
-          "type": "uint16"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "_TOTAL_CONTRACTS",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_value",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -392,13 +411,7 @@
         }
       ],
       "name": "createNewNFTBook",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "payable",
       "type": "function"
     },
@@ -468,7 +481,7 @@
         },
         {
           "internalType": "address",
-          "name": "_account",
+          "name": "account",
           "type": "address"
         }
       ],
@@ -523,7 +536,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_adminBackup",
+          "name": "adminBackup",
           "type": "address"
         }
       ],
@@ -657,7 +670,7 @@
       "inputs": [
         {
           "internalType": "uint16",
-          "name": "_cutInBips",
+          "name": "cutInBips",
           "type": "uint16"
         }
       ],
@@ -670,7 +683,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_newReceiver",
+          "name": "newReceiver",
           "type": "address"
         }
       ],

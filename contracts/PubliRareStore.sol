@@ -33,44 +33,44 @@ contract PubliRareStore is
   bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
   using CountersUpgradeable for CountersUpgradeable.Counter;
-  CountersUpgradeable.Counter private _BOOK_IDS;
+  CountersUpgradeable.Counter private BOOK_IDS;
 
   // Contrat infos
   string public name;
-  string public contractURI;
+  string public CONTRACT_URI;
 
   // Store limits
-  uint8 public _LIMIT_BOOKS;
-  uint24 public _MAX_COPIES;
+  uint8 public LIMIT_BOOKS;
+  uint24 public MAX_COPIES;
 
   // Cut settings
-  address private _CUT_RECEIVER; // PubliRare address to receive cut
-  uint16 public _CUT_IN_BIPS; // 1% equal 100 bips
-  address public _PUBLIRARE_MARKETPLACE;
+  address public CUT_RECEIVER; // PubliRare address to receive cut
+  uint16 public CUT_IN_BIPS; // 1% equal 100 bips
+  address public PUBLIRARE_MARKETPLACE;
 
   struct Royalty {
     address royaltyReceiver;
     uint16 royaltyFeesInBips;
   }
 
-  mapping(address => uint8) private _AUTHOR_TO_LIMIT;
-  mapping(uint256 => address) public _BOOK_TO_AUTHOR;
-  mapping(uint256 => string) private _BOOK_URIS;
-  mapping(uint256 => Royalty) private _ROYALTIES;
-  mapping(address => bool) private _WHITELIST;
+  mapping(address => uint8) private AUTHOR_TO_LIMIT;
+  mapping(uint256 => address) public BOOK_TO_AUTHOR;
+  mapping(uint256 => string) private BOOK_URIS;
+  mapping(uint256 => Royalty) private ROYALTIES;
+  mapping(address => bool) private WHITELIST;
 
 
   event NewBookMinted(
-    address _from, 
-    uint256 indexed _id, 
-    uint256 _amount
+    address indexed from, 
+    uint256 indexed id, 
+    uint256 amount
   );
 
   event CutTransfer(
-    address _booksRceiver,
-    address _author, 
-    uint256 indexed _id, 
-    uint256 _amount
+    address indexed booksRceiver,
+    address indexed author, 
+    uint256 indexed id, 
+    uint256 amount
   );
 
   event AddedToWhitelist(address indexed account);
@@ -82,7 +82,7 @@ contract PubliRareStore is
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
-  function initialize(string memory _contractURI) 
+  function initialize(string memory contractUri, address adminBackup) 
     initializer 
     public 
   {
@@ -95,6 +95,7 @@ contract PubliRareStore is
     __UUPSUpgradeable_init();
     __ERC1155Holder_init();
     
+    _grantRole(DEFAULT_ADMIN_ROLE, adminBackup);
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(OPERATOR_ROLE, msg.sender);
     _grantRole(CENSOR_ROLE, msg.sender);
@@ -102,10 +103,10 @@ contract PubliRareStore is
     _grantRole(UPGRADER_ROLE, msg.sender);
 
     name = "NFT Book Editions";
-    contractURI = _contractURI;
-    _LIMIT_BOOKS = 3;
-    _MAX_COPIES = 10000;
-    _CUT_IN_BIPS = 500; // 1% equal 100 bips
+    CONTRACT_URI = contractUri;
+    LIMIT_BOOKS = 3;
+    MAX_COPIES = 10000;
+    CUT_IN_BIPS = 500; // 1% equal 100 bips
   }
 
   fallback() external {
@@ -118,99 +119,99 @@ contract PubliRareStore is
   function mintNewBook(
     uint256 amount, 
     string memory bookURI, 
-    uint16 _royaltyFeesInBips
+    uint16 royaltyFeesInBips
   ) 
     public
     onlyWhitelisted(msg.sender)
     whenNotPaused
   {
-    require(_AUTHOR_TO_LIMIT[msg.sender] < _LIMIT_BOOKS, "Books limit reached");
-    require(amount <= _MAX_COPIES, "Limit of copies reached");
+    require(AUTHOR_TO_LIMIT[msg.sender] < LIMIT_BOOKS, "Books limit reached");
+    require(amount <= MAX_COPIES, "Limit of copies reached");
 
-    _AUTHOR_TO_LIMIT[msg.sender] += 1;
-    uint256 newBookId = _BOOK_IDS.current();
+    AUTHOR_TO_LIMIT[msg.sender] += 1;
+    uint256 newBookId = BOOK_IDS.current();
 
-    _BOOK_TO_AUTHOR[newBookId] = msg.sender;
-    _BOOK_URIS[newBookId] = bookURI;
-    _ROYALTIES[newBookId] = Royalty({royaltyReceiver: msg.sender, royaltyFeesInBips: _royaltyFeesInBips});
-    _BOOK_IDS.increment();
+    BOOK_TO_AUTHOR[newBookId] = msg.sender;
+    BOOK_URIS[newBookId] = bookURI;
+    ROYALTIES[newBookId] = Royalty({royaltyReceiver: msg.sender, royaltyFeesInBips: royaltyFeesInBips});
+    BOOK_IDS.increment();
 
-    _mint(_CUT_RECEIVER, newBookId, calculateCut(amount), "");
+    _mint(CUT_RECEIVER, newBookId, calculateCut(amount), "");
     _mint(msg.sender, newBookId, (amount - calculateCut(amount)), "");
-    setApprovalForAll(_PUBLIRARE_MARKETPLACE, true);
+    setApprovalForAll(PUBLIRARE_MARKETPLACE, true);
     
     emit NewBookMinted(msg.sender, newBookId, amount);
-    emit CutTransfer(_CUT_RECEIVER, msg.sender, newBookId, calculateCut(amount));
+    emit CutTransfer(CUT_RECEIVER, msg.sender, newBookId, calculateCut(amount));
   }
    
   //! =============== BOOKS URIs ============================================
 
   // Override to get URI of a specific book
-  function uri(uint256 bookID) 
+  function uri(uint256 _id) 
     public view 
     override 
     returns (string memory) 
   {
-    return (_BOOK_URIS[bookID]);
+    return (BOOK_URIS[_id]);
   }
 
   // Set new URI of a specific book (Only PubliRare can call it)
-  function setbookUri(uint256 bookID, string memory bookURI) 
+  function setbookUri(uint256 _id, string memory _uri) 
     public 
     onlyRole(OPERATOR_ROLE)  
   {
-    _BOOK_URIS[bookID] = bookURI;
+    BOOK_URIS[_id] = _uri;
   }
 
   //! =============== CUT SETTINGS ============================================
 
   // Set new receiver
-  function setCutReceiver(address _newReceiver) 
+  function setCutReceiver(address newReceiver) 
     public 
     onlyRole(OPERATOR_ROLE) 
   {
-    _CUT_RECEIVER = _newReceiver;
+    CUT_RECEIVER = newReceiver;
   }
 
   // Set a new cut percentage in bips
-  function setCut(uint16 _cutInBips) 
+  function setCut(uint16 cutInBips) 
     public
     onlyRole(OPERATOR_ROLE) 
   {
-    _CUT_IN_BIPS = _cutInBips;
+    CUT_IN_BIPS = cutInBips;
   }
 
   //! =============== STORE SETTERS & GETTERS ============================================
 
   // Change contract URI
-  function setContractURI(string calldata _contractURI) 
+  function setContractURI(string calldata contractUri) 
     public 
     onlyRole(OPERATOR_ROLE)  
   {
-    contractURI = _contractURI;
+    CONTRACT_URI = contractUri;
   }
 
   // Set limit of books created by one author address 
-  function setLimitBooks(uint8 _limit) 
+  function setLimitBooks(uint8 limit) 
     public
     onlyRole(OPERATOR_ROLE) 
   {
-    _LIMIT_BOOKS = _limit;
+    LIMIT_BOOKS = limit;
   }
 
   // Set maximum copies of each books
-  function setMaxCopies(uint24 _maxCopies) 
+  function setMaxCopies(uint24 maxCopies) 
     public
     onlyRole(OPERATOR_ROLE) 
   {
-    _MAX_COPIES = _maxCopies;
+    MAX_COPIES = maxCopies;
   }
 
   function setMarketAddr(address marketAddr)
     public
     onlyRole(OPERATOR_ROLE)
   {
-    _PUBLIRARE_MARKETPLACE = marketAddr;
+    PUBLIRARE_MARKETPLACE = marketAddr;
   }
 
   // Get total of books in the Store
@@ -218,15 +219,23 @@ contract PubliRareStore is
     public view
     returns (uint256)
   {
-    return (_BOOK_IDS.current());
+    return (BOOK_IDS.current());
   }
 
   // Get total of books in the Store
-  function getBookAuthor(uint256 bookID)
+  function getBookAuthor(uint256 _id)
     public view
     returns (address)
   {
-    return (_BOOK_TO_AUTHOR[bookID]);
+    return (BOOK_TO_AUTHOR[_id]);
+  }
+
+  // Get Store infos
+  function contractURI() 
+    public view 
+    returns (string memory) 
+  {
+    return CONTRACT_URI;
   }
  
   //! =============== HELPERS ============================================
@@ -236,7 +245,7 @@ contract PubliRareStore is
     internal view
     returns (uint256)
   {
-    uint256 cut = amount * _CUT_IN_BIPS / 10000;
+    uint256 cut = amount * CUT_IN_BIPS / 10000;
     if (amount <= 10) {
       return 0;
     } else if(cut <= 1) {
@@ -256,36 +265,36 @@ contract PubliRareStore is
     external view 
     returns (address receiver, uint256 royaltyAmount) 
   {
-    return (_ROYALTIES[_tokenId].royaltyReceiver, calculateRoyalty(_tokenId, _salePrice));
+    return (ROYALTIES[_tokenId].royaltyReceiver, calculateRoyalty(_tokenId, _salePrice));
   } 
 
   function calculateRoyalty(
-    uint256 bookID, 
+    uint256 _id, 
     uint256 salePrice
   ) 
     public view 
     returns (uint256) 
   {
-    return salePrice * _ROYALTIES[bookID].royaltyFeesInBips / 10000;
+    return salePrice * ROYALTIES[_id].royaltyFeesInBips / 10000;
   }
 
   // Change royalty infos
   function setRoyaltyInfo(
-    uint256 bookID, 
-    address _receiver,
-    uint16 _royaltyFeesInBips
+    uint256 _id, 
+    address receiver,
+    uint16 royaltyFeesInBips
   ) 
     public 
     onlyRole(OPERATOR_ROLE)  
   {
-    _ROYALTIES[bookID].royaltyReceiver = _receiver;
-    _ROYALTIES[bookID].royaltyFeesInBips = _royaltyFeesInBips;
+    ROYALTIES[_id].royaltyReceiver = receiver;
+    ROYALTIES[_id].royaltyFeesInBips = royaltyFeesInBips;
   }
 
   //! =============== WHITELISTED USERS ============================================
 
   modifier onlyWhitelisted(address userAddress) {
-    require(_WHITELIST[userAddress], "Account not whitelisted");
+    require(WHITELIST[userAddress], "Account not whitelisted");
     _;
   }
 
@@ -293,7 +302,7 @@ contract PubliRareStore is
     public 
     onlyRole(CENSOR_ROLE) 
   {
-    _WHITELIST[userAddress] = true;
+    WHITELIST[userAddress] = true;
     emit AddedToWhitelist(userAddress);
   }
 
@@ -301,7 +310,7 @@ contract PubliRareStore is
     public 
     onlyRole(CENSOR_ROLE)  
   {
-    _WHITELIST[userAddress] = false;
+    WHITELIST[userAddress] = false;
     emit RemovedFromWhitelist(userAddress);
   }
 
@@ -309,7 +318,7 @@ contract PubliRareStore is
     public view 
     returns(bool) 
   {
-    return _WHITELIST[userAddress];
+    return WHITELIST[userAddress];
   }
 
   //! =============== ACCESS CONTROL ============================================

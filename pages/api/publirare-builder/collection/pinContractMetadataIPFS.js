@@ -27,7 +27,7 @@ export default async function pinContractMetadataIPFS(req, res) {
   //! Initialisation Pinata SDK
   const pinata = pinataSDK(process.env.PINATA_API_KEY, process.env.PINATA_API_SECRET);
 
-  const prefixTempFolder = "temp-nftmetadata"
+  const prefixTempFolder = "temp-contractmetadata"
   let tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), prefixTempFolder))
   console.log(tmpDir);
 
@@ -41,12 +41,14 @@ export default async function pinContractMetadataIPFS(req, res) {
           "description":"${fields.collectionDesc}",
           "image":"${fields.collectionImgIpfsURL}",
           "external_link": "${fields.collectionLink}",
-          "seller_fee_basis_points":${fields.royaltyFeeInBips},
+          "seller_fee_basis_points":"${fields.royaltyFeeInBips}",
           "fee_recipient":"${fields.clientAddress}"
         }
       `
       const fileName = `metaContract-${fields.collectionName}-${getInitials(fields.authorName)}-Ed${fields.editorName}.json`
-      const newFile = fs.writeFileSync(path.join(tmpDir, fileName), metadataContract, (err) => {
+      const jsonObject = JSON.parse(metadataContract)
+      const jsonContent = JSON.stringify(jsonObject)
+      const newFile = fs.writeFileSync(path.join(tmpDir, fileName), jsonContent, 'utf8', (err) => {
         if (err) throw err;
         console.log('Metadata file created successfully.');
       })
@@ -75,7 +77,7 @@ export default async function pinContractMetadataIPFS(req, res) {
       })
     })
   })
-
+  
   try {
     const metadataJSON = createMetadataJSON.readableStream
     const pinataOptions = createMetadataJSON.options

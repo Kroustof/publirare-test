@@ -17,8 +17,8 @@ const ContractsTools = ({ isDataLoading, setIsDataLoading, memberInfos }) => {
         { id: 2, title:"Change Factory cut percentage (in Bips)", functionName:"setCutInBips", type:"write", authorized:"OPERATOR_ROLE" },
         { id: 3, title:"Pause Factory Smart Contract", functionName:"pause", type:"write", authorized:"PAUSER_ROLE" },
         { id: 4, title:"UnPause Factory Smart Contract", functionName:"unpause", type:"write", authorized:"PAUSER_ROLE" },
-        { id: 5, title:"Get Factory cut recipient address", functionName:"_CUT_RECEIVER", type:"read", authorized:"OPERATOR_ROLE" },
-        { id: 6, title:"Get Factory cut percentage", functionName:"_CUT_IN_BIPS", type:"read", authorized:"OPERATOR_ROLE" },
+        { id: 5, title:"Get Factory cut recipient address", functionName:"CUT_RECEIVER", type:"read", authorized:"OPERATOR_ROLE" },
+        { id: 6, title:"Get Factory cut percentage", functionName:"CUT_IN_BIPS", type:"read", authorized:"OPERATOR_ROLE" },
       ]
     }
   })

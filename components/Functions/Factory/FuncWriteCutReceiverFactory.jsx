@@ -23,7 +23,7 @@ const FuncWriteCutReceiverFactory = ({ children, name, newReceiver, isDisabled, 
 
   const executeFunction = async () => {
     sendOptions.params = {
-      _newReceiver: newReceiver.current.value
+      newReceiver: newReceiver.current.value
     }
     try {
       setIsFetching(true)

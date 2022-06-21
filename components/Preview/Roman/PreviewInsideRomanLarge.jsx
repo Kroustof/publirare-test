@@ -3,7 +3,7 @@ import bgExample from '../../../public/images/preview-books/example-roman-backgr
 import Image from 'next/image'
 
 
-const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundImg = bgExample, insideCover, pagesColor, content }) => {
+const PreviewInsideRomanLarge = ({ isFullWidth = false, canvasBg, backgroundImg = bgExample, insideCover, pagesColor, content }) => {
   return (
     <div className="relative w-full max-w-[500px] h-[500px] flex justify-center items-center overflow-hidden" style={{ "backgroundColor": `${canvasBg}` }}>
       {/* :Background */}
@@ -30,7 +30,7 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
       <div className={`${
           isFullWidth 
             ? "absolute inset-0 w-full h-full" 
-            : "relative py-[8px] pr-[25px] pl-[3px] w-[298px] h-[386px] overflow-hidden"
+            : "relative py-[8px] pr-[30px] pl-[3px] w-[303px] h-[386px] overflow-hidden"
           } 
           rounded-l-sm rounded-r bg-white
       `}>
@@ -40,7 +40,7 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
         <div className={`absolute top-0 right-0 w-[35%] h-full`} style={{ boxShadow: "-2px 1px 5px #494949", backgroundColor: insideCover }} />
         {/* ::book depth */}
         {/* eslint-disable-next-line */}
-        <img className="absolute top-1/2 right-1 w-10 h-[381px] transform -translate-y-1/2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAJOCAYAAADWGwX3AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAK8AAACvABQqw0mAAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAVdEVYdENyZWF0aW9uIFRpbWUANC8zMC8xMl2VLOQAAAP6SURBVHic7dY7bxNBFIbhb3w3Ei2iHYWKJoKGAiHYXz7/AERDZ40QTTqKSLGd2B4Kz7En6/Ul8SUU75FGqzi7+z1zZndsl1LSS1brRdMldSTJObft/y6PVjHs5IWNlNL8KMAB4R1J7Tysa7MY4+1oNJJzrlvAUsNorJTS1iWoh/ckDSQN87EfQri1m8QYH/J5Ngxq99laTYCm8H4OH0oaxBhvyllIUgjhLp/Xk9TN1+5F1AH7wochhFheUL5FMca/WnepdwiiBOwKfyVpGGP8tW0mViGEm3yNdWMnwgB7w0MIP/eFW8UY/xyKqHegreX61Wf+/dBwqxDC70MQZQfa+aS+1k/8MITw5HCrGONehAFaWs9+9co9Z+b1qnWim3O2dsDa3w8h/Dg23Cp3YpDvbfuEk9Y7oW2ztgzdU4UXNZA0lzRTsY2XHSgR7TMA+mpYhvpGVP/COWXZ7mjbdKsOcMXxHIDyy2w1yUv+HiiXeVWXBpRdvjigsQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFACUnFMDeeeHSBJizwuDkhF+DyPiwLK8JmkhzNklUu76nDZgXkOnkqaVlX14QwAm+iqyg4Y4F7SRNLYe//xFMne+89aL+2j56zegZmWHZhIGksaV1V1FKKqqq9aL+ushth4DctlGEu60xGd8N5/07Kj9/me03z/uRo6YGs0Ky5YIaqqun5KeFVVFm73meS/DdDYgZ0I7/37A2f+RcWzVACmWi/Dow4cgrBnwpcXOOfqM/9UC7/Lx432NwEOQUy892+bAN776x3h9/l+iyJDLqW0MQu7dx4tSR1J7TwMPYsx3o5GI11dXcl7/05SN19jb9PO8JTSzm/Deidsj1g9zd771845ee/faHPNd4avZpnS8793nHO9POuupH6efaqBt4anlNR5dvqybAd1DZ/ZxtYYbnUswDYvO9pnCz3ecre2+aglOEX9Vz/JXqT+ASUPTD/w2fkJAAAAAElFTkSuQmCC" alt=""/>
+        <img className="absolute top-1/2 right-1 w-10 h-[381px] transform -translate-y-1/2" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAJOCAYAAADWGwX3AAAEkklEQVR4Xu3WS08iXRSF4Y0IykUQMU5FURpFQY1D/74jYxw5cALBEZAAhqhcpbpXJXyxFQRsKAffW4mRcKm9zrP3OeCzH758P1zfCDBR4Pb21mm327a1tWX9ft98Pp+trq5ao9Gwq6urhcmNvVG5XHYqlYp1Oh1LJpPW6/XcAIFAwOr1uiUSCfe5YDBo+Xz+n8KM/XCpVHKq1ap1u92pAfx+v+VyuW+HGPvBYrHo1Gq1mQJoF0nn9PT0WyEWEkDt2N7etlQqNXeIhQXQPOgvm83OFWJhATSgmoeTk5OfC6BZGAwGdnFxMXOIhQoowLzzsJQAOifS6fRMCksJEIvFrNVq2eXl5dQQSwkQjUbdI3tnZ8cODg6+DLGUAJFIxJrNpkliOBx+eVwvJUA4HHYDxONx94vs/Px8ooInARzHmbg1PQmgNkhj3Dx4FkDzcHh4+KmeZwG0M3RQZTKZv2p6FkCDqVZ8/O3gaQDtiI+/oDwLEAqF3C1ZKBR+pgUKoC+qs7MzAiCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIDA/1ig3+9boVD4OYHBYGD5fN77ACr89vZmGxsblsvlvA3Q6/VsOBya4zgWj8ctk8l4F2Bzc9Pq9boFAgGLRCKf+O3P9VcaPaGrWCw6tVrNut2uJZNJ0yp8Pp97I90wkUi4zwWDQff9eqzX9B49DofD1mw23RU/PT1ZKBRy+T+ufqkBGo2GG0ghtfrj4+Oxi12awPPzsxtgfX3dYrGY7e7uehPg5eXF/H6/u3L9VzvS6fTY4hNbUCqVnGq1OtcMqKAmvd1uu8W18rW1tS+LTwxQLpedSqVinU5n5iFUUQ2eCkejUbfvqVRq4spHAz/xDTc3N87r6+vEAKMbiFwr16X/Kqye7+/vTy0+UUAv3N3dOa1Wa2oAnXI6aEaXttuvX79mKv5lgIeHB0f9VB8lsbKy8ukc0A20/zVs7s3+TP3Ho/a/ZBMeTEz6+PjoBtCfzvFZAqj3s/T9fZYvqRRCq1cAnYoatPcn4XsB9X5vb29m+qlD+D7l/f29Ow/qrwLojNe0jwYvm83OXXimANfX187om0wTrh7rGu1znfXfWfVcLdCBNCqsD2rgtPqjo6Nvr3rmANMmeBGvL2QV/xLkNyMMvx3cxA0eAAAAAElFTkSuQmCC" alt=""/>
         {/* ::page */}
         <div className={`${isFullWidth ? "absolute inset-0 w-full h-full" : "relative bottom-1 w-[270px] h-[378px]"}`} style={{ backgroundColor: pagesColor }}>
           {content &&
@@ -59,4 +59,4 @@ const PreviewInsideRomanStandard = ({ isFullWidth = false, canvasBg, backgroundI
   )
 }
 
-export default PreviewInsideRomanStandard
+export default PreviewInsideRomanLarge

@@ -1,7 +1,7 @@
 import { ClockIcon, ColorSwatchIcon } from "@heroicons/react/outline"
 import { CheckCircleIcon } from "@heroicons/react/solid"
 
-const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError }) => {
+const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError }) => {
   return (
     <div className="py-5 text-gray-500">
                   
@@ -27,8 +27,10 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError })
                   {/* ::::step details */}
                   <div className={`
                     relative flex flex-col items-center 
-                    ${(step.status === "current" && !isFatalError)
+                    ${(step.status === "current" && !isFatalError && loadingState <= 3)
                       ? "text-sky-500 animate-pulse"
+                      : (step.status === "current" && !isFatalError && loadingState > 3)
+                      ? "text-teal-500 animate-none"
                       : (step.status === "current" && isFatalError)
                       ? "text-red-600 animate-pulse"
                       : step.status !== "upcoming" 
@@ -39,8 +41,10 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError })
                     <span className={`${step.status !== "current" && "hidden md:inline-block"} absolute -top-7 text-xs font-semibold whitespace-nowrap`}>{step.title}</span>
                     <span className={`
                       p-1.5 inline-flex justify-center items-center rounded-full border-2 
-                      ${(step.status === "current" && !isFatalError)
+                      ${(step.status === "current" && !isFatalError && loadingState <= 3)
                         ? "border-sky-400"
+                        : (step.status === "current" && !isFatalError && loadingState > 3)
+                        ? "border-teal-400"
                         : (step.status === "current" && isFatalError)
                         ? "border-red-600 animate-pulse"
                         : step.status !== "upcoming" 
@@ -50,6 +54,9 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError })
                     `}>
                       <Icon className="w-10 h-10" />
                     </span>
+                    {index === 2 && loadingState > 3 && loadingState < 4 &&
+                      <span className="absolute -bottom-10 text-sm text-sky-500 font-semibold">Transaction sent!</span>
+                    }
                   </div>
                 </li>
               )}
@@ -60,7 +67,7 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError })
 
 
       {/* :INFOS */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-start">
         <h3 className="text-base text-gray-500 font-bold">NFT Creation Infos:</h3>
         {isFatalError
           ? <p>
@@ -92,34 +99,6 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingStatus, isFatalError })
                     </span>
                   : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
                       Awaiting...
-                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                    </span>
-                }
-              </li>
-              {/* ::Contract Address */}
-              <li className="text-xs text-gray-500 font-semibold">
-                Smart Contract Address:&#160;
-                {nftInfos.contractAddress
-                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
-                      {nftInfos.contractAddress}
-                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                    </span>
-                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
-                      Awaiting...
-                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
-                    </span>
-                }
-              </li>
-              {/* ::Is NFT Minted */}
-              <li className="text-xs text-gray-500 font-semibold">
-                Is Nft Book #1 minted:&#160;
-                {nftInfos.contractAddress
-                  ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
-                      Yes!
-                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
-                    </span>
-                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
-                      Not yet
                       <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
                     </span>
                 }

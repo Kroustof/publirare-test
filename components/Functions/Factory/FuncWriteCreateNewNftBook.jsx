@@ -7,7 +7,7 @@ import ErrorMessage from "../../Alerts/ErrorMessage"
 import TransactionMessage from "../../Alerts/TransactionMessage"
 
 
-const FuncWriteCreateNewNftBook = ({ children, name, amount, maxCopies, uri, royaltyFeesInBips, contractURI, collectionName, isDisabled, setLoadingState, updateSteps, setCreationStatus, setIsFatalError, ...props }) => {
+const FuncWriteCreateNewNftBook = ({ children, name, amount, maxCopies, uri, royaltyFeesInBips, contractURI, collectionName, isDisabled, setLoadingState, updateSteps, setCreationStatus, setIsFatalError, setNftInfos, ...props }) => {
   
   const { contractAddrs, contractABIs } = useMoralisDapp()
   const [isFetching, setIsFetching] = useState(false)
@@ -21,64 +21,41 @@ const FuncWriteCreateNewNftBook = ({ children, name, amount, maxCopies, uri, roy
     functionName: name,
   }
 
-  // const executeFunction = async () => {
-  //   sendOptions.params = {
-  //     amount: amount,
-  //     maxCopies: maxCopies,
-  //     uri: uri,
-  //     royaltyFeesInBips: royaltyFeesInBips,
-  //     contractURI: contractURI,
-  //     collectionName: collectionName
-  //   }
-  //   try {
-  //     setIsFetching(true)
-  //     setError(null)
-  //     setIsModalOpen(false)
-  //     const transaction = await Moralis.executeFunction(sendOptions)
-  //     loadingState(3.1)
-  //     setCreationStatus("Transaction on blockchain: Contract creation and token #1 minting...")
-  //     console.log(transaction.hash)
-  //     const receipt = await transaction.wait()
-  //     setData(receipt)
-  //     setCreationStatus("Contract successfully created and NFT Book #1 minted !")
-  //     setLoadingState(4)
-  //     updateSteps(4)
-  //     setIsFetching(false)
-  //     setIsModalOpen(true)
-  //   } catch (error) {
-  //     setError(error.message)
-  //     // setIsFatalError(true)
-  //     loadingState(3)
-  //     setIsFetching(false)
-  //   }
-  // }
-
   const executeFunction = async () => {
+    sendOptions.params = {
+      amount: amount,
+      maxCopies: maxCopies,
+      uri: uri,
+      royaltyFeesInBips: royaltyFeesInBips,
+      contractURI: contractURI,
+      collectionName: collectionName
+    }
     try {
-      const ethers = Moralis.web3Library;
-      const web3Provider = await Moralis.enableWeb3()
-      const gasPrice = await web3Provider.getGasPrice()
-  
-      const signer = web3Provider.getSigner()
-  
-      const contract = new ethers.Contract(contractAddrs.factory1155, contractABIs.factory1155, signer)
-      console.log(gasPrice);
-      const transaction = await contract.createNewNFTBook(amount, maxCopies, uri, royaltyFeesInBips, contractURI, collectionName, {
-        gasLimit: 15000000,
-        gasPrice: gasPrice,
-        // baseFeePerGas: 9,
-        // maxPriorityFeePerGas: 2,
-        // maxFeePerGas: 10000000
-      })
-  
-      console.log(transaction.hash)
+      setIsFetching(true)
+      setError(null)
+      setIsModalOpen(false)
+      setLoadingState(3.1)
+      setCreationStatus("Transaction on blockchain: Contract creation and token #1 minting...")
+      const transaction = await Moralis.executeFunction(sendOptions)
+      console.log(transaction.hash);
+      const txHash = await transaction.hash 
+      console.log("transaction hash:", txHash)
+      setCreationStatus("Your new contract is being submit to the blockchain. It may take a while before the transaction beeing validated on the blockchain so if you like you can now leave this page. You will be able to see in your profile your new smart contract (collection) and NFT once it will be done.")
+      setIsFetching(false)
       const receipt = await transaction.wait()
-  
-      console.log(receipt);
+      setData(receipt)
+      setCreationStatus("Contract successfully created and NFT Book minted! Go to your creator profile to get more details about it!")
+      setLoadingState(4)
+      updateSteps(4)
+      setIsModalOpen(true)
     } catch (error) {
-      console.log(error.message);
+      setError(error.message)
+      setIsFatalError(true)
+      setLoadingState(3)
+      setIsFetching(false)
     }
   }
+
 
   return (
     <>

@@ -21,6 +21,30 @@ const getInitials = (fullName) => {
   return initials.join('')
 }
 
+// Format metadata name to EIP-1155 standards (64 hex characters length leading by 0 / [0-9a-f] )
+const formatName = (str) => {
+  // 1-S 2-D 3-N 4-T 5-R 6-Y 7-L 8-C Other-9
+  let result
+  let regex = /[^0-9a-fsdntryls]/g
+  let coreString = str.split(" ").join("").toLowerCase().slice(0,63)
+  coreString = coreString
+    .replaceAll("s","1")
+    .replaceAll("d","2")
+    .replaceAll("n","3")
+    .replaceAll("t","4")
+    .replaceAll("r","5")
+    .replaceAll("y","6")
+    .replaceAll("l","7")
+    .replaceAll("s","8")
+    .replaceAll(regex, "9")
+  let missingCount = 63 - coreString.length
+  let missingZero = []
+  Array.from(Array(missingCount).keys()).map(value => missingZero.push("0"))
+  result = `0${missingZero.join("")}${coreString}.json`
+  console.log(result);
+  return result
+}
+
 
 export default async function pinNftMetadataIPFS(req, res) {
 
@@ -29,7 +53,7 @@ export default async function pinNftMetadataIPFS(req, res) {
 
   const prefixTempFolder = "temp-nftmetadata"
   let tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), prefixTempFolder))
-  // console.log(tmpDir);
+  console.log(tmpDir);
 
   //! Get POST file informations and file - formidable parse is asynchrone
   const createMetadataJSON = await new Promise((res, rej) => {
@@ -53,7 +77,7 @@ export default async function pinNftMetadataIPFS(req, res) {
             }, 
             {
               "trait_type": "Editor", 
-              "value": "${fields.editorName || 'self-publishing'}"
+              "value": "${fields.editorName}"
             }, 
             {
               "trait_type": "Special Edition", 
@@ -75,14 +99,16 @@ export default async function pinNftMetadataIPFS(req, res) {
             {
               "trait_type": "NFT Publication Rights", 
               "value": "${fields.rights}"
-            },
+            }
           ]
         }
       `
-      const fileName = `metaToken-${fields.title}-${fields.collectionName}-${getInitials(fields.authorName)}-Ed${fields.editorName}.json`
-      const newFile = fs.writeFileSync(path.join(tmpDir, fileName), metadataNFT, (err) => {
+      const fileName = formatName(`${fields.title}${getInitials(fields.authorName)}${fields.editorName}${fields.collectionName}`)
+      const jsonObject = JSON.parse(metadataNFT)
+      const jsonContent = JSON.stringify(jsonObject)
+      const newFile = fs.writeFileSync(path.join(tmpDir, fileName), jsonContent, 'utf8', (err) => {
         if (err) throw err;
-        // console.log('Metadata file created successfully.');
+        console.log('Metadata file created successfully.');
       })
       
       const readableStream = fs.createReadStream(path.join(tmpDir, fileName))
@@ -111,7 +137,7 @@ export default async function pinNftMetadataIPFS(req, res) {
       })
     })
   })
-
+  
   try {
     const metadataJSON = createMetadataJSON.readableStream
     const pinataOptions = createMetadataJSON.options

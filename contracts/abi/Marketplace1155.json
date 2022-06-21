@@ -57,31 +57,31 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_nftContract",
+          "name": "nftContract",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_tokenID",
+          "name": "tokenID",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amountLeftToSell",
+          "name": "amountLeftToSell",
           "type": "uint256"
         }
       ],
@@ -94,13 +94,13 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         }
       ],
@@ -113,55 +113,55 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_nftContract",
+          "name": "nftContract",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_tokenID",
+          "name": "tokenID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amountToSell",
+          "name": "amountToSell",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_owner",
+          "name": "owner",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_unitPrice",
+          "name": "unitPrice",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_royaltyReceiver",
+          "name": "royaltyReceiver",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_royaltyInBips",
+          "name": "royaltyInBips",
           "type": "uint256"
         }
       ],
@@ -174,37 +174,37 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_previousAmount",
+          "name": "previousAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_newAmount",
+          "name": "newAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_previousPrice",
+          "name": "previousPrice",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_newPrice",
+          "name": "newPrice",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         }
       ],
@@ -217,31 +217,31 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_buyer",
+          "name": "buyer",
           "type": "address"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_price",
+          "name": "price",
           "type": "uint256"
         }
       ],
@@ -254,13 +254,13 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         }
       ],
@@ -273,31 +273,31 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_resellID",
+          "name": "resellID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amountToSell",
+          "name": "amountToSell",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_unitPrice",
+          "name": "unitPrice",
           "type": "uint256"
         }
       ],
@@ -342,37 +342,37 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_resellID",
+          "name": "resellID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_buyer",
+          "name": "buyer",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_price",
+          "name": "price",
           "type": "uint256"
         }
       ],
@@ -385,25 +385,25 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_resellID",
+          "name": "resellID",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_unitPrice",
+          "name": "unitPrice",
           "type": "uint256"
         }
       ],
@@ -416,37 +416,37 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_itemID",
+          "name": "itemID",
           "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_resellID",
+          "name": "resellID",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_newAmount",
+          "name": "newAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_newPrice",
+          "name": "newPrice",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "enum Marketplace1155.ListingStatus",
-          "name": "_status",
+          "name": "status",
           "type": "uint8"
         }
       ],
@@ -532,9 +532,9 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "_seller",
+          "name": "seller",
           "type": "address"
         }
       ],
@@ -595,6 +595,58 @@
     },
     {
       "inputs": [],
+      "name": "ITEMS_SOLD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ITEM_IDS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MARKET_FEE_IN_BIPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MARKET_FEE_RECEIVER",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "OPERATOR_ROLE",
       "outputs": [
         {
@@ -621,38 +673,25 @@
     },
     {
       "inputs": [],
+      "name": "PUBLIRARE_STORE",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "UPGRADER_ROLE",
       "outputs": [
         {
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "_ITEMS_SOLD",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_value",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "_ITEM_IDS",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_value",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1341,7 +1380,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "adminBackup",
+          "type": "address"
+        }
+      ],
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",

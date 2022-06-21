@@ -88,7 +88,7 @@
   transform: translateZ(30px);
   background-color: #01060f;
   border-radius: 1px 3px 3px 1px;
-  box-shadow: 5px 5px 20px #01060f;
+  box-shadow: 5px 5px 20px #777777;
 }
 
 .bookContainer .book::before {
@@ -133,7 +133,7 @@
   height: 378px;
   transform: translateZ(-30px);
   border-radius: 0 3px 3px 0;
-  box-shadow: -10px 0 50px 10px #777777;
+  box-shadow: -2px 0 20px 2px #aaaaaa;
 }
 
 /* .bookCover {

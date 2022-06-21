@@ -25,12 +25,12 @@
         },
         {
           "internalType": "uint16",
-          "name": "_royaltyFeesInBips",
+          "name": "royaltyFeesInBips",
           "type": "uint16"
         },
         {
           "internalType": "string",
-          "name": "_contractURI",
+          "name": "contractUri",
           "type": "string"
         },
         {
@@ -83,25 +83,25 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_from",
+          "name": "from",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_to",
+          "name": "to",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_id",
+          "name": "id",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -114,31 +114,31 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_from",
+          "name": "from",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "_to",
+          "name": "to",
           "type": "address"
         },
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "_id",
+          "name": "id",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_maxCopies",
+          "name": "maxCopies",
           "type": "uint256"
         }
       ],
@@ -259,7 +259,20 @@
     },
     {
       "inputs": [],
-      "name": "_PUBLIRARE_CUT",
+      "name": "CONTRACT_URI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PUBLIRARE_CUT",
       "outputs": [
         {
           "internalType": "uint16",
@@ -368,7 +381,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         },
         {
@@ -424,7 +437,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         }
       ],
@@ -443,12 +456,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "account",
+          "name": "_owner",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "operator",
+          "name": "_operator",
           "type": "address"
         }
       ],
@@ -456,7 +469,7 @@
       "outputs": [
         {
           "internalType": "bool",
-          "name": "",
+          "name": "isOperator",
           "type": "bool"
         }
       ],
@@ -472,7 +485,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         },
         {
@@ -495,7 +508,7 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "bookIDs",
+          "name": "_ids",
           "type": "uint256[]"
         },
         {
@@ -528,7 +541,7 @@
         },
         {
           "internalType": "string",
-          "name": "bookURI",
+          "name": "_uri",
           "type": "string"
         },
         {
@@ -579,7 +592,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         },
         {
@@ -705,7 +718,7 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "_contractURI",
+          "name": "contractUri",
           "type": "string"
         }
       ],
@@ -718,17 +731,17 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "_receiver",
+          "name": "receiver",
           "type": "address"
         },
         {
           "internalType": "uint16",
-          "name": "_royaltyFeesInBips",
+          "name": "royaltyFeesInBips",
           "type": "uint16"
         }
       ],
@@ -741,12 +754,12 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         },
         {
           "internalType": "string",
-          "name": "bookURI",
+          "name": "_uri",
           "type": "string"
         }
       ],
@@ -810,7 +823,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "bookID",
+          "name": "_id",
           "type": "uint256"
         }
       ],

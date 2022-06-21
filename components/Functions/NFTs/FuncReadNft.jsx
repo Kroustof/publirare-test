@@ -5,9 +5,10 @@ import Image from 'next/image'
 import loader from '../../../public/loader2.gif'
 import ErrorMessage from "../../Alerts/ErrorMessage"
 import TransactionMessage from "../../Alerts/TransactionMessage"
+import abiNft from "../../../contracts/abi/NFTBook1155.json"
 
 
-const FuncWriteCutFeeFactory = ({ children, name, cutInBips, isDisabled, ...props }) => {
+const FuncReadNft = ({ children, name, contractID, addr, ...props }) => {
 
   const { contractAddrs, contractABIs } = useMoralisDapp()
   const [isFetching, setIsFetching] = useState(false)
@@ -16,25 +17,23 @@ const FuncWriteCutFeeFactory = ({ children, name, cutInBips, isDisabled, ...prop
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const sendOptions = {
-    abi: contractABIs.factory1155,
-    contractAddress: contractAddrs.factory1155,
+    abi: abiNft.abi,
+    contractAddress: addr,
     functionName: name,
   }
 
   const executeFunction = async () => {
     sendOptions.params = {
-      cutInBips: Number.parseInt(cutInBips.current.value)
+      bookID: contractID
     }
     try {
       setIsFetching(true)
-      setError(null)
       setIsModalOpen(false)
-      const transaction = await Moralis.executeFunction(sendOptions)
-      console.log(transaction.hash)
-      const receipt = await transaction.wait()
-      setData(receipt)
-      setIsFetching(false)
+      const response = await Moralis.executeFunction(sendOptions)
+      console.log("Response:", response);
+      setData(response)
       setIsModalOpen(true)
+      setIsFetching(false)
     } catch (error) {
       setError(error.message)
       setIsFetching(false)
@@ -43,12 +42,12 @@ const FuncWriteCutFeeFactory = ({ children, name, cutInBips, isDisabled, ...prop
 
   return (
     <>
-      {error && <ErrorMessage error={error} setError={setError} />}
-      {data && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
+      {error && <ErrorMessage error={error} setError={setError}  />}
+      {data !== null && <TransactionMessage isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} data={data} />}
       <button
         type="button"
         onClick={executeFunction}
-        disabled={isFetching || isDisabled}
+        disabled={isFetching}
         {...props}
       >
         {isFetching
@@ -67,4 +66,4 @@ const FuncWriteCutFeeFactory = ({ children, name, cutInBips, isDisabled, ...prop
   )
 }
 
-export default FuncWriteCutFeeFactory
+export default FuncReadNft

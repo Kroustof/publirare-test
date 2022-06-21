@@ -7,12 +7,44 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useMoralis } from "react-moralis"
 import Link from 'next/link';
 import FuncWriteCreateNewNftBook from "../components/Functions/Factory/FuncWriteCreateNewNftBook"
+import FuncReadContractFactory from "../components/Functions/Factory/FuncReadContractFactory"
+import FuncReadNft from "../components/Functions/NFTs/FuncReadNft"
+import { useRef } from "react"
 
 export default function Home() {
 
   const router = useRouter()
   const { t } = useTranslation('common')
   const { account } = useMoralis()
+
+  const textRef = useRef("")
+  const formatTo1155 = () => {
+    // 1-S 2-D 3-N 4-T 5-R 6-Y 7-L 8-C Other-9
+    let str = textRef.current.value
+    console.log(str);
+    let result
+    let regex = /[^0-9a-fsdntryls]/g
+    let hardCore = str.split(" ").join("").toLowerCase().slice(0,63)
+    console.log("check 1:", hardCore);
+    hardCore = hardCore
+      .replaceAll("s","1")
+      .replaceAll("d","2")
+      .replaceAll("n","3")
+      .replaceAll("t","4")
+      .replaceAll("r","5")
+      .replaceAll("y","6")
+      .replaceAll("l","7")
+      .replaceAll("s","8")
+      .replaceAll(regex, "9")
+    console.log("check 2:", hardCore);
+    let missingCount = 63 - hardCore.length
+    console.log("missing count:", missingCount);
+    let missingZero = []
+    Array.from(Array(missingCount).keys()).map(() => missingZero.push("0"))
+    console.log("missing 0:", missingZero);
+    result = `0${missingZero.join("")}${hardCore}.json`
+    console.log(result);
+  }
 
   return (
     <>
@@ -36,20 +68,43 @@ export default function Home() {
           <a className="mt-4 text-teal-700 underline">Team Space</a>
         </Link>
 
-        <div className="mt-10">
-          <FuncWriteCreateNewNftBook 
-            name="createNewNFTBook"
-            amount={20000}
-            maxCopies={50000}
-            royaltyFeesInBips={500}
-            uri="https://gateway.pinata.cloud/ipfs/QmXVkcYHasVNUXYqDSaDaUSS4yVu4cr94L2t6NPqCf9J3Q/"
-            contractURI="https://gateway.pinata.cloud/ipfs/QmPV9PePBQCJyc43yBYhibZRkPEfwwJoXSz5GHKJzULQAJ/"
-            collectionName="One Piece Serie"
-            className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
-          >
-            Mint
-          </FuncWriteCreateNewNftBook>
+        <div className="mt-10 flex flex-wrap">
+          <div className="m-2">
+            <FuncWriteCreateNewNftBook
+              name="createNewNFTBook"
+              amount={20000}
+              maxCopies={50000}
+              royaltyFeesInBips={500}
+              uri="https://gateway.pinata.cloud/ipfs/QmXVkcYHasVNUXYqDSaDaUSS4yVu4cr94L2t6NPqCf9J3Q/"
+              contractURI="https://gateway.pinata.cloud/ipfs/QmPV9PePBQCJyc43yBYhibZRkPEfwwJoXSz5GHKJzULQAJ/"
+              collectionName="One Piece Serie"
+              className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
+            >
+              Mint
+            </FuncWriteCreateNewNftBook>
+          </div>
+          <div className="m-2">
+            <FuncReadContractFactory
+              name="getContractAddress"
+              contractID={5}
+              className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-purple-400 text-2xl text-white font-bold tracking-wide hover:bg-purple-500">
+              Get contract address
+            </FuncReadContractFactory>
+          </div>
+          
+          <div className="m-2">
+            <FuncReadNft
+              name="uri"
+              addr="0xede20E073C6fe9CBF1177e08fa97d91996b6461F"
+              contractID={0}
+              className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-green-400 text-2xl text-white font-bold tracking-wide hover:bg-green-500">
+              Get URI
+            </FuncReadNft>
+          </div>
         </div>
+
+        <input type="text" ref={textRef} name="" id="" />
+        <button onClick={formatTo1155} className="bg-pink-400 text-white">format</button>
 
       </div>
 

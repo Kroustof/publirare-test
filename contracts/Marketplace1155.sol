@@ -30,15 +30,15 @@ contract Marketplace1155 is
   bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
   // IERC2981 Interface Royalties
-  bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
+  bytes4 private constant INTERFACE_ID_ERC2981 = 0x2a55205a;
 
   using CountersUpgradeable for CountersUpgradeable.Counter;
-  CountersUpgradeable.Counter public _ITEM_IDS; 
-  CountersUpgradeable.Counter public _ITEMS_SOLD;
+  CountersUpgradeable.Counter public ITEM_IDS; 
+  CountersUpgradeable.Counter public ITEMS_SOLD;
 
-  address payable private _MARKET_FEE_RECEIVER;
-  uint16 private _MARKET_FEE_IN_BIPS;
-  address private _PUBLIRARE_STORE;
+  address payable public MARKET_FEE_RECEIVER;
+  uint16 public MARKET_FEE_IN_BIPS;
+  address public PUBLIRARE_STORE;
 
   enum ListingStatus { Active, Sold, Cancelled, Blacklisted }
 
@@ -74,94 +74,94 @@ contract Marketplace1155 is
   mapping(address => bool) public isSellerBlacklisted;
 
   event MarketItemCreated (
-    uint256 indexed _itemID,
-    address indexed _nftContract,
-    uint256 indexed _tokenID,
-    uint256 _amountToSell,
-    address _seller,
-    address _owner,
-    uint256 _unitPrice,
-    address _royaltyReceiver,
-    uint256 _royaltyInBips
+    uint256 indexed itemID,
+    address indexed nftContract,
+    uint256 indexed tokenID,
+    uint256 amountToSell,
+    address seller,
+    address owner,
+    uint256 unitPrice,
+    address royaltyReceiver,
+    uint256 royaltyInBips
   );
 
   event MarketItemModified (
-    uint256 indexed _itemID,
-    uint256 _previousAmount,
-    uint256 _newAmount,
-    uint256 _previousPrice,
-    uint256 _newPrice,
-    address _seller
+    uint256 indexed itemID,
+    uint256 previousAmount,
+    uint256 newAmount,
+    uint256 previousPrice,
+    uint256 newPrice,
+    address indexed seller
   );
 
   event MarketItemSale (
-    uint256 indexed _itemID,
-    address _buyer,
-    address _seller,
-    uint256 indexed _amount,
-    uint256 _price
+    uint256 indexed itemID,
+    address buyer,
+    address indexed seller,
+    uint256 indexed amount,
+    uint256 price
   );
   
   event MarketItemSold (
-    uint256 indexed _itemID,
-    address _seller
+    uint256 indexed itemID,
+    address indexed seller
   );
 
   event MarketItemCancelled (
-    uint256 indexed _itemID,
-    address _seller
+    uint256 indexed itemID,
+    address indexed seller
   );
 
   event MarketItemBlacklisted (
-    uint256 indexed _itemID,
-    address _nftContract,
-    uint256 _tokenID,
-    address _seller,
-    uint256 _amountLeftToSell
+    uint256 indexed itemID,
+    address nftContract,
+    uint256 tokenID,
+    address indexed seller,
+    uint256 amountLeftToSell
   );
 
   event SellerBlacklisted (
-    address _seller
+    address indexed seller
   );
 
   event NewResellOffer (
-    uint256 indexed _itemID,
-    uint256 indexed _resellID,
-    address indexed _seller,
-    uint256 _amountToSell,
-    uint256 _unitPrice
+    uint256 indexed itemID,
+    uint256 indexed resellID,
+    address indexed seller,
+    uint256 amountToSell,
+    uint256 unitPrice
   );
 
   event ReselledItemSale (
-    uint256 indexed _itemID,
-    uint256 indexed _resellID,
-    address _buyer,
-    address indexed _seller,
-    uint256 _amount,
-    uint256 _price
+    uint256 indexed itemID,
+    uint256 indexed resellID,
+    address buyer,
+    address indexed seller,
+    uint256 amount,
+    uint256 price
   );
 
   event ReselledItemSold (
-    uint256 indexed _itemID,
-    uint256 indexed _resellID,
-    address _seller,
-    uint256 _unitPrice
+    uint256 indexed itemID,
+    uint256 indexed resellID,
+    address indexed seller,
+    uint256 unitPrice
   );
 
   event ReselledOfferModified (
-    uint256 indexed _itemID,
-    uint256 indexed _resellID,
-    uint256 _newAmount,
-    uint256 _newPrice,
-    address _seller,
-    ListingStatus indexed _status
+    uint256 indexed itemID,
+    uint256 indexed resellID,
+    uint256 newAmount,
+    uint256 newPrice,
+    address seller,
+    ListingStatus indexed status
   );
 
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
-  function initialize() public initializer {
+  function initialize(address adminBackup) public initializer {
     __Ownable_init();
     __AccessControl_init();
     __Pausable_init();
@@ -169,14 +169,15 @@ contract Marketplace1155 is
     __UUPSUpgradeable_init();
     __ERC1155Holder_init();
 
+    _grantRole(DEFAULT_ADMIN_ROLE, adminBackup);
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(OPERATOR_ROLE, msg.sender);
     _grantRole(CENSOR_ROLE, msg.sender);
     _grantRole(PAUSER_ROLE, msg.sender);
     _grantRole(UPGRADER_ROLE, msg.sender);
 
-    _MARKET_FEE_RECEIVER = payable(msg.sender);
-    _MARKET_FEE_IN_BIPS = 150;
+    MARKET_FEE_RECEIVER = payable(msg.sender);
+    MARKET_FEE_IN_BIPS = 150;
   }
 
   //! =============== CREATE NEW MARKET ITEM BY AUTHOR ============================================
@@ -197,8 +198,8 @@ contract Marketplace1155 is
     whenNotPaused
   {
     // Check if book is from PubliRare Store
-    if (nftContract == _PUBLIRARE_STORE) {
-      bytes memory fetchAuthor = AddressUpgradeable.functionCall(_PUBLIRARE_STORE, abi.encodeWithSignature("getBookAuthor(uint256)", tokenID)); 
+    if (nftContract == PUBLIRARE_STORE) {
+      bytes memory fetchAuthor = AddressUpgradeable.functionCall(PUBLIRARE_STORE, abi.encodeWithSignature("getBookAuthor(uint256)", tokenID)); 
       require(abi.decode(fetchAuthor, (address)) == msg.sender, "Only the author from Store can create a new Market item");
     } else {
       require(OwnableUpgradeable(nftContract).owner() == msg.sender, "Only NFT contract owner can create a new Market item");
@@ -206,8 +207,8 @@ contract Marketplace1155 is
 
     require(!isMarketItemListed(nftContract, tokenID), "NFT already listed.");
     
-    _ITEM_IDS.increment();
-    uint256 itemID = _ITEM_IDS.current();
+    ITEM_IDS.increment();
+    uint256 itemID = ITEM_IDS.current();
 
     idToMarketItem[itemID] = MarketItem(
       itemID,
@@ -248,8 +249,8 @@ contract Marketplace1155 is
 
     require(!isSellerBlacklisted[minter], "Seller is blacklisted");
     
-    _ITEM_IDS.increment();
-    uint256 itemID = _ITEM_IDS.current();
+    ITEM_IDS.increment();
+    uint256 itemID = ITEM_IDS.current();
 
 
     idToMarketItem[itemID] = MarketItem(
@@ -361,12 +362,12 @@ contract Marketplace1155 is
 
     (address royaltyReceiver, uint256 royaltyFee) = getRoyaltyInfo(itemID, msg.value);
 
-    uint256 marketFee = msg.value * _MARKET_FEE_IN_BIPS / 10000;
+    uint256 marketFee = msg.value * MARKET_FEE_IN_BIPS / 10000;
     uint256 mainFee = msg.value - royaltyFee - marketFee;
 
     emit MarketItemSale(itemID, msg.sender, marketItem.seller, amount, price);
 
-    _MARKET_FEE_RECEIVER.transfer(marketFee);
+    MARKET_FEE_RECEIVER.transfer(marketFee);
     marketItem.seller.transfer(mainFee);
     if (royaltyFee > 0 || royaltyReceiver == address(0)) {
       payable(royaltyReceiver).transfer(royaltyFee);
@@ -378,7 +379,7 @@ contract Marketplace1155 is
     if (marketItem.amountToSell == 0) {
       marketItem.owner = marketItem.seller;
       marketItem.status = ListingStatus.Sold;
-      _ITEMS_SOLD.increment();
+      ITEMS_SOLD.increment();
       emit MarketItemSold(itemID, marketItem.seller);
     }
   }
@@ -389,8 +390,8 @@ contract Marketplace1155 is
     public view 
     returns (MarketItem[] memory) 
   {
-    uint256 itemCount = _ITEM_IDS.current();
-    uint256 unsoldItemCount = _ITEM_IDS.current() - _ITEMS_SOLD.current();
+    uint256 itemCount = ITEM_IDS.current();
+    uint256 unsoldItemCount = ITEM_IDS.current() - ITEMS_SOLD.current();
     uint256 currentIndex;
 
     MarketItem[] memory items = new MarketItem[](unsoldItemCount);
@@ -412,7 +413,7 @@ contract Marketplace1155 is
     public view
     returns (MarketItem[] memory)
   {
-    uint256 totalItemCount = _ITEM_IDS.current();
+    uint256 totalItemCount = ITEM_IDS.current();
     uint256 itemCount;
     uint256 currentIndex;
 
@@ -447,7 +448,7 @@ contract Marketplace1155 is
     public view
     returns (MarketItem[] memory)
   {
-    uint256 totalItemCount = _ITEM_IDS.current();
+    uint256 totalItemCount = ITEM_IDS.current();
     uint256 itemCount;
     uint256 currentIndex;
 
@@ -596,12 +597,12 @@ contract Marketplace1155 is
 
     (address royaltyReceiver, uint256 royaltyFee) = getRoyaltyInfo(itemID, msg.value);
 
-    uint256 marketFee = msg.value * _MARKET_FEE_IN_BIPS / 10000;
+    uint256 marketFee = msg.value * MARKET_FEE_IN_BIPS / 10000;
     uint256 mainFee = msg.value - royaltyFee - marketFee;
 
     emit ReselledItemSale(itemID, resellID, msg.sender, offer.seller, amount, price);
 
-    payable(_MARKET_FEE_RECEIVER).transfer(marketFee);
+    payable(MARKET_FEE_RECEIVER).transfer(marketFee);
     offer.seller.transfer(mainFee);
     if (royaltyFee > 0 && royaltyReceiver != address(0)) {
       payable(royaltyReceiver).transfer(royaltyFee);
@@ -651,7 +652,7 @@ contract Marketplace1155 is
     public view
     returns (ResellOffer[] memory)
   {
-    uint256 totalItemCount = _ITEM_IDS.current();
+    uint256 totalItemCount = ITEM_IDS.current();
     uint256 userOffersCount;
     uint256 currentIndex;
       
@@ -685,7 +686,7 @@ contract Marketplace1155 is
     public view
     returns (bool)
   {
-    uint256 totalItemCount = _ITEM_IDS.current();
+    uint256 totalItemCount = ITEM_IDS.current();
     bool offerExist;
 
     for (uint256 i = 0; i < totalItemCount; i++) {
@@ -721,7 +722,7 @@ contract Marketplace1155 is
     public view
     returns (bool) 
   {
-    (bool success) = IERC165Upgradeable(_contract).supportsInterface(_INTERFACE_ID_ERC2981);
+    (bool success) = IERC165Upgradeable(_contract).supportsInterface(INTERFACE_ID_ERC2981);
     return success;
   }
 
@@ -780,10 +781,10 @@ contract Marketplace1155 is
     onlyRole(OPERATOR_ROLE)
   {
     require(feeInBips < 5000, "Market fee cannot exceed 50%");
-    _MARKET_FEE_IN_BIPS = feeInBips;
+    MARKET_FEE_IN_BIPS = feeInBips;
   }
 
-  // Returns _MARKET_FEE_RECEIVER, _MARKET_FEE_IN_BIPS, _PUBLIRARE_STORE
+  // Returns MARKET_FEE_RECEIVER, MARKET_FEE_IN_BIPS, PUBLIRARE_STORE
   function getMarketSettings()
     public view
     returns (
@@ -792,21 +793,21 @@ contract Marketplace1155 is
       address storeAddress
     )
   {
-    return (_MARKET_FEE_RECEIVER, _MARKET_FEE_IN_BIPS, _PUBLIRARE_STORE);
+    return (MARKET_FEE_RECEIVER, MARKET_FEE_IN_BIPS, PUBLIRARE_STORE);
   }
 
   function setMarketFeeReceiver(address payable newReceiver)
     public
     onlyRole(OPERATOR_ROLE) 
   {
-    _MARKET_FEE_RECEIVER = newReceiver;
+    MARKET_FEE_RECEIVER = newReceiver;
   }
 
   function setStoreAddr(address storeAddr)
     public
     onlyRole(OPERATOR_ROLE)
   {
-    _PUBLIRARE_STORE = storeAddr;
+    PUBLIRARE_STORE = storeAddr;
   }
 
   function blacklistMarketItem(uint256 itemID) 

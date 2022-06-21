@@ -25,24 +25,25 @@ contract FactoryERC1155 is
   bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
   using CountersUpgradeable for CountersUpgradeable.Counter;
-  CountersUpgradeable.Counter public _CONTRACT_IDS;
-  CountersUpgradeable.Counter public _TOTAL_CONTRACTS;
+  CountersUpgradeable.Counter public CONTRACT_IDS;
+  CountersUpgradeable.Counter public TOTAL_CONTRACTS;
 
-  address public _CUT_RECEIVER; // PubliRare address to receive cut
-  uint16 public _CUT_IN_BIPS; // 1% equal 100 bips
+  address public CUT_RECEIVER; // PubliRare address to receive cut
+  uint16 public CUT_IN_BIPS; // 1% equal 100 bips
 
   // Store address of each created contract
-  mapping(uint256 => address) private _ID_TO_CONTRACT;
+  mapping(uint256 => address) private ID_TO_CONTRACT;
   // Store owner of each created contract
-  mapping(uint256 => address) private _ID_TO_OWNER;
+  mapping(uint256 => address) private ID_TO_OWNER;
   // Whitelist user with Premium account
-  mapping(address => bool) whitelist;
+  mapping(address => bool) WHITELIST;
 
   event NewNFTContractDeployed(
-    address _contractAddress, 
-    address indexed _creator, 
-    uint256 indexed _contractID, 
-    string indexed _type
+    address contractAddress, 
+    address indexed creator, 
+    uint256 indexed contractID, 
+    string indexed nftType,
+    address cutReceiver
   );
 
   event AddedToWhitelist(address indexed account);
@@ -53,27 +54,27 @@ contract FactoryERC1155 is
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
-  function initialize(address _adminBackup) public initializer {
+  function initialize(address adminBackup) public initializer {
     __Ownable_init();
     __AccessControl_init();
     __Pausable_init();
     __UUPSUpgradeable_init();
 
-    _grantRole(DEFAULT_ADMIN_ROLE, _adminBackup);
+    _grantRole(DEFAULT_ADMIN_ROLE, adminBackup);
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(OPERATOR_ROLE, msg.sender);
     _grantRole(CENSOR_ROLE, msg.sender);
     _grantRole(PAUSER_ROLE, msg.sender);
     _grantRole(UPGRADER_ROLE, msg.sender);
 
-    _CUT_IN_BIPS = 50;
+    CUT_IN_BIPS = 250;
   }
 
   //! =============== CREATE NEW ERC1155 CONTRACT ============================================
   
   function createNewNFTBook(
     uint256 amount, 
-    uint256 maxCopies,
+    uint256 maxCopies, 
     string memory uri, 
     uint16 royaltyFeesInBips, 
     string memory contractURI, 
@@ -82,9 +83,8 @@ contract FactoryERC1155 is
     public payable 
     onlyWhitelisted(msg.sender) 
     whenNotPaused
-    returns (address) 
   {
-    uint256 contractID = _CONTRACT_IDS.current();
+    uint256 contractID = CONTRACT_IDS.current();
 
     NFTBook1155 newContract = new NFTBook1155(
       msg.sender, 
@@ -94,36 +94,36 @@ contract FactoryERC1155 is
       royaltyFeesInBips, 
       contractURI, 
       collectionName, 
-      _CUT_RECEIVER, 
-      _CUT_IN_BIPS
+      CUT_RECEIVER, 
+      CUT_IN_BIPS
     );
 
-    _ID_TO_CONTRACT[contractID] = address(newContract);
-    _ID_TO_OWNER[contractID] = msg.sender;
-    _CONTRACT_IDS.increment();
-    _TOTAL_CONTRACTS.increment();
+    string memory nftStandard = "ERC1155";
+    address newContractAddr = address(newContract);
+    ID_TO_CONTRACT[contractID] = newContractAddr;
+    ID_TO_OWNER[contractID] = msg.sender;
+    CONTRACT_IDS.increment();
+    TOTAL_CONTRACTS.increment();
 
-    emit NewNFTContractDeployed(address(newContract), msg.sender, contractID, "ERC1155");
-
-    return address(newContract);
+    emit NewNFTContractDeployed(newContractAddr, msg.sender, contractID, nftStandard, CUT_RECEIVER);
   }
 
   //! =============== CUT SETTINGS ============================================
 
   // Set new receiver
-  function setCutReceiver(address _newReceiver) 
+  function setCutReceiver(address newReceiver) 
     public 
     onlyRole(OPERATOR_ROLE)
   {
-    _CUT_RECEIVER = _newReceiver;
+    CUT_RECEIVER = newReceiver;
   }
 
   // Set new cut value
-  function setCutInBips(uint16 _cutInBips) 
+  function setCutInBips(uint16 cutInBips) 
     public 
     onlyRole(OPERATOR_ROLE)
   {
-    _CUT_IN_BIPS = _cutInBips;
+    CUT_IN_BIPS = cutInBips;
   }
 
   //! =============== FACTORY GETTERS ============================================
@@ -133,7 +133,7 @@ contract FactoryERC1155 is
     public view 
     returns(address) 
   {
-    return _ID_TO_CONTRACT[contractID];
+    return ID_TO_CONTRACT[contractID];
   }
 
   // Get contract owner
@@ -141,13 +141,13 @@ contract FactoryERC1155 is
     public view 
     returns(address) 
   {
-    return _ID_TO_OWNER[contractID];
+    return ID_TO_OWNER[contractID];
   }
 
   //! =============== WHITELISTED USERS ============================================
 
   modifier onlyWhitelisted(address userAddress) {
-    require(whitelist[userAddress], "Account not whitelisted");
+    require(WHITELIST[userAddress], "Account not whitelisted");
     _;
   }
 
@@ -155,7 +155,7 @@ contract FactoryERC1155 is
     public 
     onlyRole(CENSOR_ROLE) 
   {
-    whitelist[userAddress] = true;
+    WHITELIST[userAddress] = true;
     emit AddedToWhitelist(userAddress);
   }
 
@@ -163,7 +163,7 @@ contract FactoryERC1155 is
     public 
     onlyRole(CENSOR_ROLE)  
   {
-    whitelist[userAddress] = false;
+    WHITELIST[userAddress] = false;
     emit RemovedFromWhitelist(userAddress);
   }
 
@@ -171,7 +171,7 @@ contract FactoryERC1155 is
     public view 
     returns(bool) 
   {
-    return whitelist[userAddress];
+    return WHITELIST[userAddress];
   }
 
   //! =============== SECURITY PAUSE CONTRACT ============================================
@@ -206,9 +206,9 @@ contract FactoryERC1155 is
     _;
   }
 
-  function grantARole(string memory role, address _account) public {
+  function grantARole(string memory role, address account) public {
     bytes32 grantedRole = keccak256(abi.encodePacked(role));
-    grantRole(grantedRole, _account);
+    grantRole(grantedRole, account);
   } 
   
 }
