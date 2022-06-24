@@ -29,6 +29,7 @@ export default async function pinPreviewImgIPFS(req, res) {
     const promise = new Promise((res, err) => {
       const form = new formidable.IncomingForm()
       form.parse(req, async function (err, fields, files) {
+        console.log("field collection name:", fields.collectionName);
         const post = {}
         post.pathFile = files.previewImage.filepath
         post.clientAddress = fields.clientAddress

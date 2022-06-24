@@ -24,7 +24,7 @@ const FuncReadNft = ({ children, name, contractID, addr, ...props }) => {
 
   const executeFunction = async () => {
     sendOptions.params = {
-      bookID: contractID
+      _id: contractID
     }
     try {
       setIsFetching(true)

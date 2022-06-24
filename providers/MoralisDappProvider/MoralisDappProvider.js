@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useMoralis } from "react-moralis"
 import { Moralis } from 'moralis'
 import MoralisDappContext from "./context"
-import { useTranslation } from "next-i18next"
+import nftBook1155 from '../../contracts/abi/NFTBook1155.json'
 import factory1155 from '../../contracts/abi/FactoryERC1155.json'
 import store from '../../contracts/abi/PubliRareStore.json'
 import marketplace1155 from '../../contracts/abi/Marketplace1155.json';
@@ -10,7 +10,6 @@ import marketplace1155 from '../../contracts/abi/Marketplace1155.json';
 
 function MoralisDappProvider({ children }) {
 
-  const { t } = useTranslation('common')
   
   const { web3, enableWeb3, isWeb3Enabled, isAuthenticated, isWeb3EnableLoading, user, refetchUserData } = useMoralis()
   const [userId, setUserId] = useState()
@@ -28,7 +27,8 @@ function MoralisDappProvider({ children }) {
   const [contractABIs, setContractABIs] = useState({
     marketplace1155: marketplace1155.abi,
     store: store.abi,
-    factory1155: factory1155.abi
+    factory1155: factory1155.abi,
+    nftBook1155: nftBook1155.abi
   }) // Smart contract ABIs here 
   const [contractAddrs, setContractAddrs] = useState({
     marketplace1155: process.env.NEXT_PUBLIC_MARKETPLACE1155_ADDRESS,

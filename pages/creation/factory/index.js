@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import loader from '../../../public/loader.gif'
-import LayoutNFTCreate from "../../../components/Layout/LayoutNFTCreate"
+import LayoutSmall from "../../../components/Layout/LayoutSmall"
 import FactoryChoices from "../../../components/Creation/Factory/FactoryChoices"
 
 
@@ -96,9 +96,9 @@ export default function Factory() {
 
 Factory.getLayout = function getLayout(page) {
   return (
-    <LayoutNFTCreate>
+    <LayoutSmall>
       {page}
-    </LayoutNFTCreate>
+    </LayoutSmall>
   )
 }
 

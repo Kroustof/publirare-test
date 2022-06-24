@@ -7,28 +7,27 @@ import ErrorMessage from "../../Alerts/ErrorMessage"
 import TransactionMessage from "../../Alerts/TransactionMessage"
 
 
-const FuncWriteCreateNewNftBook = ({ children, name, amount, maxCopies, uri, royaltyFeesInBips, contractURI, collectionName, isDisabled, setLoadingState, updateSteps, setCreationStatus, setIsFatalError, setNftInfos, ...props }) => {
+const FuncWriteMintNewNftBook = ({ children, contractAddr, name, to, amount, maxCopies, uri, royaltyFeesInBips, isDisabled, setLoadingState, updateSteps, setCreationStatus, setIsFatalError, setNftInfos, ...props }) => {
   
-  const { contractAddrs, contractABIs } = useMoralisDapp()
+  const { contractABIs } = useMoralisDapp()
   const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState(null)
   const [data, setData] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   
   const sendOptions = {
-    abi: contractABIs.factory1155,
-    contractAddress: contractAddrs.factory1155,
+    abi: contractABIs.nftBook1155,
+    contractAddress: contractAddr,
     functionName: name,
   }
 
   const executeFunction = async () => {
     sendOptions.params = {
+      to: to,
       amount: amount,
       maxCopies: maxCopies,
-      uri: uri,
-      royaltyFeesInBips: royaltyFeesInBips,
-      contractURI: contractURI,
-      collectionName: collectionName
+      _uri: uri,
+      _royaltyFeesInBips: royaltyFeesInBips
     }
     try {
       setIsFetching(true)
@@ -84,4 +83,4 @@ const FuncWriteCreateNewNftBook = ({ children, name, amount, maxCopies, uri, roy
   )
 }
 
-export default FuncWriteCreateNewNftBook
+export default FuncWriteMintNewNftBook

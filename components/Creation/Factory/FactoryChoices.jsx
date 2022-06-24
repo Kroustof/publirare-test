@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { LightBulbIcon } from "@heroicons/react/outline"
-import Image from 'next/image'
 import Link from 'next/link'
 
 
@@ -39,7 +38,7 @@ const FactoryChoices = ({ user }) => {
               </div>
             </a>
           </Link>
-          {/* ::Create a New Contract  */}
+          {/* ::Mint a New Token  */}
           <Link href="/creation/factory/new-token">
             <a className="col-span-1 p-5 max-w-sm flex flex-col border-2 border-gray-200 rounded-lg hover:border-teal-500 hover:bg-teal-50">
               <h4 className="text-center text-lg text-gray-700 font-bold">Mint a New Token</h4>

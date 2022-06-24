@@ -28,13 +28,13 @@ const getInitials = (fullName) => {
 export default async function pinBookIPFS(req, res) {
 
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
-  const src = path.join(process.cwd(), 'templates/structures/manga-standard-full-png')
   const prefixTempFolder = "temp-nftcontent"
   let tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), prefixTempFolder))
   // console.log(tmpDir);
 
   let data = new FormData();
 
+  
   //! ADD METADATA AND NFT CONTENT TO FORM DATA
   const addMetadataAndContent = new Promise((res, rej) => {
     const form = new formidable.IncomingForm({
@@ -72,18 +72,29 @@ export default async function pinBookIPFS(req, res) {
       res(console.log("Infos and content collected then added"))
     })
   })
-
+  
   //! ADD BOOK STRUCTURE TO FORM DATA
   const addStructureToData = new Promise((res, rej) => {
-    recursive.readdirr(src, (err, dirs, files) => {
-      files.forEach((file) => {
-        const name = path.basename(file)
-        // console.log(name);
-        data.append('file', fs.createReadStream(file), {
-          filepath: path.join("/nftbook/", name)
-        })
-      });
-      res(console.log("Book structure added"))
+    const form = new formidable.IncomingForm()
+    form.parse(req, function (err, fields, files) {
+      const format = fields.format
+      const size = fields.size
+      const extension = fields.extension
+
+      let src = path.join(process.cwd(), `templates/structures/${format}-${size}-${extension}`)
+      
+      console.log("Template path:", src)
+
+      recursive.readdirr(src, (err, dirs, files) => {
+        files.forEach((file) => {
+          const name = path.basename(file)
+          // console.log(name);
+          data.append('file', fs.createReadStream(file), {
+            filepath: path.join("/nftbook/", name)
+          })
+        });
+        res(console.log("Book structure added"))
+      })
     })
   })
 

@@ -2,33 +2,13 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 
 
-const FormatChoices = ({ bookTypes }) => {
+const FormatChoices = ({ bookTypes, selectedFormat, selectedExtension, setSelectedExtension, selectedSize, setSelectedSize, changeTab }) => {
 
-  const router = useRouter()
-
-  const [selectedFormat, setSelectedFormat] = useState("roman")
-  const [selectedExtension, setSelectedExtension] = useState(null)
-  const [selectedSize, setSelectedSize] = useState(null)
-
-  // const translateValue = bookTypes.findIndex(tab => tab.format === selectedFormat) / bookTypes.length * 100
   const translateValue = Object.keys(bookTypes).findIndex(key => key === selectedFormat) / Object.keys(bookTypes).length * 100
 
-  const changeTab = (format) => {
-    setSelectedFormat(format)
-    setSelectedExtension(null)
-    setSelectedSize(null)
-  }
-
-  const validation = () => {
-    if (!selectedExtension || !selectedSize) return
-    const format = selectedFormat
-    const extension = selectedExtension
-    const size = selectedSize
-    router.push(`/creation/factory/new-collection/create?format=${format}&extension=${extension}&size=${size}`)
-  }
-
+  console.log(selectedExtension);
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto w-full max-w-7xl">
 
       {/* :TAB BOOK FORMATS */}
       <div className="mt-10 mx-auto w-full max-w-3xl">
@@ -86,7 +66,7 @@ const FormatChoices = ({ bookTypes }) => {
       <div className="flex justify-around">
         {/* ::Book Types */}
         <div className="mt-10">
-          <h4 className="text-base text-gray-500 font-bold uppercase">1- Book Type</h4>
+          <h3 className="text-base text-gray-500 font-bold uppercase">1- Book Type</h3>
           <div className="mt-3 flex flex-wrap space-x-5">
             {Object
               .keys(bookTypes[selectedFormat].extensions)
@@ -126,7 +106,7 @@ const FormatChoices = ({ bookTypes }) => {
         </div>
         {/* ::Book Size */}
         <div className="mt-10 flex-shrink-0">
-          <h4 className="text-base text-gray-500 font-bold uppercase">2- Select book size</h4>
+          <h3 className="text-base text-gray-500 font-bold uppercase">2- Select book size</h3>
           <div className="mt-3 flex flex-col space-y-5">
             {bookTypes[selectedFormat]
               .sizes
@@ -145,19 +125,6 @@ const FormatChoices = ({ bookTypes }) => {
             }
           </div>
         </div>
-      </div>
-
-
-      {/* :VALIDATE BUTTON */}
-      <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={validation}
-          disabled={!selectedFormat || selectedExtension === null || selectedSize === null}
-          className="relative mt-16 inline-flex items-center px-5 py-2.5 rounded border border-transparent bg-teal-500 text-lg text-white font-bold hover:bg-teal-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
-        >
-          Create NFT Book
-        </button>
       </div>
 
     </div>

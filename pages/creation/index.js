@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import loader from '../../public/loader.gif'
-import LayoutNFTCreate from "../../components/Layout/LayoutNFTCreate"
+import LayoutSmall from "../../components/Layout/LayoutSmall"
 import CreationOptions from "../../components/Creation/CreationOptions"
 
 
@@ -78,9 +78,9 @@ export default function Create() {
 
 Create.getLayout = function getLayout(page) {
   return (
-    <LayoutNFTCreate>
+    <LayoutSmall>
       {page}
-    </LayoutNFTCreate>
+    </LayoutSmall>
   )
 }
 

@@ -1,7 +1,7 @@
 import { ClockIcon, ColorSwatchIcon } from "@heroicons/react/outline"
 import { CheckCircleIcon } from "@heroicons/react/solid"
 
-const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError }) => {
+const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError, isNewContract }) => {
   return (
     <div className="py-5 text-gray-500">
                   
@@ -54,7 +54,7 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError }) 
                     `}>
                       <Icon className="w-10 h-10" />
                     </span>
-                    {index === 2 && loadingState > 3 && loadingState < 4 &&
+                    {index === 2 && loadingState > 3.1 && loadingState < 4 &&
                       <span className="absolute -bottom-10 text-sm text-sky-500 font-semibold">Transaction sent!</span>
                     }
                   </div>
@@ -76,7 +76,10 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError }) 
             </p>
           : <ul className="mt-5 flex flex-col items-start space-y-2">
               {/* ::Contract URI */}
-              <li className="text-xs text-gray-500 font-semibold">
+              <li className={`
+                text-xs text-gray-500 font-semibold
+                ${isNewContract ? "block" : "hidden"}
+              `}>
                 Contract URI:&#160;
                 {nftInfos.contractMetadataCID
                   ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
@@ -95,6 +98,20 @@ const FactoryCreationStatus = ({ steps, nftInfos, loadingState, isFatalError }) 
                 {nftInfos.metadataCID
                   ? <span className="ml-1 inline-flex items-center text-xs text-gray-500 font-medium">
                       {nftInfos.metadataCID}
+                      <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
+                    </span>
+                  : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">
+                      Awaiting...
+                      <ClockIcon className="ml-2 w-5 h-5 text-gray-300" />
+                    </span>
+                }
+              </li>
+              {/* ::NFT Metadata URI */}
+              <li className="text-xs text-gray-500 font-semibold">
+                Transacttion Hash:&#160;
+                {nftInfos.transactionHash
+                  ? <span className="ml-1 inline-flex items-center text-xs text-teal-500 font-medium hover:text-teal-400">
+                      <a href={`https://mumbai.polygonscan.com/tx/${nftInfos.transactionHash}`} target="__blank" className="underline">{nftInfos.transactionHash}</a>
                       <CheckCircleIcon className="ml-2 w-5 h-5 text-teal-500" />
                     </span>
                   : <span className="ml-1 inline-flex items-center text-xs text-gray-300 font-semibold">

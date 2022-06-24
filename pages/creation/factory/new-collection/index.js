@@ -1,15 +1,14 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useMoralis } from "react-moralis"
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import LayoutNFTCreate from "../../../../components/Layout/LayoutNFTCreate"
+import LayoutSmall from "../../../../components/Layout/LayoutSmall"
 import Link from 'next/link'
 import Image from 'next/image'
 import loader from '../../../../public/loader.gif'
 import { useRouter } from 'next/router'
 import { useMoralisDapp } from "../../../../providers/MoralisDappProvider/MoralisDappProvider"
 import FormatChoices from "../../../../components/Creation/Factory/FormatChoices"
-import { useNFTCreation } from "../../../../providers/NFTCreationProvider/NFTCreationProvider"
 import { bookTypes } from "../../../../helpers/bookTypes"
 
 
@@ -18,8 +17,29 @@ export default function NewCollection() {
   const router = useRouter()
   const { isAuthenticated, isAuthUndefined } = useMoralis()
   const { isCreator, creatorInfos, isLoading } = useMoralisDapp()
+  const [selectedFormat, setSelectedFormat] = useState("roman")
+  const [selectedExtension, setSelectedExtension] = useState(null)
+  const [selectedSize, setSelectedSize] = useState(null)
 
-  //! Redirect unauthenticated users to login page
+  const changeTab = (format) => {
+    setSelectedFormat(format)
+    setSelectedExtension(null)
+    setSelectedSize(null)
+  }
+
+  const validation = () => {
+    if (!selectedExtension || !selectedSize) return
+    const format = selectedFormat
+    const extension = selectedExtension
+    const size = selectedSize
+    router.push(`/creation/factory/new-collection/create?format=${format}&extension=${extension}&size=${size}`)
+  }
+
+
+
+
+  //? ====================== REDIRECT UNAUTHENTICATED USERS TO LOGIN PAGE ==================================================================
+
   useEffect(() => {
     if (!isAuthenticated && !isAuthUndefined) {
       router.push("/login")
@@ -66,12 +86,26 @@ export default function NewCollection() {
   if (isAuthenticated && isCreator && creatorInfos.isPremium && !isLoading) {
     return (
       <div className="pb-32 flex flex-col">
-        <h1 className="self-center text-center text-xl text-gray-700 font-extrabold uppercase">Choose your NFT Book format</h1>
-
-        <div>
-          <FormatChoices 
-            bookTypes={bookTypes}
-          />
+        <h2 className="self-center text-center text-xl text-gray-700 font-extrabold uppercase">Choose your NFT Book format</h2>
+        <FormatChoices 
+          bookTypes={bookTypes}
+          selectedFormat={selectedFormat}
+          setSelectedFormat={setSelectedFormat}
+          selectedExtension={selectedExtension}
+          setSelectedExtension={setSelectedExtension}
+          selectedSize={selectedSize}
+          setSelectedSize={setSelectedSize}
+          changeTab={changeTab}
+        />
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={validation}
+            disabled={!selectedFormat || selectedExtension === null || selectedSize === null}
+            className="relative mt-16 inline-flex items-center px-5 py-2.5 rounded border border-transparent bg-teal-500 text-lg text-white font-bold hover:bg-teal-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          >
+            Create NFT Book
+          </button>
         </div>
       </div>
     )
@@ -96,9 +130,9 @@ export default function NewCollection() {
 
 NewCollection.getLayout = function getLayout(page) {
   return (
-    <LayoutNFTCreate>
+    <LayoutSmall>
       {page}
-    </LayoutNFTCreate>
+    </LayoutSmall>
   )
 }
 

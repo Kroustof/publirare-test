@@ -42,8 +42,9 @@ contract FactoryERC1155 is
     address contractAddress, 
     address indexed creator, 
     uint256 indexed contractID, 
-    string indexed nftType,
-    address cutReceiver
+    string nftType,
+    address cutReceiver,
+    string contractName
   );
 
   event AddedToWhitelist(address indexed account);
@@ -98,14 +99,13 @@ contract FactoryERC1155 is
       CUT_IN_BIPS
     );
 
-    string memory nftStandard = "ERC1155";
     address newContractAddr = address(newContract);
     ID_TO_CONTRACT[contractID] = newContractAddr;
     ID_TO_OWNER[contractID] = msg.sender;
     CONTRACT_IDS.increment();
     TOTAL_CONTRACTS.increment();
 
-    emit NewNFTContractDeployed(newContractAddr, msg.sender, contractID, nftStandard, CUT_RECEIVER);
+    emit NewNFTContractDeployed(newContractAddr, msg.sender, contractID, "ERC1155", CUT_RECEIVER, collectionName);
   }
 
   //! =============== CUT SETTINGS ============================================

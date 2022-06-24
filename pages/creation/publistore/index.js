@@ -3,7 +3,7 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import loader from '../../../public/loader.gif'
-import LayoutNFTCreate from "../../../components/Layout/LayoutNFTCreate"
+import LayoutSmall from "../../../components/Layout/LayoutSmall"
 
 
 export default function Store() {
@@ -17,9 +17,9 @@ export default function Store() {
 
 Store.getLayout = function getLayout(page) {
   return (
-    <LayoutNFTCreate>
+    <LayoutSmall>
       {page}
-    </LayoutNFTCreate>
+    </LayoutSmall>
   )
 }
 

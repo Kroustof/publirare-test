@@ -279,7 +279,7 @@ const CreatorTools = ({ isDataLoading, setIsDataLoading }) => {
               </div>
             : countResults === 0 && !isDataLoading
             
-            ?  <p className="absolute top-1/2 left-1/2 text-center text-base md:text-lg text-gray-400 font-bold tracking-wide transform -translate-y-1/2 -translate-x-1/2">
+            ? <p className="absolute top-1/2 left-1/2 text-center text-base md:text-lg text-gray-400 font-bold tracking-wide transform -translate-y-1/2 -translate-x-1/2">
                 <span className="block">No data found.</span>
                 <span className="block">Change filter category or click refresh.</span>
               </p>

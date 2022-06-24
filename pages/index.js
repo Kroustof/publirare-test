@@ -16,7 +16,7 @@ export default function Home() {
   const router = useRouter()
   const { t } = useTranslation('common')
   const { account } = useMoralis()
-
+  
   const textRef = useRef("")
   const formatTo1155 = () => {
     // 1-S 2-D 3-N 4-T 5-R 6-Y 7-L 8-C Other-9
@@ -46,6 +46,15 @@ export default function Home() {
     console.log(result);
   }
 
+  const test = async () => {
+    const response = await fetch(`${router.basePath}/api/hello/`, {
+      method: "POST",
+      
+    })
+    const data = await response.json()
+    console.log(data);
+  }
+
   return (
     <>
       <Head>
@@ -72,11 +81,11 @@ export default function Home() {
           <div className="m-2">
             <FuncWriteCreateNewNftBook
               name="createNewNFTBook"
-              amount={20000}
-              maxCopies={50000}
-              royaltyFeesInBips={500}
-              uri="https://gateway.pinata.cloud/ipfs/QmXVkcYHasVNUXYqDSaDaUSS4yVu4cr94L2t6NPqCf9J3Q/"
-              contractURI="https://gateway.pinata.cloud/ipfs/QmPV9PePBQCJyc43yBYhibZRkPEfwwJoXSz5GHKJzULQAJ/"
+              amount={500}
+              maxCopies={500}
+              royaltyFeesInBips={1000}
+              uri="https://gateway.pinata.cloud/ipfs/QmVLhnokCzD4VZeqghc5EhtYSP5YFNtGPPmXmkJkKuMZdn/"
+              contractURI="https://gateway.pinata.cloud/ipfs/QmaQvPj7WDJSJHZjz6fph9UAVEXs924XQCEh77t7ACGDXs/"
               collectionName="One Piece Serie"
               className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-sky-400 text-2xl text-white font-bold tracking-wide hover:bg-sky-500"
             >
@@ -86,7 +95,7 @@ export default function Home() {
           <div className="m-2">
             <FuncReadContractFactory
               name="getContractAddress"
-              contractID={5}
+              contractID={0}
               className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-purple-400 text-2xl text-white font-bold tracking-wide hover:bg-purple-500">
               Get contract address
             </FuncReadContractFactory>
@@ -95,7 +104,7 @@ export default function Home() {
           <div className="m-2">
             <FuncReadNft
               name="uri"
-              addr="0xede20E073C6fe9CBF1177e08fa97d91996b6461F"
+              addr="0x343C5cDbB195869DF164935d978F498a9fF52F35"
               contractID={0}
               className="relative m-3 inline-flex justify-center items-center px-7 py-3.5 min-w-[160px] h-16 border border-transparent rounded-2xl bg-green-400 text-2xl text-white font-bold tracking-wide hover:bg-green-500">
               Get URI
@@ -104,7 +113,7 @@ export default function Home() {
         </div>
 
         <input type="text" ref={textRef} name="" id="" />
-        <button onClick={formatTo1155} className="bg-pink-400 text-white">format</button>
+        <button onClick={test} className="bg-pink-400 text-white">format</button>
 
       </div>
 

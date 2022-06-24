@@ -78,7 +78,11 @@ export default async function pinNftMetadataIPFS(req, res) {
             {
               "trait_type": "Editor", 
               "value": "${fields.editorName}"
-            }, 
+            },
+            {
+              "trait_type": "Serie", 
+              "value": "${fields.serie}"
+            },
             {
               "trait_type": "Special Edition", 
               "value": "${fields.specialEdition}"
